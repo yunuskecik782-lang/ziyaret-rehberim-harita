@@ -446,12 +446,15 @@
     if (b.dataset.soon) { toast("Sabit ikram noktaları henüz eklenmedi. Liste gelince bu konsept açılacak."); return; }
     const id = b.dataset.c;
     if (!id) S.concepts.clear(); else if (S.concepts.has(id)) S.concepts.delete(id); else S.concepts.add(id);
+    applyConcepts();
+  });
+  function applyConcepts(ms = 950) {
     for (const c of $("#chips").querySelectorAll("[data-c]")) c.setAttribute("aria-pressed", c.dataset.c ? S.concepts.has(c.dataset.c) : !S.concepts.size);
     if (S.sel != null && !active().includes(STOPS[S.sel])) S.sel = null;
     syncMarkers(); renderKesfet();
     if (S.tab === "rota") renderRota(true); else if (S.sel == null) show("kesfet", -1);
-    fit(S.concepts.size ? [...active(), S.me] : STOPS, 950, 0.2);
-  });
+    fit(S.concepts.size ? [...active(), S.me] : STOPS, ms, 0.2);
+  }
 
   /* ——— İşaretler ——— */
   function buildMarkers() {
@@ -785,7 +788,13 @@
         <button class="btn sm" type="button" data-load="${r.id}">Aç</button>
       </div>`).join("")}`;
     P.rota.classList.toggle("no-anim", !!quiet);
-    P.rota.innerHTML = cur + builder + saved + ready;
+    const acct = S.acct ? `
+      <div class="card acct">
+        <p class="kicker">Giriş</p>
+        <b>Hesap girişi hazırlanıyor</b>
+        <span>Şimdilik kaydettiğin rotalar yalnızca bu cihazda, bu tarayıcıda durur. Hesap açıldığında rotaların, ziyaretlerin ve yürüdüğün yol her cihazında görünecek.</span>
+      </div>` : "";
+    P.rota.innerHTML = acct + cur + builder + saved + ready;
     if (HOSTED && ids.length) dlReady.then((d) => { const b = $("#dl-html"); if (b && !d) b.hidden = true; });
   }
 
@@ -825,6 +834,27 @@
     toast("Dosya indiriliyor.");
   }
 
+  function loadRoute(id) {
+    const r = D.ROUTES.find((x) => x.id === id); if (!r) return false;
+    setRoute(STOPS.filter((s) => s.r === r).sort((a, b) => a.n - b.n).map((s) => s.id), { name: r.name });
+    toast(`${r.name} güzergâhı kendi sırasıyla açıldı.`); return true;
+  }
+
+  /* ——— Siteden gelen bağlantılar: #kategori=sahabe,cami · #rota=r3 · #rotalarim ——— */
+  function fromHash() {
+    let h = ""; try { h = decodeURIComponent((location.hash || "").slice(1)); } catch (e) {}
+    let m;
+    if ((m = /^kategori=([a-z,]+)$/.exec(h))) {
+      const ids = m[1].split(",").filter((id) => D.CONCEPTS.some((c) => c.id === id && !c.soon));
+      if (!ids.length) return false;
+      S.concepts = new Set(ids); if (S.tab !== "kesfet") setTab("kesfet"); applyConcepts(1200); return true;
+    }
+    if ((m = /^rota=(r[0-9]+)$/.exec(h))) return loadRoute(m[1]);
+    if (h === "rotalarim") { S.acct = true; setTab("rota"); if (!DESK.matches) setSheet("full"); return true; }
+    return false;
+  }
+  window.addEventListener("hashchange", fromHash);
+
   /* ——— Panel tıklamaları ——— */
   bodyEl.addEventListener("click", (e) => {
     const t = e.target.closest("[data-stop],[data-add],[data-act],[data-preset],[data-load],[data-saved],[data-del],[data-mv],[data-rm]");
@@ -833,7 +863,7 @@
     if (d.stop != null) return selectStop(+d.stop, d.from || (curPanel === "detail" ? "" : "list"));
     if (d.add != null) return toggleStop(+d.add);
     if (d.preset != null) { const p = D.PRESETS[+d.preset]; if (S.picking) stopPick(); return setMe(p.lat, p.lng, "secim", p.label); }
-    if (d.load) { const r = D.ROUTES.find((x) => x.id === d.load); setRoute(STOPS.filter((s) => s.r === r).sort((a, b) => a.n - b.n).map((s) => s.id), { name: r.name }); toast(`${r.name} güzergâhı kendi sırasıyla açıldı.`); return; }
+    if (d.load) return loadRoute(d.load);
     if (d.saved != null) { const r = S.saved[+d.saved], ids = r.keys.map((k) => BYKEY.get(k)).filter(Boolean).map((s) => s.id); setMe(r.start.lat, r.start.lng, "secim", r.start.label, false); setRoute(ids, { name: r.name }); return; }
     if (d.del != null) { S.saved.splice(+d.del, 1); storeSaved(); renderRota(true); toast("Kayıt silindi."); return; }
     if (d.mv) { const i = +d.i, j = i + +d.mv; [S.route[i], S.route[j]] = [S.route[j], S.route[i]]; return setRoute(S.route, { name: S.name, animate: false, open: false }); }
@@ -899,7 +929,7 @@
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
     syncMarkers(); renderKesfet(); show("kesfet", 1);
     if (!DESK.matches && !RM.matches) { sheet.classList.add("dragging"); sheet.style.setProperty("--ty", sheet.offsetHeight + "px"); void sheet.offsetWidth; sheet.classList.remove("dragging"); requestAnimationFrame(() => setSheet("half")); }
-    setTimeout(() => fitNear(1700), 750);
+    setTimeout(() => { if (!fromHash()) fitNear(1700); }, 750);
   }
   init();
 })();
