@@ -9,7 +9,10 @@ const rd = (f) => fs.readFileSync(path.join(__dirname, f), "utf8");
 const LF = path.join(__dirname, "vendor/leaflet/");
 const fonts = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Plus+Jakarta+Sans:wght@500..800&display=swap">';
 // Gerçek haritalı sürümlerde, betik çalışmadan önce görünen varsayılan metinler şematik çizimden söz etmesin.
+const SITE = "https://ziyaretrehberim.com/";
 const realBody = (h) => h
+  .replace('<span class="brand">Ziyaret Rehberim</span>', `<a class="brand" href="${SITE}" title="Ziyaret Rehberim sitesine dön">Ziyaret Rehberim</a>`)
+  .replace('<button class="btn sm dark" type="button" id="info-x">Anladım</button>', `<span class="info-acts"><button class="btn sm dark" type="button" id="info-x">Anladım</button><a class="btn sm" href="${SITE}">Siteye dön</a></span>`)
   .replace("Şematik çizim · uydu ya da sokak haritası değil", "Harita yükleniyor…")
   .split("Önizleme hakkında").join("Harita hakkında")
   .replace("Bu, yeni düzenin çalışan bir örneği", "Gerçek harita ve uydu görüntüsü")

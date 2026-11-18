@@ -8,6 +8,8 @@ Bu depo bir **deneme yayınıdır**; sayfa şimdilik arama motorlarına kapalıd
 
 ## Yayın
 
+Adres: https://harita.ziyaretrehberim.com/ (kökteki `CNAME` dosyası bu adresi belirler; alan adında `harita` için bir CNAME kaydı vardır).
+
 Sayfa GitHub Pages ile `gh-pages` dalından yayınlanır. `main` ve `gh-pages` aynı içeriği taşır;
 her güncellemede ikisi birlikte gönderilir: `git push origin main main:gh-pages`.
 
