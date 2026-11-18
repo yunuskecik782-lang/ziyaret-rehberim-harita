@@ -37,6 +37,8 @@ const web = () => `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script>/* Konum yalnızca güvenli (https) adreste çalışır; http ile gelen ziyaretçiyi aynı sayfanın https adresine al. */
+if(location.protocol==="http:"&&location.hostname==="harita.ziyaretrehberim.com")location.replace("https://"+location.host+location.pathname+location.search+location.hash);</script>
 <title>Ziyaret Rehberim Haritası</title>
 <meta name="description" content="İstanbul'da manevî ve tarihî ziyaret durakları gerçek harita ve uydu görüntüsü üzerinde: konumuna en yakın rotayı kur, kaydet, Google ya da Apple Haritalar'da aç.">
 <meta name="robots" content="noindex">
