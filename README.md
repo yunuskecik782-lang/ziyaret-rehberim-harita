@@ -20,7 +20,7 @@ her güncellemede ikisi birlikte gönderilir: `git push origin main main:gh-page
 - `kaynak/app.css`, `kaynak/body.html`, `kaynak/app.js`: arayüz, harita, rota hesabı, kaydetme ve dışa aktarma.
 - `kaynak/build.js`: parçaları birleştirir. `node kaynak/build.js` komutu `index.html` dosyasını yeniden üretir.
 - `kaynak/vendor/leaflet/`: Leaflet 1.9.4 (BSD-2-Clause, lisansı klasörün içinde).
-- `onizleme/`: ziyaretrehberim.com sayfalarında kullanılan görseller. `ana-sayfa-harita.jpg` ve `rota-r1…r6.jpg` OpenStreetMap
+- `onizleme/`: ziyaretrehberim.com sayfalarında kullanılan görseller. `ana-harita.jpg` ve `rota-r1…r6.jpg` OpenStreetMap
   haritası üzerinde üretilmiştir (© OpenStreetMap katkıda bulunanlar). `zr-simgeler.png` simge şerididir:
   Lucide (ISC) ve Tabler Icons (MIT) simgelerinden derlenmiştir.
 
