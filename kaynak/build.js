@@ -5,9 +5,10 @@
 //  dist/index.html                      → web adresinde yayınlanan sürüm (gerçek harita; başlık ve açıklama <head> içinde)
 //  Depo düzeninde (üst klasörde .nojekyll varsa) dist/index.html ayrıca depoda harita/index.html olarak yazılır
 //  (sitede /harita/ adresi; kökteki index.html sitenin ana sayfasıdır ve site/build.js tarafından üretilir).
-const fs = require("fs"), path = require("path");
-const rd = (f) => fs.readFileSync(path.join(__dirname, f), "utf8");
-const LF = path.join(__dirname, "vendor/leaflet/");
+//  Dosya işlemleri "io" üzerinden yapılır (Node'da site/io.js). Aynı betik yönetici panelinde tarayıcıda da çalışır.
+function ZR_DERLE_HARITA(io) {
+const rd = (f) => io.oku("kaynak/" + f);
+const LF = "kaynak/vendor/leaflet/";
 const fonts = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Plus+Jakarta+Sans:wght@500..800&display=swap">';
 // Gerçek haritalı sürümlerde, betik çalışmadan önce görünen varsayılan metinler şematik çizimden söz etmesin.
 const SITE = "https://ziyaretrehberim.com/";
@@ -29,9 +30,9 @@ const page = (real, web) => `${web ? "" : `<title>Ziyaret Rehberim Haritası</ti
 <meta name="claude:viewport-fit-sides" content="cover">
 ${fonts}
 `}<style>
-${real ? "/* Leaflet 1.9.4 · BSD-2-Clause · (c) Volodymyr Agafonkin */\n" + fs.readFileSync(LF + "leaflet.css", "utf8").split("\n").filter((l) => !l.includes("url(")).join("\n") + "\n" : ""}${rd("app.css")}</style>
+${real ? "/* Leaflet 1.9.4 · BSD-2-Clause · (c) Volodymyr Agafonkin */\n" + io.oku(LF + "leaflet.css").split("\n").filter((l) => !l.includes("url(")).join("\n") + "\n" : ""}${rd("app.css")}</style>
 ${real ? realBody(rd("body.html"), web) : rd("body.html")}
-${real ? "<script>\n/* Leaflet 1.9.4 · BSD-2-Clause · (c) Volodymyr Agafonkin */\n" + fs.readFileSync(LF + "leaflet.js", "utf8").replace(/\/\/# sourceMappingURL=.*$/m, "") + "</script>\n" : ""}<script>
+${real ? "<script>\n/* Leaflet 1.9.4 · BSD-2-Clause · (c) Volodymyr Agafonkin */\n" + io.oku(LF + "leaflet.js").replace(/\/\/# sourceMappingURL=.*$/m, "") + "</script>\n" : ""}<script>
 ${rd("data.js")}</script>
 ${real ? "<script>\n" + (web ? 'globalThis.ZR_SITE = location.origin + "' + SITE_YOL + '";\nglobalThis.ZR_GL = { js: "' + SITE_YOL + 'a/maplibre-gl.js?v=' + GL_SURUM + '", css: "' + SITE_YOL + 'a/maplibre-gl.css?v=' + GL_SURUM + '" };\n' : "") + rd("yol.js") + rd("hesap.js") + "</script>\n" : ""}<script>
 ${rd("app.js")}</script>
@@ -59,11 +60,14 @@ ${fonts}
 ${page(true, true)}</body>
 </html>
 `;
-fs.mkdirSync(path.join(__dirname, "dist"), { recursive: true });
-fs.writeFileSync(path.join(__dirname, "dist/ziyaret-rehberim-haritasi.html"), page(false));
-fs.writeFileSync(path.join(__dirname, "dist/gercek-harita.html"), full(true));
-fs.writeFileSync(path.join(__dirname, "dist/sematik.html"), full(false));
-fs.writeFileSync(path.join(__dirname, "dist/index.html"), web());
-const repoRoot = path.join(__dirname, "..");
-if (fs.existsSync(path.join(repoRoot, ".nojekyll"))) { fs.mkdirSync(path.join(repoRoot, "harita"), { recursive: true }); fs.writeFileSync(path.join(repoRoot, "harita/index.html"), web()); }
-console.log("ok", page(false).length, full(true).length, web().length);
+io.yaz("kaynak/dist/ziyaret-rehberim-haritasi.html", page(false));
+io.yaz("kaynak/dist/gercek-harita.html", full(true));
+io.yaz("kaynak/dist/sematik.html", full(false));
+io.yaz("kaynak/dist/index.html", web());
+if (io.var(".nojekyll")) io.yaz("harita/index.html", web());
+return [page(false).length, full(true).length, web().length];
+}
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = ZR_DERLE_HARITA;
+  if (require.main === module) console.log("ok", ...ZR_DERLE_HARITA(require("../site/io.js")));
+}

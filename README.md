@@ -16,6 +16,8 @@ Site 18 Kasım 2026 akşamı bu adrese bağlandı; öncesinde aynı adreste Word
 
 Site GitHub Pages ile `gh-pages` dalından yayınlanır. `main` ve `gh-pages` aynı içeriği taşır;
 her güncellemede ikisi birlikte gönderilir: `git push origin main main:gh-pages`.
+Yönetim paneli de (aşağıda) iki dalı aynı kayda taşır. Panelden yayın yapılmış olabileceği için depoda çalışmaya başlamadan önce
+`git pull` yapılır.
 
 Geri almak için: alan adında kökteki dört A kaydı silinip WordPress.com'un varsayılan A kayıtları geri getirilir, `www` kaydı
 yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan adı geri dönünce eskisi gibi açılır.
@@ -25,14 +27,21 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
 Üretilen dosyalar elle düzenlenmez; kaynak değişir, sonra iki komut çalışır: `node kaynak/build.js && node site/build.js`.
 
 - `index.html`, `404.html`, `sitemap.xml`, `robots.txt` ve `a/`, `rota-olustur/`, `guzergahlar/`, `ulasim/`, `ucretler-ve-saatler/`,
-  `ziyaret-adabi/`, `hesabim/`, `rotalarim/` klasörleri: site sayfaları. `node site/build.js` yalnızca bunları silip baştan yazar.
+  `ziyaret-adabi/`, `hesabim/`, `rotalarim/`, `yonetim/` klasörleri: site sayfaları. `node site/build.js` yalnızca bunları silip baştan yazar.
 - `harita/index.html`: harita uygulaması (tek dosya). `node kaynak/build.js` üretir. Site sayfalarına `?gomulu=1` ile gömülür.
 - `404.html`: olmayan adreslerde çıkar. Eski önizleme adreslerini (`/yeni/…`) ve eski "Hakkında" sayfasını yeni yerlerine yönlendirir.
-- `site/build.js`: sayfaları üretir. Adres sabitleri (`KOK`, `HARITA`, `ALAN`) en üsttedir.
+- `site/build.js`: sayfaları üretir. Adres sabitleri (`KOK`, `HARITA`, `ALAN`) en üsttedir. Rota ve durak sayıları veriden hesaplanır.
+- `site/io.js`: iki üretim betiğinin dosya okuma ve yazma katmanı. Betikler dosyaya doğrudan dokunmaz; böylece aynı betikler
+  yönetim panelinde, tarayıcının içinde de çalışır. Bu yüzden betiklerde `require`, `fs`, `path` kullanılmaz.
+- `site/veri-yaz.js`: `kaynak/data.js` içindeki `PANEL:BAS` … `PANEL:SON` bölümünü (rotalar, konseptler, duraklar) yeniden yazar.
+  Paneli de bu işlev kullanır. `node site/veri-yaz.js` dosyayı aynı biçime getirir.
+- `site/yonetim.js`, `site/yonetim.css`: yönetim paneli (`/yonetim/`).
 - `site/icerik.js`: Ulaşım, Ücretler ve Saatler, Ziyaret Âdâbı metinleri. Bir maddeyi değiştirmek ya da eklemek için yalnızca bu dosya düzenlenir.
 - `site/rota-metin.json`: rota sayfalarındaki açıklamalar ("Güzergâh hakkında", "Nasıl gidilir?", ipucu).
 - `site/site.css`, `site/site.js`: görünüm ve davranış (harita, sokak tarifi, ulaşım önerisi, hesap).
-- `kaynak/data.js`: rotalar, duraklar, koordinatlar, hazır başlangıç noktaları.
+- `kaynak/data.js`: rotalar, duraklar, koordinatlar, hazır başlangıç noktaları. Her durağın son alanı kalıcı anahtarıdır
+  (`r1-4` gibi); sıra ya da rota değişse de aynı kalır, ziyaretçilerin kayıtlı rotaları bozulmaz. Elle durak eklerken yeni,
+  benzersiz bir anahtar verilir ve var olan anahtarlar değiştirilmez.
 - `kaynak/app.css`, `kaynak/body.html`, `kaynak/app.js`: harita uygulamasının arayüzü, rota hesabı, kaydetme ve dışa aktarma.
 - `kaynak/build.js`: harita uygulamasının parçalarını birleştirir. Sitenin bu alan adındaki yolu `SITE_YOL` sabitindedir.
 - `kaynak/yol.js`: sokakları izleyen yürüyüş yolu ve dönüş tarifi. Hesap, OpenStreetMap verisiyle çalışan açık yol tarifi sunucusunda
@@ -48,7 +57,26 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
   kaynağı ve lisansı henüz yazılmadı. `ana-harita.jpg` ve `rota-r1…r6.jpg` OpenStreetMap haritası üzerinde üretilmiştir
   (© OpenStreetMap katkıda bulunanlar). `zr-simgeler.png` simge şerididir: Lucide (ISC) ve Tabler Icons (MIT) simgelerinden derlenmiştir.
 
-Arama motorları: site sayfaları açıktır (`sitemap.xml`). Hesabım, Rotalarım, 404 ve tek başına harita uygulaması (`/harita/`) kapalıdır (`noindex`).
+Arama motorları: site sayfaları açıktır (`sitemap.xml`). Hesabım, Rotalarım, 404, yönetim paneli ve tek başına harita uygulaması (`/harita/`) kapalıdır (`noindex`).
+
+## Yönetim paneli
+
+Adres: https://ziyaretrehberim.com/yonetim/ (sitede bağlantısı yoktur). Durakların adı, türü, yeri, açıklaması, saati ve konumu,
+durak sırası, rota bilgileri ve rota sayfası metinleri buradan değiştirilir; haritaya dokunarak yeni durak eklenir, durak silinir.
+
+Nasıl çalışır: sunucu yoktur. Panel depoyu GitHub'ın arayüzünden okur, değişiklikleri `kaynak/data.js` ve `site/rota-metin.json`
+dosyalarına yazar, iki üretim betiğini tarayıcıda çalıştırır ve değişen dosyaları tek bir kayıt olarak `main` ile `gh-pages`
+dallarına birlikte gönderir. Yayın bir iki dakikada siteye yansır. Her yayın depoda bir kayıttır; eski hâl kayıt geçmişinden geri alınır.
+Paneli açtıktan sonra depo başka bir yerden değiştiyse panel yayınlamaz, sayfayı yenilemeyi ister.
+
+Giriş: panel ilk açılışta her cihazda bir kez kurulur. Yönetici adı ve şifre belirlenir, GitHub'da oluşturulan anahtar yapıştırılır
+(Fine-grained token; yalnızca bu depo; izin olarak yalnızca "Contents: Read and write"). Anahtar o tarayıcıda şifreyle şifrelenip
+saklanır (AES-GCM; anahtar şifreden PBKDF2-SHA-256, 600.000 turla türetilir), açık hâli diske yazılmaz. Yazma yetkisini veren şey
+GitHub anahtarıdır; yönetici adı ve şifre o cihazdaki anahtarı korur. Şifre unutulursa giriş ekranındaki "Bu cihazdaki kaydı sil"
+ile kayıt silinip kurulum yeniden yapılır. Anahtar GitHub'dan silinirse panel hiçbir cihazda yazamaz.
+
+Panelde henüz olmayanlar: yeni rota açmak ya da rota silmek (altı rota renklere, konseptlere, görsellere ve metinlere bağlıdır),
+Ulaşım, Ücretler ve Saatler ve Ziyaret Âdâbı metinleri (`site/icerik.js`), görseller.
 
 ## Harita kaynakları
 

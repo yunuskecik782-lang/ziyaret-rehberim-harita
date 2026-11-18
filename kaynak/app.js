@@ -65,7 +65,7 @@
 
   const STOPS = D.RAW.map((a, i) => {
     const [x, y] = proj(a[9], a[10]), r = D.ROUTES[a[0]];
-    return { id: i, key: r.id + "-" + a[1], r, n: a[1], name: a[2], hon: a[3], tag: a[4], addr: a[5], desc: a[6], hours: a[7], approx: !!a[8], lat: a[9], lng: a[10], x, y, fx: 0, fy: 0 };
+    return { id: i, key: a[11] || r.id + "-" + a[1], r, n: a[1], name: a[2], hon: a[3], tag: a[4], addr: a[5], desc: a[6], hours: a[7], approx: !!a[8], lat: a[9], lng: a[10], x, y, fx: 0, fy: 0 };
   });
   const BYKEY = new Map(STOPS.map((s) => [s.key, s]));
   const CONCEPT = new Map(D.CONCEPTS.map((c) => [c.id, c]));
