@@ -1,53 +1,55 @@
-# Ziyaret Rehberim Haritası
+# Ziyaret Rehberim
 
-İstanbul'daki manevî ve tarihî ziyaret duraklarını (6 rota, 75 durak) gerçek harita ve uydu görüntüsü üzerinde gösteren tek sayfalık harita.
-Ziyaretçi konumunu görür, bir konsept seçer (camiler, sahâbe kabirleri, padişah türbeleri…), kendine en yakın rotayı kurar,
-rotayı cihazına kaydeder ya da Google Haritalar / Apple Haritalar'da açar.
+İstanbul ziyaret ve gezi rehberi (6 rota, 75 durak): https://ziyaretrehberim.com/
 
-Bu depo bir **deneme yayınıdır**; sayfa şimdilik arama motorlarına kapalıdır (`noindex`).
+Bu depo sitenin kendisidir: ana sayfa, altı rota sayfası, Ulaşım (konuma göre hat ve durak önerisi), Ücretler ve Saatler,
+Ziyaret Âdâbı, Hesabım, Rotalarım ve harita uygulaması. Ziyaretçi konumunu görür, bir konsept seçer (camiler, sahâbe kabirleri,
+padişah türbeleri…), kendine en yakın rotayı kurar, rotayı cihazına kaydeder ya da Google Haritalar / Apple Haritalar'da açar.
 
 ## Yayın
 
-Adres: https://harita.ziyaretrehberim.com/ (kökteki `CNAME` dosyası bu adresi belirler; alan adında `harita` için bir CNAME kaydı vardır).
+Adres: https://ziyaretrehberim.com/ (kökteki `CNAME` dosyası bu adresi belirler). Alan adında kök için GitHub Pages'in dört A kaydı
+(185.199.108.153, 185.199.109.153, 185.199.110.153, 185.199.111.153) ve `www` için `yunuskecik782-lang.github.io` CNAME kaydı vardır.
+Site 18 Kasım 2026 akşamı bu adrese bağlandı; öncesinde aynı adreste WordPress sayfaları duruyordu, bu depo da
+`harita.ziyaretrehberim.com` adresinde (site `/yeni/` altında önizleme olarak) yayınlanıyordu.
 
-Sayfa GitHub Pages ile `gh-pages` dalından yayınlanır. `main` ve `gh-pages` aynı içeriği taşır;
+Site GitHub Pages ile `gh-pages` dalından yayınlanır. `main` ve `gh-pages` aynı içeriği taşır;
 her güncellemede ikisi birlikte gönderilir: `git push origin main main:gh-pages`.
+
+Geri almak için: alan adında kökteki dört A kaydı silinip WordPress.com'un varsayılan A kayıtları geri getirilir, `www` kaydı
+yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan adı geri dönünce eskisi gibi açılır.
 
 ## Dosyalar
 
-- `index.html`: yayınlanan sayfa. Tek dosyadır, `kaynak/` içindeki parçalardan üretilir. Elle düzenlenmez.
-- `kaynak/data.js`: rotalar, duraklar, koordinatlar, hazır başlangıç noktaları.
-- `kaynak/app.css`, `kaynak/body.html`, `kaynak/app.js`: arayüz, harita, rota hesabı, kaydetme ve dışa aktarma.
-- `kaynak/build.js`: parçaları birleştirir. `node kaynak/build.js` komutu `index.html` dosyasını yeniden üretir.
-- `kaynak/vendor/leaflet/`: Leaflet 1.9.4 (BSD-2-Clause, lisansı klasörün içinde).
-- `onizleme/`: ziyaretrehberim.com sayfalarında kullanılan görseller. `ana-harita.jpg` ve `rota-r1…r6.jpg` OpenStreetMap
-  haritası üzerinde üretilmiştir (© OpenStreetMap katkıda bulunanlar). `zr-simgeler.png` simge şerididir:
-  Lucide (ISC) ve Tabler Icons (MIT) simgelerinden derlenmiştir.
+Üretilen dosyalar elle düzenlenmez; kaynak değişir, sonra iki komut çalışır: `node kaynak/build.js && node site/build.js`.
 
-## Yeni ön yüz (önizleme)
-
-Adres: https://harita.ziyaretrehberim.com/yeni/ (deneme; arama motorlarına kapalı).
-
-Sitenin kendi yazılımımızla kurulan ön yüzü: ana sayfa (harita aynı sayfada açılır), altı rota sayfası, Ulaşım (konuma göre hat ve durak önerisi),
-Ücretler ve Saatler, Ziyaret Âdâbı, Hesabım, Rotalarım ve tam sayfa Rota oluştur. Telefonda altta dört düğmeli menü vardır.
-
-- `site/build.js`: sayfaları üretir. `node site/build.js` komutu `yeni/` klasörünü baştan yazar. `yeni/` elle düzenlenmez.
+- `index.html`, `404.html`, `sitemap.xml`, `robots.txt` ve `a/`, `rota-olustur/`, `guzergahlar/`, `ulasim/`, `ucretler-ve-saatler/`,
+  `ziyaret-adabi/`, `hesabim/`, `rotalarim/` klasörleri: site sayfaları. `node site/build.js` yalnızca bunları silip baştan yazar.
+- `harita/index.html`: harita uygulaması (tek dosya). `node kaynak/build.js` üretir. Site sayfalarına `?gomulu=1` ile gömülür.
+- `404.html`: olmayan adreslerde çıkar. Eski önizleme adreslerini (`/yeni/…`) ve eski "Hakkında" sayfasını yeni yerlerine yönlendirir.
+- `site/build.js`: sayfaları üretir. Adres sabitleri (`KOK`, `HARITA`, `ALAN`) en üsttedir.
 - `site/icerik.js`: Ulaşım, Ücretler ve Saatler, Ziyaret Âdâbı metinleri. Bir maddeyi değiştirmek ya da eklemek için yalnızca bu dosya düzenlenir.
 - `site/rota-metin.json`: rota sayfalarındaki açıklamalar ("Güzergâh hakkında", "Nasıl gidilir?", ipucu).
 - `site/site.css`, `site/site.js`: görünüm ve davranış (harita, sokak tarifi, ulaşım önerisi, hesap).
+- `kaynak/data.js`: rotalar, duraklar, koordinatlar, hazır başlangıç noktaları.
+- `kaynak/app.css`, `kaynak/body.html`, `kaynak/app.js`: harita uygulamasının arayüzü, rota hesabı, kaydetme ve dışa aktarma.
+- `kaynak/build.js`: harita uygulamasının parçalarını birleştirir. Sitenin bu alan adındaki yolu `SITE_YOL` sabitindedir.
 - `kaynak/yol.js`: sokakları izleyen yürüyüş yolu ve dönüş tarifi. Hesap, OpenStreetMap verisiyle çalışan açık yol tarifi sunucusunda
   (FOSSGIS · routing.openstreetmap.de) yapılır; sunucuya yalnızca noktaların enlem ve boylamı gider. Ziyaretçinin kendi konumu,
   ekranda sorulup "evet" denmedikçe gönderilmez. Sunucu yanıt vermezse çizgi kuş uçuşuna döner. Ücretsiz bir topluluk hizmetidir, garanti vermez.
 - `kaynak/hesap.js`: kullanıcı adı ve şifreyle hesap. Sunucu yoktur: hesap ve kayıtlı rotalar yalnızca o cihazda, o tarayıcıda durur;
   şifrenin kendisi saklanmaz (rastgele tuzla PBKDF2-SHA-256 özeti tutulur). Şifre sıfırlanamaz.
+- `kaynak/vendor/leaflet/`: Leaflet 1.9.4 (BSD-2-Clause, lisansı klasörün içinde).
+- `onizleme/`: sitede kullanılan görseller. `ana-harita.jpg` ve `rota-r1…r6.jpg` OpenStreetMap haritası üzerinde üretilmiştir
+  (© OpenStreetMap katkıda bulunanlar). `zr-simgeler.png` simge şerididir: Lucide (ISC) ve Tabler Icons (MIT) simgelerinden derlenmiştir.
 
-Ana alan adı bu ön yüze bağlanacağı zaman `site/build.js` içindeki `KOK` ve `HARITA`, `kaynak/build.js` içindeki `SITE_YOL` değiştirilir.
+Arama motorları: site sayfaları açıktır (`sitemap.xml`). Hesabım, Rotalarım, 404 ve tek başına harita uygulaması (`/harita/`) kapalıdır (`noindex`).
 
 ## Harita kaynakları
 
 - Sokak haritası: © [OpenStreetMap](https://www.openstreetmap.org/copyright) katkıda bulunanlar.
-- Uydu görüntüsü ve yer adları: Esri World Imagery (Esri, Maxar, Earthstar Geographics). Deneme amaçlı kullanılıyor;
-  kalıcı yayından önce sağlayıcının kullanım şartları netleştirilmeli.
+- Uydu görüntüsü ve yer adları: Esri World Imagery (Esri, Maxar, Earthstar Geographics). Sağlayıcının kullanım şartları
+  henüz netleştirilmedi; site kalıcı adresinde olduğu için netleştirilmesi gerekir.
 
 ## Konum
 

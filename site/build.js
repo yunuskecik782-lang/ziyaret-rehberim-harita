@@ -1,12 +1,15 @@
-/* Yeni ön yüzü üretir: "node site/build.js" → depo kökünde yeni/ klasörü.
+/* Siteyi üretir: "node site/build.js" → depo kökünde index.html, 404.html, sitemap.xml, robots.txt ve aşağıdaki KLASOR listesindeki klasörler.
    Kaynaklar: kaynak/data.js (rotalar, duraklar), site/rota-metin.json (rota açıklamaları), site/icerik.js (Ulaşım, Ücretler, Âdâb metinleri),
-   site/site.css ve site/site.js. yeni/ klasörü elle düzenlenmez; her çalıştırmada baştan yazılır. */
+   site/site.css ve site/site.js. Üretilen dosyalar elle düzenlenmez; her çalıştırmada baştan yazılır. */
 const fs = require("fs"), path = require("path"), crypto = require("crypto");
-const DEPO = path.join(__dirname, ".."), CIKTI = path.join(DEPO, "yeni");
-/* Adresler. Önizleme sürerken site /yeni/ altında, harita uygulaması kökte durur.
-   Ana alan adı bu ön yüze bağlandığında KOK "/" ve HARITA "/harita/" yapılır (kaynak/build.js içindeki SITE_YOL ile birlikte). */
-const KOK = "/yeni/", HARITA = "/", GORSEL = "/onizleme/", ALAN = "harita.ziyaretrehberim.com";
-const ONIZLEME = true; // true iken sayfalar arama motorlarına kapalıdır (noindex)
+const DEPO = path.join(__dirname, ".."), CIKTI = DEPO;
+/* Adresler. Site alan adının kökünde, harita uygulaması /harita/ altında durur (kaynak/build.js içindeki SITE_YOL ile birlikte).
+   18 Kasım 2026'ya kadar site /yeni/ altında önizlemedeydi; o adresler 404.html içinden yeni yerlerine yönlenir. */
+const KOK = "/", HARITA = "/harita/", GORSEL = "/onizleme/", ALAN = "ziyaretrehberim.com", TAM = "https://" + ALAN;
+const ONIZLEME = false; // true iken bütün sayfalar arama motorlarına kapalıdır (noindex)
+// Bu dosyanın ürettiği klasörler. Her çalıştırmada yalnızca bunlar silinip baştan yazılır; depodaki başka hiçbir şeye dokunulmaz.
+const KLASOR = ["a", "rota-olustur", "guzergahlar", "ulasim", "ucretler-ve-saatler", "ziyaret-adabi", "hesabim", "rotalarim"];
+const BUGUN = new Date().toISOString().slice(0, 10);
 
 const oku = (f) => fs.readFileSync(path.join(DEPO, f), "utf8");
 const g = {}; new Function("globalThis", oku("kaynak/data.js"))(g);
@@ -119,18 +122,29 @@ const alt = `<footer class="alt"><div class="kap alt-ic">${marka}
 
 let SURUM = "0";
 const FONT = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Plus+Jakarta+Sans:wght@500..800&display=swap">';
-function sayfa({ dosya, s, id, baslik, ozet, govde, sinif = "", veri, harita, yolJs, altsiz }) {
+const HARITA_SAYFALARI = []; // sitemap.xml için: arama motorlarına açık sayfaların adresleri
+/* http ile gelen ziyaretçi, https adresi çalışıyorsa oraya alınır (konum yalnızca https adreste sorulabilir).
+   Önce https adresi denenir: güvenlik sertifikası henüz hazır değilse ziyaretçi hata sayfasına itilmez, http'de kalır. */
+const HTTPS = `(function(){var l=location;if(l.protocol==="http:"&&/(^|\\.)${ALAN.replace(/\./g, "\\.")}$/.test(l.hostname)&&window.fetch)fetch("https://"+l.host+"${KOK}robots.txt?"+Date.now(),{mode:"no-cors",cache:"no-store"}).then(function(){l.replace("https://"+l.host+l.pathname+l.search+l.hash)}).catch(function(){})})();`;
+function sayfa({ dosya, s, id, baslik, ozet, govde, sinif = "", veri, harita, yolJs, altsiz, gizli, gorsel = "ana-kapak.jpg", onBetik = "" }) {
   const a = (f) => `${KOK}a/${f}?v=${SURUM}`;
+  const adres = TAM + KOK + dosya.replace(/index\.html$/, ""), kapali = ONIZLEME || gizli;
+  const tamBaslik = esc(baslik) + (id === "ana" ? "" : " · Ziyaret Rehberim");
+  if (!kapali) HARITA_SAYFALARI.push(adres);
   const html = `<!doctype html>
 <html lang="tr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<script>if(location.protocol==="http:"&&location.hostname==="${ALAN}")location.replace("https://"+location.host+location.pathname+location.search+location.hash);document.documentElement.className="js";setTimeout(function(){if(!window.ZR_HAZIR)document.documentElement.className=""},3500);</script>
-<title>${esc(baslik)}${id === "ana" ? "" : " · Ziyaret Rehberim"}</title>
+<script>${onBetik}${HTTPS}document.documentElement.className="js";setTimeout(function(){if(!window.ZR_HAZIR)document.documentElement.className=""},3500);</script>
+<title>${tamBaslik}</title>
 <meta name="description" content="${esc(ozet)}">
-${ONIZLEME ? '<meta name="robots" content="noindex">\n' : ""}<meta name="theme-color" content="#FBF7EF">
-<link rel="icon" href="${GORSEL}zr-logo.jpg">
+${kapali ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${adres}">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Ziyaret Rehberim"><meta property="og:locale" content="tr_TR">
+<meta property="og:title" content="${tamBaslik}"><meta property="og:description" content="${esc(ozet)}"><meta property="og:url" content="${adres}">
+<meta property="og:image" content="${TAM}${GORSEL}${gorsel}"><meta name="twitter:card" content="summary_large_image">`}
+<meta name="theme-color" content="#FBF7EF">
+<link rel="icon" href="${GORSEL}zr-logo.jpg"><link rel="apple-touch-icon" href="${GORSEL}zr-logo.jpg">
 ${FONT}
 ${harita ? `<link rel="stylesheet" href="${a("leaflet.css")}">\n` : ""}<link rel="stylesheet" href="${a("site.css")}">
 ${harita ? `<script defer src="${a("leaflet.js")}"></script>\n` : ""}${yolJs ? `<script defer src="${a("yol.js")}"></script>\n` : ""}<script defer src="${a("hesap.js")}"></script>
@@ -188,7 +202,9 @@ function anaSayfa() {
 <a class="bkart" data-g style="--i:3" href="${yol.adab}"><span class="menu-sim">${ic("kalp")}</span><b>Ziyaret âdâbı</b><span>Türbede, camide ve mahallede dikkat edilecek ${IC.adab.gruplar.reduce((s, x) => s + x.maddeler.length, 0)} incelik.</span><em>Ziyaret âdâbı →</em></a>
 </div>
 <p class="ince" style="margin-top:18px">Bilgiler Kasım 2026’da derlenmiştir. Ziyaret saatleri, ücretler ve sefer bilgileri değişebilir; yola çıkmadan önce kontrol et.</p></section>`;
-  return sayfa({ dosya: "index.html", s: "ana", id: "ana", baslik: "Ziyaret Rehberim · İstanbul ziyaret ve gezi rehberi", ozet: "İstanbul’da sahâbe kabirleri, padişah türbeleri, tarihî camiler ve kara surları: altı rota, 75 durak. Haritada seç, rotanı oluştur, yola çık.", govde });
+  // Harita uygulaması eskiden kökte duruyordu: /#kategori=…, /#rota=r3, /#kayit=2, /#rotam, /#rotalarim bağlantıları yeni yerlerine alınır.
+  const onBetik = `(function(){var h=location.hash;if(/^#(kategori=|rota=r[1-6]$|kayit=\\d|rotam$)/.test(h))location.replace("${yol.olustur}"+h);else if(h==="#rotalarim")location.replace("${yol.rotalarim}")})();`;
+  return sayfa({ onBetik, dosya: "index.html", s: "ana", id: "ana", baslik: "Ziyaret Rehberim · İstanbul ziyaret ve gezi rehberi", ozet: "İstanbul’da sahâbe kabirleri, padişah türbeleri, tarihî camiler ve kara surları: altı rota, 75 durak. Haritada seç, rotanı oluştur, yola çık.", govde });
 }
 
 /* ——— Rota oluştur (tam sayfa harita) ——— */
@@ -227,7 +243,7 @@ ${m.tip.map((t) => `<div class="ipucu" data-g><span class="menu-sim">${ic("ampul
 <p class="ince" style="margin-top:14px">Yürüyüş yolu ve dönüşler OpenStreetMap verisiyle hesaplanır; süreler dakikada 75 metre yürüyüşe göre yaklaşıktır. Sahada tabelalara ve kapalı yollara dikkat et.</p></div>
 <div class="dugmeler" data-g><a class="btn altin" href="${yol.olustur}#rota=${r.id}">${ic("rota")}Bu rotayı haritada başlat</a><a class="btn" href="${yol.guz}">Tüm güzergâhlar</a></div>
 </section></div>`;
-  return sayfa({ dosya: `guzergahlar/${r.slug}/index.html`, s: "guz", id: "rota", sinif: r.id, baslik: m.h1, ozet: r.lede + " " + m.pills.join(", ") + ".", govde, harita: true, yolJs: true,
+  return sayfa({ gorsel: `rota-${r.id}.jpg`, dosya: `guzergahlar/${r.slug}/index.html`, s: "guz", id: "rota", sinif: r.id, baslik: m.h1, ozet: r.lede + " " + m.pills.join(", ") + ".", govde, harita: true, yolJs: true,
     veri: { id: r.id, no: r.no, ad: r.name, tasit: r.tasit, ulasim: yol.ulasim, duraklar: r.duraklar.map((d) => ({ n: d.n, ad: d.ad, hon: d.hon, tur: d.tur, lat: d.lat, lng: d.lng })) } });
 }
 
@@ -307,23 +323,30 @@ ${A.gruplar.map((gr, gi) => { const bas = say; say += gr.maddeler.length; return
 <div class="adab-liste" style="--bas:${bas}">${gr.maddeler.map((m, i) => `<article class="madde" data-g style="--i:${i % 2}"><span class="menu-sim">${ic(ADAB_SIM[m[0]] || "spark")}</span><div><b>${esc(m[1])}</b><p>${esc(m[2])}</p></div></article>`).join("")}</div></section>`; }).join("\n")}
 <section class="bolum"><div class="ikili">
 <div class="kart" data-g><h2>Kısaltmalar</h2><ul class="kisalt">${A.kisaltmalar.map((k) => `<li><b>${esc(k[0])}</b><span>${esc(k[1])}</span></li>`).join("")}</ul></div>
-<div class="kart" data-g style="--i:1"><h2>Bu rehber hakkında</h2>${A.hakkinda.map((p) => `<p>${p}</p>`).join("")}<p class="ince" style="margin-top:12px">${esc(A.ince)}</p></div>
+<div class="kart" data-g style="--i:1" id="hakkinda"><h2>Bu rehber hakkında</h2>${A.hakkinda.map((p) => `<p>${p}</p>`).join("")}<p class="ince" style="margin-top:12px">${esc(A.ince)}</p></div>
 </div></section></div>`;
   return sayfa({ dosya: "ziyaret-adabi/index.html", s: "adab", id: "adab", baslik: "Ziyaret Âdâbı", ozet: A.ozet, govde });
 }
 
 /* ——— Hesabım ve Rotalarım (içerik tarayıcıda, cihazdaki kayıtlardan çizilir) ——— */
-const hesapSayfa = () => sayfa({ dosya: "hesabim/index.html", s: "hesap", id: "hesabim", baslik: "Hesabım", ozet: "Kullanıcı adı ve şifreyle giriş yap, kaydettiğin rotaları gör.",
+const hesapSayfa = () => sayfa({ gizli: true, dosya: "hesabim/index.html", s: "hesap", id: "hesabim", baslik: "Hesabım", ozet: "Kullanıcı adı ve şifreyle giriş yap, kaydettiğin rotaları gör.",
   govde: `<div class="kap"><header class="sayfa-bas dar"><span class="goz">Hesap</span><h1>Hesabım</h1><p class="ozet">Kullanıcı adı ve şifreyle giriş yap; kaydettiğin rotalar burada seni beklesin.</p></header>
 <section class="bolum" style="padding-top:clamp(18px,2.6vw,28px)"><div id="hesap" class="dar"><noscript><p class="kart">Hesap sayfası için tarayıcında JavaScript açık olmalı.</p></noscript></div>
 <div id="hesap-rotalar" class="orta" style="margin-top:clamp(22px,3vw,34px)" hidden><div class="bolum-bas"><span class="kicker">Kayıtlı</span><h2>Rotalarım</h2></div><div id="kayitlar"></div></div></section></div>` });
-const rotalarimSayfa = () => sayfa({ dosya: "rotalarim/index.html", s: "rotalarim", id: "rotalarim", baslik: "Rotalarım", ozet: "Haritada kurup kaydettiğin ziyaret rotaları.",
+const rotalarimSayfa = () => sayfa({ gizli: true, dosya: "rotalarim/index.html", s: "rotalarim", id: "rotalarim", baslik: "Rotalarım", ozet: "Haritada kurup kaydettiğin ziyaret rotaları.",
   govde: `<div class="kap"><header class="sayfa-bas orta"><span class="goz">Kayıtlı rotalar</span><h1>Rotalarım</h1><p class="ozet">Haritada kurup kaydettiğin rotalar. Birine dokun, haritada kaldığın yerden aç.</p></header>
 <section class="bolum orta" style="padding-top:clamp(18px,2.6vw,28px)"><div id="misafir"></div><div id="kayitlar"><noscript><p class="kart">Bu sayfa için tarayıcında JavaScript açık olmalı.</p></noscript></div>
 <div class="dugmeler" style="margin-top:18px"><a class="btn altin" href="${yol.olustur}">${ic("rota")}Yeni rota oluştur</a><a class="btn" href="${yol.guz}">Hazır rotalar</a></div></section></div>` });
 
+/* ——— Bulunamayan adresler (GitHub Pages olmayan her adreste 404.html dosyasını gösterir) ———
+   Önizleme adresleri (/yeni/…), eski WordPress "Hakkında" sayfası ve WordPress paneli adresleri doğru yere yönlenir; kalanı için kısa bir yol gösterici çıkar. */
+const yokSayfa = () => sayfa({ gizli: true, dosya: "404.html", s: "", id: "yok", baslik: "Sayfa bulunamadı", ozet: "Aradığın sayfa burada değil.",
+  onBetik: `(function(){var l=location,p=l.pathname,e=l.search+l.hash;if(p==="/yeni"||p.indexOf("/yeni/")===0){l.replace((p.slice(5)||"/")+e);return}var q=p.replace(/\\/+$/,"");if(q==="/hakkinda")l.replace("${yol.adab}#hakkinda");else if(q==="/anasayfa"||q==="/index.php")l.replace("${yol.ana}");else if(q==="/harita.html"||q==="/rota")l.replace("${yol.olustur}"+l.hash);else if(q.indexOf("/wp-admin")===0||q==="/wp-login.php")l.replace("https://wordpress.com/home/${ALAN}")})();`,
+  govde: `<div class="kap"><header class="sayfa-bas dar"><span class="goz">404</span><h1>Sayfa bulunamadı</h1><p class="ozet">Aradığın sayfa taşınmış ya da hiç olmamış olabilir. Aşağıdan devam edebilirsin.</p></header>
+<section class="bolum dar" style="padding-top:clamp(18px,2.6vw,28px)"><div class="dugmeler"><a class="btn altin" href="${yol.ana}">${ic("ev")}Ana sayfa</a><a class="btn" href="${yol.guz}">${ic("pin")}Güzergâhlar</a><a class="btn" href="${yol.olustur}">${ic("rota")}Rota oluştur</a></div></section></div>` });
+
 /* ——— Dosyalar ——— */
-fs.rmSync(CIKTI, { recursive: true, force: true });
+for (const k of KLASOR) fs.rmSync(path.join(CIKTI, k), { recursive: true, force: true });
 fs.mkdirSync(path.join(CIKTI, "a"), { recursive: true });
 const LF = "kaynak/vendor/leaflet/";
 const dosyalar = {
@@ -336,5 +359,7 @@ const dosyalar = {
 };
 SURUM = crypto.createHash("sha1").update(Object.values(dosyalar).join("\n")).digest("hex").slice(0, 8);
 for (const [ad, ic2] of Object.entries(dosyalar)) fs.writeFileSync(path.join(CIKTI, "a", ad), ic2);
-const boy = [anaSayfa(), olusturSayfa(), guzSayfa(), ...ROTALAR.map(rotaSayfa), ulasimSayfa(), ucretSayfa(), adabSayfa(), hesapSayfa(), rotalarimSayfa()];
+const boy = [anaSayfa(), olusturSayfa(), guzSayfa(), ...ROTALAR.map(rotaSayfa), ulasimSayfa(), ucretSayfa(), adabSayfa(), hesapSayfa(), rotalarimSayfa(), yokSayfa()];
+fs.writeFileSync(path.join(CIKTI, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${HARITA_SAYFALARI.map((u) => `<url><loc>${u}</loc><lastmod>${BUGUN}</lastmod></url>`).join("\n")}\n</urlset>\n`);
+fs.writeFileSync(path.join(CIKTI, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${TAM}${KOK}sitemap.xml\n`);
 console.log("ok", boy.length, "sayfa,", Math.round(boy.reduce((a, b) => a + b, 0) / 1024), "KB · sürüm", SURUM, "· taşıt geçişleri", ROTALAR.map((r) => r.id + ":" + r.tasit.length).join(" "));

@@ -3,18 +3,20 @@
 //  dist/gercek-harita.html              → gerçek haritalı tam belge (Leaflet gömülü; sokak haritası + uydu görüntüsü)
 //  dist/sematik.html                    → şematik haritalı tam belge (yalnızca deneme için)
 //  dist/index.html                      → web adresinde yayınlanan sürüm (gerçek harita; başlık ve açıklama <head> içinde)
-//  Depo düzeninde (üst klasörde .nojekyll varsa) dist/index.html ayrıca depo köküne index.html olarak yazılır.
+//  Depo düzeninde (üst klasörde .nojekyll varsa) dist/index.html ayrıca depoda harita/index.html olarak yazılır
+//  (sitede /harita/ adresi; kökteki index.html sitenin ana sayfasıdır ve site/build.js tarafından üretilir).
 const fs = require("fs"), path = require("path");
 const rd = (f) => fs.readFileSync(path.join(__dirname, f), "utf8");
 const LF = path.join(__dirname, "vendor/leaflet/");
 const fonts = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Plus+Jakarta+Sans:wght@500..800&display=swap">';
 // Gerçek haritalı sürümlerde, betik çalışmadan önce görünen varsayılan metinler şematik çizimden söz etmesin.
 const SITE = "https://ziyaretrehberim.com/";
-// Yeni ön yüzün (site/ klasöründen üretilir) bu alan adındaki yolu. Hesap ve "Rotalarım" bağlantıları buraya gider.
-const SITE_YOL = "/yeni/";
-const realBody = (h) => h
-  .replace('<span class="brand">Ziyaret Rehberim</span>', `<a class="brand" href="${SITE}" title="Ziyaret Rehberim sitesine dön">Ziyaret Rehberim</a>`)
-  .replace('<button class="btn sm dark" type="button" id="info-x">Anladım</button>', `<span class="info-acts"><button class="btn sm dark" type="button" id="info-x">Anladım</button><a class="btn sm" href="${SITE}">Siteye dön</a></span>`)
+// Sitenin (site/ klasöründen üretilir) bu alan adındaki yolu. Hesap, "Rotalarım" ve rota sayfası bağlantıları buraya gider.
+const SITE_YOL = "/";
+// web sürümünde site bağlantıları aynı alan adına görelidir ve gömülü görünümde üst pencerede açılır.
+const realBody = (h, web) => h
+  .replace('<span class="brand">Ziyaret Rehberim</span>', `<a class="brand" href="${web ? SITE_YOL : SITE}"${web ? ' target="_top"' : ""} title="Ziyaret Rehberim sitesine dön">Ziyaret Rehberim</a>`)
+  .replace('<button class="btn sm dark" type="button" id="info-x">Anladım</button>', `<span class="info-acts"><button class="btn sm dark" type="button" id="info-x">Anladım</button><a class="btn sm" href="${web ? SITE_YOL : SITE}"${web ? ' target="_top"' : ""}>Siteye dön</a></span>`)
   .replace("Şematik çizim · uydu ya da sokak haritası değil", "Harita yükleniyor…")
   .split("Önizleme hakkında").join("Harita hakkında")
   .replace("Bu, yeni düzenin çalışan bir örneği", "Gerçek harita ve uydu görüntüsü")
@@ -25,22 +27,22 @@ const page = (real, web) => `${web ? "" : `<title>Ziyaret Rehberim Haritası</ti
 ${fonts}
 `}<style>
 ${real ? "/* Leaflet 1.9.4 · BSD-2-Clause · (c) Volodymyr Agafonkin */\n" + fs.readFileSync(LF + "leaflet.css", "utf8").split("\n").filter((l) => !l.includes("url(")).join("\n") + "\n" : ""}${rd("app.css")}</style>
-${real ? realBody(rd("body.html")) : rd("body.html")}
+${real ? realBody(rd("body.html"), web) : rd("body.html")}
 ${real ? "<script>\n/* Leaflet 1.9.4 · BSD-2-Clause · (c) Volodymyr Agafonkin */\n" + fs.readFileSync(LF + "leaflet.js", "utf8").replace(/\/\/# sourceMappingURL=.*$/m, "") + "</script>\n" : ""}<script>
 ${rd("data.js")}</script>
-${real ? "<script>\n" + (web ? 'globalThis.ZR_SITE = "' + SITE_YOL + '";\n' : "") + rd("yol.js") + rd("hesap.js") + "</script>\n" : ""}<script>
+${real ? "<script>\n" + (web ? 'globalThis.ZR_SITE = location.origin + "' + SITE_YOL + '";\n' : "") + rd("yol.js") + rd("hesap.js") + "</script>\n" : ""}<script>
 ${rd("app.js")}</script>
 `;
 const reset = ":root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}";
 const full = (real) => `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>${reset}</style></head><body>${page(real)}</body></html>`;
-// Yayın sürümü. Deneme yayını olduğu için arama motorlarına kapalı (noindex); kalıcı adrese geçince bu satır kaldırılır.
+// Yayın sürümü (sitede /harita/). Tek başına bir araç sayfası olduğu için arama motorlarına kapalıdır (noindex); arananlar site sayfalarıdır.
 const web = () => `<!doctype html>
 <html lang="tr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<script>/* Konum yalnızca güvenli (https) adreste çalışır; http ile gelen ziyaretçiyi aynı sayfanın https adresine al. */
-if(location.protocol==="http:"&&location.hostname==="harita.ziyaretrehberim.com")location.replace("https://"+location.host+location.pathname+location.search+location.hash);</script>
+<script>/* Konum yalnızca güvenli (https) adreste çalışır; http ile gelen ziyaretçi, https adresi çalışıyorsa oraya alınır. */
+(function(){var l=location;if(l.protocol==="http:"&&/(^|\\.)ziyaretrehberim\\.com$/.test(l.hostname)&&window.fetch)fetch("https://"+l.host+"/robots.txt?"+Date.now(),{mode:"no-cors",cache:"no-store"}).then(function(){l.replace("https://"+l.host+l.pathname+l.search+l.hash)}).catch(function(){})})();</script>
 <title>Ziyaret Rehberim Haritası</title>
 <meta name="description" content="İstanbul'da manevî ve tarihî ziyaret durakları gerçek harita ve uydu görüntüsü üzerinde: konumuna en yakın rotayı kur, kaydet, Google ya da Apple Haritalar'da aç.">
 <meta name="robots" content="noindex">
@@ -60,5 +62,5 @@ fs.writeFileSync(path.join(__dirname, "dist/gercek-harita.html"), full(true));
 fs.writeFileSync(path.join(__dirname, "dist/sematik.html"), full(false));
 fs.writeFileSync(path.join(__dirname, "dist/index.html"), web());
 const repoRoot = path.join(__dirname, "..");
-if (fs.existsSync(path.join(repoRoot, ".nojekyll"))) fs.writeFileSync(path.join(repoRoot, "index.html"), web());
+if (fs.existsSync(path.join(repoRoot, ".nojekyll"))) { fs.mkdirSync(path.join(repoRoot, "harita"), { recursive: true }); fs.writeFileSync(path.join(repoRoot, "harita/index.html"), web()); }
 console.log("ok", page(false).length, full(true).length, web().length);
