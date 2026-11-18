@@ -10,6 +10,12 @@
   const HOSTED = !!(window.claude && typeof window.claude.use === "function");
   const REAL = typeof window.L !== "undefined"; // Leaflet sayfaya eklendiyse gerçek harita, yoksa şematik çizim
   const capEl = $(".cap");
+  const EMBED = /[?&]gomulu=1(?:&|$)/.test(location.search); // site sayfasının içine gömülü görünüm
+  const SITE = globalThis.ZR_SITE || "https://ziyaretrehberim.com/";
+  const YOL = globalThis.ZR_YOL || null, HESAP = globalThis.ZR_HESAP || null;
+  // Yeni ön yüz yayındaysa (ZR_SITE tanımlı) rota sayfası bağlantıları oraya gider.
+  if (globalThis.ZR_SITE) D.ROUTES.forEach((r) => { r.url = SITE + "guzergahlar/" + r.slug + "/"; });
+  if (EMBED) { app.classList.add("gomulu"); document.documentElement.dataset.theme = "light"; }
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
@@ -34,6 +40,12 @@
     swap: '<path d="M4 7h3.5c5 0 4.5 10 9.5 10H20M17 14l3 3-3 3M20 7h-3c-1.4 0-2.3.8-3 1.9M17 4l3 3-3 3M4 17h3.5c1.4 0 2.3-.8 3-1.9"/>',
     layers: '<path d="M12 4l8.5 4.5L12 13 3.5 8.5z"/><path d="M3.5 12.5L12 17l8.5-4.5"/><path d="M3.5 16.5L12 21l8.5-4.5"/>',
     hand: '<path d="M12 3v9M12 3l-3 3M12 3l3 3"/><circle cx="12" cy="17" r="3.5"/>',
+    sag: '<path d="M7 20v-8a3 3 0 0 1 3-3h8M14.5 5l4 4-4 4"/>',
+    sol: '<path d="M17 20v-8a3 3 0 0 0-3-3H6M9.5 5l-4 4 4 4"/>',
+    duz: '<path d="M12 20V5M6.5 10.5L12 5l5.5 5.5"/>',
+    geri: '<path d="M8 20V9a4 4 0 0 1 8 0v3M12.5 9.5L16 13l3.5-3.5"/>',
+    basla: '<circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8"/>',
+    user: '<circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20c.9-3.6 3.7-5.4 7.2-5.4s6.3 1.8 7.2 5.4"/>',
   };
   const ic = (n) => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON[n]}</svg>`;
 
@@ -102,9 +114,12 @@
   const S = { concepts: new Set(), me: null, sel: null, route: [], tab: "kesfet", sheet: "half", picking: false, count: 6, saved: [], from: "kesfet", name: "", sat: false };
   const V = { cx: (BB.x0 + BB.x1) / 2, cy: (BB.y0 + BB.y1) / 2, k: 0.04, w: 0, h: 0, dpr: 1 };
   const KMIN = 0.018, KMAX = 0.8;
-  const RT = { pts: [], cum: [], at: [], len: 0, prog: 1 };
+  const RT = { pts: [], cum: [], at: [], len: 0, prog: 1, duz: true, legD: null, adim: null };
+  // Yürüyüş yolu durumu: yok · bekle · tamam · hata · tek (çizilecek ikinci nokta yok). izin: başlangıç noktasını sunucuya gönderme onayı.
+  const W = { durum: "yok", izin: null, anim: false, t: 0, q: 0, seq: 0 };
+  try { W.izin = localStorage.getItem("zr.yol.izin"); } catch (e) {}
   let C = {}, zcls = "", curPanel = "", raf = 0, flyRaf = 0, rtRaf = 0, toastT = 0, fanR = 10;
-  let map = null, lyStreet = null, lySat = null, lySatLbl = null, plCase = null, plMain = null, meMk = null, tipMk = null, tileFails = 0;
+  let map = null, lyStreet = null, lySat = null, lySatLbl = null, plCase = null, plMain = null, plGap = null, meMk = null, tipMk = null, tileFails = 0;
 
   const active = () => (S.concepts.size ? STOPS.filter((s) => S.concepts.has(s.r.concept)) : STOPS);
   const conceptLabel = () => (S.concepts.size ? D.CONCEPTS.filter((c) => S.concepts.has(c.id)).map((c) => c.label).join(" + ") : "Tüm duraklar");
@@ -220,6 +235,11 @@
       }
     }
     plCase.setLatLngs(out); plMain.setLatLngs(out);
+    // Başlangıç noktası sunucuya gönderilmediyse, başlangıçtan ilk durağa olan bölüm ince kesik çizgiyle (kuş uçuşu) gösterilir.
+    const gap = [];
+    if (!RT.duz && S.route.length && !startOk()) { const s = STOPS[S.route[0]]; gap.push([S.me.lat, S.me.lng]); for (const p of leg(S.me, s).via) { const q = unproj(p[0], p[1]); gap.push([q.lat, q.lng]); } gap.push([s.lat, s.lng]); }
+    plGap.setLatLngs(gap);
+    mapEl.classList.toggle("sokak", !RT.duz);
   }
   function zoomState() {
     const k = kReal(), zc = k < 0.045 ? "z-lo" : k > 0.14 ? "z-hi" : "z-mid";
@@ -257,6 +277,7 @@
       l.on("tileload", () => { if (tileFails >= 6) { tileFails = 0; capText(); } });
     }
     map.fitBounds(L.latLngBounds(STOPS.map((s) => [s.lat, s.lng])), { animate: false });
+    plGap = L.polyline([], { className: "rt-gap", interactive: false }).addTo(map);
     plCase = L.polyline([], { className: "rt-case", interactive: false }).addTo(map);
     plMain = L.polyline([], { className: "rt-main", interactive: false }).addTo(map);
     const icon = (el) => L.divIcon({ className: "lmk", html: el, iconSize: [0, 0] });
@@ -267,6 +288,7 @@
       else if (S.sel != null) closeDetail();
     });
     map.on("zoomend", zoomState);
+    if (EMBED) map.scrollWheelZoom.disable(), map.on("click", () => map.scrollWheelZoom.enable()), mapEl.addEventListener("mouseleave", () => map.scrollWheelZoom.disable());
     const lb = $("#layer"); lb.hidden = false; lb.addEventListener("click", () => setLayer(!S.sat));
     let sat = false; try { sat = localStorage.getItem("zr.katman") === "uydu"; } catch (e) {}
     setLayer(sat); zoomState();
@@ -275,7 +297,8 @@
     infoEl.querySelector(".h2").textContent = "Gerçek harita ve uydu görüntüsü";
     const li = infoEl.querySelectorAll("li");
     li[0].innerHTML = "Duraklar <b>gerçek harita</b> üzerinde gösterilir. Sağdaki düğmeyle sokak haritası (" + (FILE ? "Esri" : "OpenStreetMap") + ") ile uydu görüntüsü (Esri) arasında geçersin.";
-    li[1].innerHTML = "“Konumumu bul”, tarayıcı izin verirse gerçek konumunu gösterir; konum yalnızca tarayıcında kalır. İzin verilmezse başlangıç noktasını haritadan ya da hazır noktalardan seçersin.";
+    li[1].innerHTML = "“Konumumu bul”, tarayıcı izin verirse gerçek konumunu gösterir. Konumun bizde saklanmaz. İzin verilmezse başlangıç noktasını haritadan ya da hazır noktalardan seçersin.";
+    if (YOL) li[2].innerHTML = "Rotalar <b>sokakları izleyen yürüyüş yoluyla</b> çizilir; her durak için dönüş tarifi “Rotam”da açılır. Yol, OpenStreetMap verisiyle " + YOL.SERVIS.adres + " sunucusunda hesaplanır: durakların konumu, sen onaylarsan başlangıç noktan da bu sunucuya gönderilir. Sunucuya ulaşılamazsa çizgi kuş uçuşu çizilir ve mesafe tahmin edilir (× 1,3 · dakikada 75 m).";
   }
 
   /* ——— Kamera ——— */
@@ -299,8 +322,9 @@
   }
   // Panelin ve üst şeridin kapatmadığı harita alanı.
   function pad() {
-    if (DESK.matches) return { l: 440, t: 124, r: 84, b: 40 };
-    return { l: 26, t: 140, r: 74, b: (S.sheet === "peek" ? 132 : Math.round(V.h * 0.46)) + 26 };
+    const e = EMBED ? 52 : 0;
+    if (DESK.matches) return { l: 440, t: 124 - e, r: 84, b: 40 };
+    return { l: 26, t: 140 - e, r: 74, b: (S.sheet === "peek" ? 132 : Math.round(V.h * 0.46)) + 26 };
   }
   function fit(pts, ms = 900, maxK = 0.22) {
     if (REAL) {
@@ -468,7 +492,7 @@
       b.style.setProperty("--fx", s.fx.toFixed(3)); b.style.setProperty("--fy", s.fy.toFixed(3));
       s.mk = L.marker([s.lat, s.lng], { icon: L.divIcon({ className: "lmk", html: b, iconSize: [0, 0] }), keyboard: false }).addTo(map);
       s.mk.on("click", () => {
-        if (S.picking) { stopPick(); setMe(s.lat, s.lng, "secim", s.name); toast("Başlangıç noktası ayarlandı."); } else selectStop(s.id, "map");
+        if (S.picking) { stopPick(); setMe(s.lat, s.lng, "secim", s.name, true, true); toast("Başlangıç noktası ayarlandı."); } else selectStop(s.id, "map");
       });
     }
     mkEl.append(f);
@@ -503,8 +527,52 @@
         at.push(cum[cum.length - 1]); prev = s;
       }
     }
-    RT.pts = pts; RT.cum = cum; RT.at = at; RT.len = cum[cum.length - 1] || 0;
+    RT.pts = pts; RT.cum = cum; RT.at = at; RT.len = cum[cum.length - 1] || 0; RT.duz = true; RT.legD = null; RT.adim = null;
+    walkSync();
   }
+
+  /* ——— Yürüyüş yolu: sokakları izleyen çizgi ve dönüş tarifi ——— */
+  // Başlangıç noktası herkese açık bir yerse (örnek konum, hazır nokta, bir durak) ya da kullanıcı onay verdiyse sunucuya gönderilebilir.
+  const startOk = () => S.me.src === "ornek" || !!S.me.acik || W.izin === "evet";
+  const walkPts = () => { const st = S.route.map((id) => [STOPS[id].lat, STOPS[id].lng]); return startOk() ? [[S.me.lat, S.me.lng], ...st] : st; };
+  function applyWalk(res) {
+    const withStart = startOk(), pts = [], cum = [], at = [], legD = [], adim = [];
+    const push = (x, y) => { const q = pts[pts.length - 1]; cum.push(q ? cum[cum.length - 1] + Math.hypot(x - q[0], y - q[1]) : 0); pts.push([x, y]); };
+    let li = 0;
+    if (withStart) push(S.me.x, S.me.y);
+    S.route.forEach((id, i) => {
+      const s = STOPS[id];
+      if (i === 0 && !withStart) { push(s.x, s.y); legD.push(null); adim.push(null); }
+      else { const lg = res.legs[li++]; for (const c of lg.pts) { const q = proj(c[0], c[1]); push(q[0], q[1]); } legD.push(lg.d); adim.push(lg.adim); }
+      at.push(cum[cum.length - 1]);
+    });
+    RT.pts = pts; RT.cum = cum; RT.at = at; RT.len = cum[cum.length - 1] || 0; RT.duz = false; RT.legD = legD; RT.adim = adim;
+  }
+  function walkSync() {
+    clearTimeout(W.q);
+    if (!YOL || !REAL || !S.route.length) { W.durum = "yok"; W.seq++; return; }
+    const pts = walkPts();
+    if (pts.length < 2) { W.durum = "tek"; W.seq++; return; }
+    const res = YOL.hazir(pts);
+    if (res && res.legs.length === pts.length - 1) { W.durum = "tamam"; W.seq++; applyWalk(res); return; }
+    W.durum = "bekle"; const seq = ++W.seq;
+    W.q = setTimeout(() => {
+      YOL.yol(pts).then(() => {
+        if (seq !== W.seq) return;
+        cancelAnimationFrame(rtRaf); clearTimeout(W.t); computeRT();
+        if (W.anim) { W.anim = false; animateRoute(); } else { RT.prog = 1; draw(); }
+        if (S.tab === "rota") renderRota(true);
+      }, () => {
+        if (seq !== W.seq) return;
+        W.durum = "hata";
+        if (W.anim) { W.anim = false; clearTimeout(W.t); animateRoute(); }
+        if (S.tab === "rota") renderRota(true);
+      });
+    }, 160);
+  }
+  // Bir bacağın uzunluğu: sokak yolu geldiyse gerçek ölçü, yoksa kuş uçuşu × 1,3 tahmini.
+  const legLen = (i, prev, s) => (RT.legD && RT.legD[i] != null ? RT.legD[i] : dist(prev, s) * WALK);
+  const routeLen = () => { let L = 0, p = S.me; S.route.forEach((id, i) => { L += legLen(i, p, STOPS[id]); p = STOPS[id]; }); return L; };
   const pathLen = (ids) => { let L = 0, p = S.me; for (const id of ids) { L += dist(p, STOPS[id]); p = STOPS[id]; } return L; };
   function twoOpt(ids) {
     ids = ids.slice();
@@ -536,7 +604,12 @@
   function setRoute(ids, { name = "", animate = true, open = true } = {}) {
     S.route = ids; S.name = name; computeRT(); syncMarkers(); syncAdds();
     if (open) { S.sel = null; syncMarkers(); S.tab = ""; setTab("rota"); } else if (S.tab === "rota") renderRota(true);
-    if (ids.length && animate) { fit([S.me, ...ids.map((id) => STOPS[id])], 1000, 0.26); animateRoute(); countUp(); } else { RT.prog = 1; draw(); }
+    if (ids.length && animate) {
+      fit([S.me, ...ids.map((id) => STOPS[id])], 1000, 0.26); countUp();
+      // Sokak yolu yoldaysa çizgi onunla birlikte çizilir; sunucu gecikirse kuş uçuşu çizgiyle başlanır.
+      if (W.durum === "bekle") { W.anim = true; cancelAnimationFrame(rtRaf); RT.prog = 0; draw(); clearTimeout(W.t); W.t = setTimeout(() => { if (W.anim && W.durum === "bekle") animateRoute(); }, 2400); }
+      else animateRoute();
+    } else { W.anim = false; RT.prog = 1; draw(); }
   }
   function buildNearest() {
     const pool = active().slice(), n = Math.min(S.count, pool.length), out = [];
@@ -544,7 +617,7 @@
     while (out.length < n) { let bi = 0, bd = Infinity; pool.forEach((s, i) => { const d = dist(cur, s); if (d < bd) { bd = d; bi = i; } }); cur = pool.splice(bi, 1)[0]; out.push(cur.id); }
     const ids = twoOpt(out);
     setRoute(ids, { name: `${conceptLabel()} · ${n} durak` });
-    toast(`${n} duraklı rota hazır · ${fmtD(pathLen(ids) * WALK)}, ≈ ${fmtT(pathLen(ids) * WALK)} yürüyüş`);
+    toast(`${n} duraklı rota hazır · yaklaşık ${fmtD(pathLen(ids) * WALK)}, ≈ ${fmtT(pathLen(ids) * WALK)} yürüyüş`);
   }
   function toggleStop(id) {
     const i = S.route.indexOf(id);
@@ -575,9 +648,9 @@
   }
 
   /* ——— Konum ——— */
-  function setMe(lat, lng, src, label, flyTo = true) {
+  function setMe(lat, lng, src, label, flyTo = true, acik = false) {
     const [x, y] = proj(lat, lng);
-    S.me = { lat, lng, x, y, src, label };
+    S.me = { lat, lng, x, y, src, label, acik };
     meEl.hidden = false; meEl.className = "me " + src;
     if (REAL) meMk.setLatLng([lat, lng]);
     $("#locate").classList.toggle("on", src === "gps");
@@ -660,7 +733,7 @@
           </button>
           <button class="add" type="button" data-add="${s.id}" aria-pressed="${on}" aria-label="${on ? "Rotadan çıkar" : "Rotaya ekle"}">${ic(on ? "check" : "plus")}</button>
         </li>`; }).join("")}</ul>
-      <p class="fine">Mesafe ve süreler kuş uçuşu ölçümden tahmin edilir; sokak sokak yol tarifi için durağı Google ya da Apple Haritalar’da aç.</p>`;
+      <p class="fine">${YOL && REAL ? "Bu listedeki mesafeler kuş uçuşu ölçümden tahmin edilir. Rotana eklediğin duraklar için sokak sokak yürüyüş yolu ve dönüş tarifi “Rotam”da çizilir." : "Mesafe ve süreler kuş uçuşu ölçümden tahmin edilir; sokak sokak yol tarifi için durağı Google ya da Apple Haritalar’da aç."}</p>`;
   }
 
   /* ——— Durak ayrıntısı ——— */
@@ -720,8 +793,14 @@
   }
   const nth = (i) => (i === 0 ? "Başlangıç" : i + ". durak");
   function renderRota(quiet) {
-    const me = S.me, ids = S.route, L = pathLen(ids) * WALK, pool = active().length;
+    const me = S.me, ids = S.route, L = routeLen(), pool = active().length, sokak = !RT.duz;
+    const kim = HESAP ? HESAP.aktif() : null;
     S.count = clamp(S.count, Math.min(3, pool), Math.min(12, pool));
+    const tarif = (i) => { const a = RT.adim && RT.adim[i]; return a && a.length ? `<li class="rleg"><details><summary>${ic("walk")}<span>${fmtD(RT.legD[i])} · ${fmtT(RT.legD[i])}</span><i>yol tarifi</i></summary><ol>${a.map((x) => `<li>${ic(x.k)}<span>${esc(x.t)}</span><small>${x.d >= 10 ? fmtD(x.d) : ""}</small></li>`).join("")}</ol></details></li>` : ""; };
+    const durum = !YOL || !REAL || !ids.length ? ""
+      : W.durum === "bekle" ? `<p class="yol-durum bekle">${ic("walk")}Yürüyüş yolu hesaplanıyor…</p>`
+      : W.durum === "hata" ? `<div class="card yol-kart"><b>Sokak yolu şu an alınamadı</b><span>Yol tarifi sunucusuna ulaşılamadı. Çizgi kuş uçuşu çizildi; mesafeler tahmindir.</span><button class="btn sm" type="button" data-act="yol-yeniden">Yeniden dene</button></div>`
+      : !startOk() && W.izin !== "hayir" ? `<div class="card yol-kart"><b>Başlangıç noktandan ilk durağa da yol çizilsin mi?</b><span>Bunun için başlangıç noktanın konumu yol tarifi sunucusuna (${esc(YOL.SERVIS.adres)}) gönderilir. Biz saklamıyoruz. Onay vermezsen yol yalnızca duraklar arasında çizilir.</span><span class="row"><button class="btn sm dark" type="button" data-act="yol-evet">Evet, çiz</button><button class="btn sm" type="button" data-act="yol-hayir">Hayır</button></span></div>` : "";
     const builder = `
       <div class="card">
         <p class="kicker">Sana göre rota</p>
@@ -736,18 +815,19 @@
       const parts = gparts(), pts = xpts().map((x) => x.p);
       let prev = me;
       cur = `
-      <div class="sec-head"><h2 class="h2">${esc(S.name || "Rotam")}</h2><small>başlangıçtan itibaren · tahmini</small></div>
+      <div class="sec-head"><h2 class="h2">${esc(S.name || "Rotam")}</h2><small>${sokak ? "sokaklardan · yürüyüş yolu" : "kuş uçuşu · tahmini"}</small></div>
       <div class="stats">
         <div class="stat"><b data-v="${ids.length}">${ids.length}</b><span>durak</span></div>
         <div class="stat"><b data-v="${(L / 1000).toFixed(1)}" data-d="1">${(L / 1000).toFixed(1).replace(".", ",")}</b><span>km yürüyüş</span></div>
         <div class="stat"><b data-v="${mins(L)}">${mins(L)}</b><span>dakika</span></div>
       </div>
-      <ol class="rlist">
+      ${durum}
+      <ol class="rlist${sokak ? " yollu" : ""}">
         <li class="rstart"><span class="dot"></span><span>Başlangıç: <b>${esc(me.src === "ornek" ? me.label + " (örnek)" : me.label)}</b></span></li>
-        ${ids.map((id, i) => { const s = STOPS[id], d = dist(prev, s) * WALK; prev = s; return `
+        ${ids.map((id, i) => { const s = STOPS[id], d = legLen(i, prev, s), kus = !RT.legD || RT.legD[i] == null; prev = s; return `${tarif(i)}
         <li class="ri c-${s.r.id}" style="--i:${i}">
           <span class="bdg">${i + 1}</span>
-          <button class="ri-main" type="button" data-stop="${s.id}" data-from="rota"><b>${nameHtml(s)}</b><small>${fmtD(d)} · ${fmtT(d)} yürüyüş</small></button>
+          <button class="ri-main" type="button" data-stop="${s.id}" data-from="rota"><b>${nameHtml(s)}</b><small>${fmtD(d)} · ${fmtT(d)} yürüyüş${kus && sokak ? " · kuş uçuşu" : ""}</small></button>
           <span class="ops">
             <button type="button" data-mv="-1" data-i="${i}" aria-label="Yukarı taşı" ${i ? "" : "disabled"}>${ic("up")}</button>
             <button type="button" data-mv="1" data-i="${i}" aria-label="Aşağı taşı" ${i < ids.length - 1 ? "" : "disabled"}>${ic("down")}</button>
@@ -767,17 +847,17 @@
         <a class="btn" href="${apple(pts)}" target="_blank" rel="noopener">${ic("ext")}Apple Haritalar’da aç</a>
         <button class="btn" type="button" data-act="dl" id="dl-html">${ic("dl")}Rota sayfasını indir</button>
         ${HOSTED ? "" : `<button class="btn" type="button" data-act="gpx">${ic("dl")}GPX dosyasını indir</button>`}
-        <p class="fine">${parts.length > 1 ? "Google Haritalar bir bağlantıda başlangıç, 3 ara durak ve varış açtığı için uzun rota bölümlere ayrılır. " : ""}Haritalar uygulaması yolu sokaklara göre yeniden çizer.</p>
+        <p class="fine">${parts.length > 1 ? "Google Haritalar bir bağlantıda başlangıç, 3 ara durak ve varış açtığı için uzun rota bölümlere ayrılır. " : ""}Haritalar uygulaması yolu kendi verisine göre yeniden çizer.${sokak ? " Buradaki yürüyüş yolu: © OpenStreetMap katkıda bulunanlar · " + esc(YOL.SERVIS.ad) + "." : ""}</p>
       </div>
       <form class="card" data-form="save">
-        <p class="kicker">Bu cihaza kaydet</p>
+        <p class="kicker">${kim ? "Hesabıma kaydet" : "Bu cihaza kaydet"}</p>
         <div class="save"><input type="text" name="ad" maxlength="60" aria-label="Rota adı" placeholder="Rotaya bir ad ver" value="${esc(S.name)}"><button class="btn dark" type="submit">${ic("mark")}Kaydet</button></div>
       </form>`;
     } else {
       cur = `<div class="empty"><b>Henüz bir rotan yok</b><span>Üstten bir konsept seçip “En yakın rotayı oluştur”a dokun, hazır bir güzergâhı aç ya da durakları ${ic("plus")} ile tek tek ekle.</span></div>`;
     }
     const saved = S.saved.length ? `
-      <div class="sec-head"><h2 class="h2">Kayıtlı rotalarım</h2><small>bu cihazda</small></div>
+      <div class="sec-head"><h2 class="h2">Kayıtlı rotalarım</h2><small>${kim ? esc(kim.ad) + " · bu cihazda" : "bu cihazda"}</small></div>
       ${S.saved.map((r, i) => `<div class="rc c-r2" style="--i:${i}"><div class="rc-tx"><b>${esc(r.name)}</b><small>${r.keys.length} durak · başlangıç ${esc(r.start.label)}</small></div><span class="ops"><button type="button" class="btn sm" data-saved="${i}">Aç</button><button type="button" data-del="${i}" aria-label="Kaydı sil">${ic("trash")}</button></span></div>`).join("")}` : "";
     const near = D.ROUTES.map((r) => ({ r, d: Math.min(...STOPS.filter((s) => s.r === r).map((s) => dist(me, s))) })).sort((a, b) => a.d - b.d);
     const ready = `
@@ -788,30 +868,39 @@
         <button class="btn sm" type="button" data-load="${r.id}">Aç</button>
       </div>`).join("")}`;
     P.rota.classList.toggle("no-anim", !!quiet);
-    const acct = S.acct ? `
+    const acct = !HESAP ? "" : kim ? (S.acct ? `
+      <div class="card acct">
+        <p class="kicker">Hesabım</p>
+        <b>${esc(kim.ad)}</b>
+        <span>Kaydettiğin rotalar bu cihazda, hesabının altında durur.</span>
+        <a class="btn sm" href="${SITE}rotalarim/" target="_top">${ic("mark")}Rotalarım</a>
+      </div>` : "") : S.acct || S.saved.length || ids.length ? `
       <div class="card acct">
         <p class="kicker">Giriş</p>
-        <b>Hesap girişi hazırlanıyor</b>
-        <span>Şimdilik kaydettiğin rotalar yalnızca bu cihazda, bu tarayıcıda durur. Hesap açıldığında rotaların, ziyaretlerin ve yürüdüğün yol her cihazında görünecek.</span>
+        <b>Rotalarını kullanıcı adınla sakla</b>
+        <span>Giriş yapmadan kaydettiğin rotalar bu cihazda misafir olarak durur. Hesap açarsan kendi adınla saklanır.</span>
+        <a class="btn sm" href="${SITE}hesabim/" target="_top">${ic("user")}Giriş yap ya da hesap aç</a>
       </div>` : "";
-    P.rota.innerHTML = acct + cur + builder + saved + ready;
+    P.rota.innerHTML = (S.acct ? acct : "") + cur + builder + saved + (S.acct ? "" : acct) + ready;
     if (HOSTED && ids.length) dlReady.then((d) => { const b = $("#dl-html"); if (b && !d) b.hidden = true; });
   }
 
   /* ——— Kaydetme ve indirme ——— */
   const KEY = "zr.rotalar.v1";
-  const loadSaved = () => { try { const v = JSON.parse(localStorage.getItem(KEY) || "[]"); S.saved = Array.isArray(v) ? v.filter((r) => r && Array.isArray(r.keys) && r.start) : []; } catch (e) { S.saved = []; } };
-  const storeSaved = () => { try { localStorage.setItem(KEY, JSON.stringify(S.saved)); return true; } catch (e) { return false; } };
+  const loadSaved = () => { if (HESAP) { S.saved = HESAP.rotalar(); return; } try { const v = JSON.parse(localStorage.getItem(KEY) || "[]"); S.saved = Array.isArray(v) ? v.filter((r) => r && Array.isArray(r.keys) && r.start) : []; } catch (e) { S.saved = []; } };
+  const storeSaved = () => { if (HESAP) return HESAP.rotalariYaz(S.saved); try { localStorage.setItem(KEY, JSON.stringify(S.saved)); return true; } catch (e) { return false; } };
+  if (HESAP) HESAP.dinle(() => { const once = JSON.stringify(S.saved); loadSaved(); if (S.tab === "rota" && JSON.stringify(S.saved) !== once) renderRota(true); });
+  const openSaved = (r) => { const ids = r.keys.map((k) => BYKEY.get(k)).filter(Boolean).map((s) => s.id); setMe(r.start.lat, r.start.lng, "secim", r.start.label, false, !!r.start.acik); setRoute(ids, { name: r.name }); };
   const dlReady = HOSTED ? window.claude.use("downloads").catch(() => null) : Promise.resolve(null);
 
   function sheetHtml() {
-    const me = S.me, ids = S.route, L = pathLen(ids) * WALK, parts = gparts(), pts = xpts().map((x) => x.p);
+    const me = S.me, ids = S.route, L = routeLen(), parts = gparts(), pts = xpts().map((x) => x.p);
     const day = new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
     return `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(S.name || "Rotam")} · Ziyaret Rehberim</title>
 <style>body{margin:0;background:#FBF8F2;color:#1C2533;font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}main{max-width:720px;margin:0 auto;padding:28px 18px 48px}header{border-bottom:2px solid #C9973A;padding-bottom:14px;margin-bottom:18px}small,.m{color:#5A6578;font-size:14px}h1{margin:4px 0;font-size:26px;line-height:1.2;color:#0E1B2E}h2{margin:0;font-size:18px;color:#0E1B2E}ol{list-style:none;margin:0;padding:0}li{display:grid;grid-template-columns:38px 1fr;gap:12px;padding:14px 0;border-bottom:1px solid #E6DFD0}li>b{width:34px;height:34px;border-radius:50%;background:#0E1B2E;color:#fff;display:grid;place-items:center;font-size:15px}p{margin:4px 0}a{color:#8A6219}.btns{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.btns a{padding:10px 14px;border-radius:12px;background:#0E1B2E;color:#fff;text-decoration:none;font-weight:600;font-size:14px}.btns a.o{background:#fff;color:#0E1B2E;border:1px solid #D9D0BC}</style></head><body><main>
-<header><small>ZİYARET REHBERİM · ${esc(day)}</small><h1>${esc(S.name || "Rotam")}</h1><p class="m">${ids.length} durak · yaklaşık ${fmtD(L)} · ≈ ${fmtT(L)} yürüyüş (kuş uçuşu ölçümden tahmin, ziyaret süresi hariç)</p><p class="m">Başlangıç: ${esc(me.label)} (${me.lat.toFixed(5)}, ${me.lng.toFixed(5)})</p>
+<header><small>ZİYARET REHBERİM · ${esc(day)}</small><h1>${esc(S.name || "Rotam")}</h1><p class="m">${ids.length} durak · yaklaşık ${fmtD(L)} · ≈ ${fmtT(L)} yürüyüş (${RT.duz ? "kuş uçuşu ölçümden tahmin" : "sokakları izleyen yürüyüş yolu; © OpenStreetMap katkıda bulunanlar"}, ziyaret süresi hariç)</p><p class="m">Başlangıç: ${esc(me.label)} (${me.lat.toFixed(5)}, ${me.lng.toFixed(5)})</p>
 <div class="btns">${parts.map((p, i) => `<a href="${p.url}">Google Haritalar${parts.length > 1 ? ` · ${i + 1}. bölüm` : ""}</a>`).join("")}<a class="o" href="${apple(pts)}">Apple Haritalar</a></div></header>
-<ol>${ids.map((id, i) => { const s = STOPS[id]; return `<li><b>${i + 1}</b><div><h2>${esc(s.name)}${s.hon ? " " + esc(s.hon) : ""}</h2><p class="m">${esc(s.r.name)}${s.tag ? " · " + esc(s.tag) : ""} · ${esc(s.addr)}${s.approx ? " · konum yaklaşık" : ""}</p><p>${esc(s.desc)}</p>${s.hours ? `<p class="m">${esc(s.hours)}</p>` : ""}<p><a href="https://www.google.com/maps/search/?api=1&query=${ll(s)}">Haritada aç</a> · <a href="${s.r.url}#durak-${s.n}">Rehberde oku</a></p></div></li>`; }).join("")}</ol>
+<ol>${ids.map((id, i) => { const s = STOPS[id], a = RT.adim && RT.adim[i]; return `<li><b>${i + 1}</b><div>${a && a.length ? `<p class="m">Yürüyüş · ${fmtD(RT.legD[i])}: ${a.map((x) => esc(x.t) + (x.d >= 10 ? " (" + fmtD(x.d) + ")" : "")).join(" → ")}</p>` : ""}<h2>${esc(s.name)}${s.hon ? " " + esc(s.hon) : ""}</h2><p class="m">${esc(s.r.name)}${s.tag ? " · " + esc(s.tag) : ""} · ${esc(s.addr)}${s.approx ? " · konum yaklaşık" : ""}</p><p>${esc(s.desc)}</p>${s.hours ? `<p class="m">${esc(s.hours)}</p>` : ""}<p><a href="https://www.google.com/maps/search/?api=1&query=${ll(s)}">Haritada aç</a> · <a href="${s.r.url}#durak-${s.n}">Rehberde oku</a></p></div></li>`; }).join("")}</ol>
 <p class="m">ziyaretrehberim.com</p></main></body></html>`;
   }
   function gpx() {
@@ -819,7 +908,8 @@
     return `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="ziyaretrehberim.com" xmlns="http://www.topografix.com/GPX/1/1">\n<metadata><name>${x(S.name || "Rotam")}</name></metadata>\n` +
       S.route.map((id) => { const s = STOPS[id]; return `<wpt lat="${s.lat}" lon="${s.lng}"><name>${x(s.name)}</name><desc>${x(s.addr)}</desc></wpt>`; }).join("\n") +
       `\n<rte><name>${x(S.name || "Rotam")}</name>\n<rtept lat="${S.me.lat.toFixed(5)}" lon="${S.me.lng.toFixed(5)}"><name>Başlangıç</name></rtept>\n` +
-      S.route.map((id) => { const s = STOPS[id]; return `<rtept lat="${s.lat}" lon="${s.lng}"><name>${x(s.name)}</name></rtept>`; }).join("\n") + "\n</rte>\n</gpx>\n";
+      S.route.map((id) => { const s = STOPS[id]; return `<rtept lat="${s.lat}" lon="${s.lng}"><name>${x(s.name)}</name></rtept>`; }).join("\n") + "\n</rte>\n" +
+      (RT.duz ? "" : `<trk><name>${x(S.name || "Rotam")} · yürüyüş yolu</name><trkseg>\n` + RT.pts.map((p) => { const q = unproj(p[0], p[1]); return `<trkpt lat="${q.lat.toFixed(6)}" lon="${q.lng.toFixed(6)}"/>`; }).join("\n") + "\n</trkseg></trk>\n") + "</gpx>\n";
   }
   async function download(filename, data, type) {
     if (HOSTED) {
@@ -851,6 +941,8 @@
     }
     if ((m = /^rota=(r[0-9]+)$/.exec(h))) return loadRoute(m[1]);
     if (h === "rotalarim") { S.acct = true; setTab("rota"); if (!DESK.matches) setSheet("full"); return true; }
+    if ((m = /^kayit=([0-9]+)$/.exec(h))) { loadSaved(); const r = S.saved[+m[1]]; if (!r) return false; openSaved(r); return true; }
+    if (h === "rotam") { setTab("rota"); return true; }
     return false;
   }
   window.addEventListener("hashchange", fromHash);
@@ -862,9 +954,9 @@
     const d = t.dataset;
     if (d.stop != null) return selectStop(+d.stop, d.from || (curPanel === "detail" ? "" : "list"));
     if (d.add != null) return toggleStop(+d.add);
-    if (d.preset != null) { const p = D.PRESETS[+d.preset]; if (S.picking) stopPick(); return setMe(p.lat, p.lng, "secim", p.label); }
+    if (d.preset != null) { const p = D.PRESETS[+d.preset]; if (S.picking) stopPick(); return setMe(p.lat, p.lng, "secim", p.label, true, true); }
     if (d.load) return loadRoute(d.load);
-    if (d.saved != null) { const r = S.saved[+d.saved], ids = r.keys.map((k) => BYKEY.get(k)).filter(Boolean).map((s) => s.id); setMe(r.start.lat, r.start.lng, "secim", r.start.label, false); setRoute(ids, { name: r.name }); return; }
+    if (d.saved != null) return openSaved(S.saved[+d.saved]);
     if (d.del != null) { S.saved.splice(+d.del, 1); storeSaved(); renderRota(true); toast("Kayıt silindi."); return; }
     if (d.mv) { const i = +d.i, j = i + +d.mv; [S.route[i], S.route[j]] = [S.route[j], S.route[i]]; return setRoute(S.route, { name: S.name, animate: false, open: false }); }
     if (d.rm != null) { S.route.splice(+d.rm, 1); return setRoute(S.route, { name: S.name, animate: false, open: false }); }
@@ -878,6 +970,8 @@
       case "opt": { const a = pathLen(S.route), ids = twoOpt(S.route), b = pathLen(ids); if (a - b < 5) return toast("Sıra zaten en kısa hâlinde."); setRoute(ids, { name: S.name, open: false }); return toast(`Sıra kısaltıldı: ${fmtD((a - b) * WALK)} daha az yürüyüş.`); }
       case "dl": return download("ziyaret-rotam.html", sheetHtml(), "text/html");
       case "gpx": return download("ziyaret-rotam.gpx", gpx(), "application/gpx+xml");
+      case "yol-evet": case "yol-hayir": W.izin = d.act === "yol-evet" ? "evet" : "hayir"; try { localStorage.setItem("zr.yol.izin", W.izin); } catch (e) {} computeRT(); RT.prog = 1; draw(); return renderRota(true);
+      case "yol-yeniden": computeRT(); RT.prog = 1; draw(); return renderRota(true);
     }
   });
   bodyEl.addEventListener("submit", (e) => {
@@ -886,9 +980,9 @@
     const name = (new FormData(e.target).get("ad") || "").toString().trim() || `Rotam · ${S.route.length} durak`;
     S.name = name;
     S.saved = S.saved.filter((r) => r.name !== name);
-    S.saved.unshift({ name, keys: S.route.map((id) => STOPS[id].key), start: { lat: S.me.lat, lng: S.me.lng, label: S.me.label }, t: Date.now() });
+    S.saved.unshift({ name, keys: S.route.map((id) => STOPS[id].key), start: { lat: S.me.lat, lng: S.me.lng, label: S.me.label, acik: S.me.src === "ornek" || !!S.me.acik }, km: +(routeLen() / 1000).toFixed(2), sokak: !RT.duz, t: Date.now() });
     const ok = storeSaved(); renderRota(true);
-    toast(ok ? "Rota bu cihaza kaydedildi." : "Tarayıcı kayda izin vermedi; rota yalnızca bu oturumda duruyor.");
+    toast(ok ? (HESAP && HESAP.aktif() ? "Rota hesabına kaydedildi." : "Rota bu cihaza kaydedildi.") : "Tarayıcı kayda izin vermedi; rota yalnızca bu oturumda duruyor.");
   });
 
   /* ——— Bilgi kutusu ——— */

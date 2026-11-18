@@ -24,6 +24,25 @@ her güncellemede ikisi birlikte gönderilir: `git push origin main main:gh-page
   haritası üzerinde üretilmiştir (© OpenStreetMap katkıda bulunanlar). `zr-simgeler.png` simge şerididir:
   Lucide (ISC) ve Tabler Icons (MIT) simgelerinden derlenmiştir.
 
+## Yeni ön yüz (önizleme)
+
+Adres: https://harita.ziyaretrehberim.com/yeni/ (deneme; arama motorlarına kapalı).
+
+Sitenin kendi yazılımımızla kurulan ön yüzü: ana sayfa (harita aynı sayfada açılır), altı rota sayfası, Ulaşım (konuma göre hat ve durak önerisi),
+Ücretler ve Saatler, Ziyaret Âdâbı, Hesabım, Rotalarım ve tam sayfa Rota oluştur. Telefonda altta dört düğmeli menü vardır.
+
+- `site/build.js`: sayfaları üretir. `node site/build.js` komutu `yeni/` klasörünü baştan yazar. `yeni/` elle düzenlenmez.
+- `site/icerik.js`: Ulaşım, Ücretler ve Saatler, Ziyaret Âdâbı metinleri. Bir maddeyi değiştirmek ya da eklemek için yalnızca bu dosya düzenlenir.
+- `site/rota-metin.json`: rota sayfalarındaki açıklamalar ("Güzergâh hakkında", "Nasıl gidilir?", ipucu).
+- `site/site.css`, `site/site.js`: görünüm ve davranış (harita, sokak tarifi, ulaşım önerisi, hesap).
+- `kaynak/yol.js`: sokakları izleyen yürüyüş yolu ve dönüş tarifi. Hesap, OpenStreetMap verisiyle çalışan açık yol tarifi sunucusunda
+  (FOSSGIS · routing.openstreetmap.de) yapılır; sunucuya yalnızca noktaların enlem ve boylamı gider. Ziyaretçinin kendi konumu,
+  ekranda sorulup "evet" denmedikçe gönderilmez. Sunucu yanıt vermezse çizgi kuş uçuşuna döner. Ücretsiz bir topluluk hizmetidir, garanti vermez.
+- `kaynak/hesap.js`: kullanıcı adı ve şifreyle hesap. Sunucu yoktur: hesap ve kayıtlı rotalar yalnızca o cihazda, o tarayıcıda durur;
+  şifrenin kendisi saklanmaz (rastgele tuzla PBKDF2-SHA-256 özeti tutulur). Şifre sıfırlanamaz.
+
+Ana alan adı bu ön yüze bağlanacağı zaman `site/build.js` içindeki `KOK` ve `HARITA`, `kaynak/build.js` içindeki `SITE_YOL` değiştirilir.
+
 ## Harita kaynakları
 
 - Sokak haritası: © [OpenStreetMap](https://www.openstreetmap.org/copyright) katkıda bulunanlar.
@@ -32,5 +51,6 @@ her güncellemede ikisi birlikte gönderilir: `git push origin main main:gh-page
 
 ## Konum
 
-Konum yalnızca tarayıcıda, ziyaretçinin izniyle kullanılır. Hiçbir yere gönderilmez ve saklanmaz.
-Yürüyüş mesafeleri ve süreleri tahminîdir (kuş uçuşu mesafe × 1,3; dakikada 75 m).
+Konum yalnızca tarayıcıda, ziyaretçinin izniyle kullanılır ve hiçbir yerde saklanmaz. Sokak yolu çizilirken başlangıç noktası,
+yalnızca ziyaretçi ekrandaki soruya "evet" derse yol tarifi sunucusuna gider; "hayır" derse ilk etap düz çizgiyle gösterilir.
+Yürüyüş süreleri dakikada 75 m üzerinden hesaplanır; sokak yolu alınamazsa mesafe kuş uçuşu × 1,3 ile tahmin edilir.

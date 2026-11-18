@@ -371,3 +371,43 @@ a.btn { text-decoration: none; }
 #map.real ~ .scale { border-color: rgba(14,27,46,.6); }
 #map.real ~ .scale span { color: #0E1B2E; text-shadow: 0 0 3px #fff, 0 0 3px #fff; }
 #map.real.is-sat ~ .scale span { color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
+
+/* ——— Yürüyüş yolu ——— */
+#map.sokak .rt-main { stroke-dasharray: none; stroke-width: 4.2px; }
+#map.sokak .rt-case { stroke-width: 9px; }
+.rt-gap { fill: none; stroke: var(--route); stroke-opacity: .55; stroke-width: 2.4px; stroke-dasharray: 2 8; stroke-linecap: round; }
+.yol-durum { display: flex; align-items: center; gap: 8px; margin: 2px 0 6px; font-size: 12.5px; color: var(--muted); }
+.yol-durum .ic { width: 16px; height: 16px; }
+.yol-durum.bekle { animation: nabiz 1.4s ease-in-out infinite; }
+@keyframes nabiz { 50% { opacity: .45; } }
+.yol-kart { display: grid; gap: 7px; margin-bottom: 8px; }
+.yol-kart b { font: 700 14px/1.3 var(--f-display); color: var(--heading); }
+.yol-kart > span { font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+.yol-kart .row { display: flex; gap: 8px; }
+.yol-kart .btn { justify-self: start; }
+.rlist.yollu .rstart::after, .rlist.yollu .ri::after { content: none; }
+.rleg { position: relative; padding: 1px 0 1px 41px; }
+.rleg::before { content: ""; position: absolute; left: 14px; top: -9px; bottom: -9px; width: 2px; border-radius: 2px; background: linear-gradient(180deg, var(--accent), var(--accent)); opacity: .55; }
+.rleg summary { display: inline-flex; align-items: center; gap: 7px; padding: 4px 10px 4px 8px; border-radius: 999px; background: var(--seg); color: var(--fg); font-size: 12px; font-variant-numeric: tabular-nums; cursor: pointer; list-style: none; transition: background-color .25s; }
+.rleg summary::-webkit-details-marker { display: none; }
+.rleg summary .ic { width: 15px; height: 15px; color: var(--accent-ink); }
+.rleg summary i { font-style: normal; font-weight: 700; color: var(--accent-ink); }
+.rleg summary i::after { content: " ▾"; }
+.rleg details[open] summary i::after { content: " ▴"; }
+.rleg ol { list-style: none; margin: 8px 0 6px; padding: 10px 12px; display: grid; gap: 8px; border-radius: 14px; background: var(--glass-strong); border: 1px solid var(--line); animation: rise .4s var(--ease) both; }
+.rleg ol li { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 9px; align-items: start; font-size: 12.5px; line-height: 1.4; color: var(--fg); }
+.rleg ol .ic { width: 16px; height: 16px; margin-top: 1px; color: var(--accent-ink); }
+.rleg ol small { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.acct { display: grid; gap: 6px; }
+.acct .btn { justify-self: start; }
+
+/* ——— Site sayfasına gömülü görünüm: marka şeridi yok, sayfanın kendi üst şeridi kullanılır ——— */
+.app.gomulu .top { display: none; }
+.app.gomulu .chips { top: 8px; }
+.app.gomulu .pick { top: 64px; }
+.app.gomulu .info { display: none; }
+.app.gomulu .pick:not([hidden]) ~ .toast { top: 124px; }
+@media (min-width: 900px) {
+  .app.gomulu .sheet { top: 14px; bottom: 14px; }
+  .app.gomulu .chips { top: 12px; }
+}

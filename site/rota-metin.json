@@ -1,0 +1,150 @@
+{
+ "r1": {
+  "h1": "Sahâbe-i Kirâm (r.anhüm) — 1",
+  "pills": [
+   "15 durak",
+   "≈ 3 saat",
+   "3,8 km yürüyüş"
+  ],
+  "about": [
+   "Babadağlı’nın kitabındaki №1–15 numaralı zatlar tek bir yürüyüş güzergâhında: Eyüp Sultan, Düğmeciler ve Nişancı’dan sonra on bir durak, Ayvansaray surları ile Eğrikapı arasında birkaç yüz metrelik bir alanda toplanır. Konumlar açık harita verisi ve Kültür Envanteri kayıtlarıyla eşleştirilmiştir."
+  ],
+  "how": {
+   "start": "T5 Eyüpsultan Teleferik durağı (Eminönü’nden yaklaşık 30 dk) ya da Haliç vapuruyla Eyüpsultan İskelesi.",
+   "along": "Düğmeciler’e gidiş-dönüş yaklaşık 20 dk. Nişancı’dan Ayvansaray’a Haliç Köprüsü’nün altından yürünür; sur dibindeki türbeler T5 Ayvansaray durağına 2–5 dk uzaklıktadır.",
+   "back": "T5 Ayvansaray → Eminönü ya da Eğrikapı’dan T4 Edirnekapı (11 dk)."
+  },
+  "tip": [
+   "<strong>İpucu</strong> T5 tramvayının Eyüpsultan Teleferik durağı rotanın başına, Ayvansaray durağı sur dibi kümesine iner. Toklu Dede haziresindeki türbeler pazartesi kapalıdır; bazı kabirler yalnızca pencereden ya da bahçe kapısından görülebilir."
+  ],
+  "cards": [
+   "zr-about",
+   "zr-howto",
+   "zr-steps"
+  ]
+ },
+ "r2": {
+  "h1": "Sahâbe-i Kirâm (r.anhüm) — 2",
+  "pills": [
+   "14 durak",
+   "≈ 4 saat",
+   "2,9 km yürüyüş",
+   "4 taşıt geçişi"
+  ],
+  "about": [
+   "Kitap numaraları №16–29. Kariye çevresi ve yukarı Balat’taki beş durak yürüyerek gezilir; Eminönü, Karaköy, Sultanahmet, Şehzadebaşı ve Koca Mustafa Paşa durakları arasında tramvay ya da Marmaray hattı kullanılır. Bu zatların birçoğunun kabri başka şehirlerdedir; İstanbul’daki yerler “makam” olarak anılır."
+  ],
+  "how": {
+   "start": "T4 Vatan ya da M1 Topkapı-Ulubatlı (4 dk); yalnız Kariye kümesi için T4 Edirnekapı.",
+   "along": "Balat’tan T5 ile Eminönü/Küçükpazar (Baba Cafer); Galata Köprüsü’nden yürüyerek Yeraltı Camii (13 dk); T1 Karaköy → Sultanahmet; T1 Sultanahmet → Laleli, Şehzadebaşı’na 5 dk.",
+   "back": "Sümbül Efendi için M2 Vezneciler → Yenikapı, T6 ile Kocamustafapaşa (9 dk yürüyüş); dönüş T6 ile Sirkeci."
+  },
+  "tip": [
+   "<strong>İpucu</strong> Sulukule için T4 Vatan veya M1 Topkapı-Ulubatlı; Balat’tan T5 ile Eminönü’ne inilir. Sümbül Efendi için Sirkeci–Kazlıçeşme hattının (T6) Kocamustafapaşa durağı uygundur. Yeraltı Camii namaz vakitlerinde ve Ramazan’da yoğundur."
+  ],
+  "cards": [
+   "zr-about",
+   "zr-howto",
+   "zr-steps"
+  ]
+ },
+ "r3": {
+  "h1": "Padişah Ziyaretleri",
+  "pills": [
+   "13 durak",
+   "≈ 4,5 saat",
+   "6,3 km yürüyüş",
+   "1 taşıt geçişi"
+  ],
+  "about": [
+   "Eyüp’teki son dönem türbelerinden Fatih, Süleymaniye, Beyazıt, Sultanahmet ve Eminönü’ne uzanan 13 duraklık rota. Türbelere giriş ücretsizdir; açılış saatleri mevsime göre değişir."
+  ],
+  "how": {
+   "start": "T5 Feshane (Mihrişah Sultan ve Reşad türbeleri 3–5 dk).",
+   "along": "T5 Feshane → Fener, Yavuz Selim’e 6 dk yokuş; Fatih, Şehzade ve Süleymaniye yürüyerek; Beyazıt – Çemberlitaş – Sultanahmet T1 boyunca sıralanır.",
+   "back": "Ayasofya’dan T1 Sultanahmet → Eminönü (Hatice Turhan Türbesi 4 dk); vapur, T5 ve Marmaray."
+  },
+  "tip": [
+   "<strong>İpucu</strong> Eyüp’ten sonra Yavuz Selim’e T5 Fener durağından çıkılır. Şehzade ve Süleymaniye M2 Vezneciler’e, Beyazıt–Çemberlitaş–Sultanahmet T1 hattına yürüme mesafesindedir; rota Eminönü’nde biter."
+  ],
+  "cards": [
+   "zr-about",
+   "zr-howto",
+   "zr-steps"
+  ]
+ },
+ "r4": {
+  "h1": "Tarihî Camiler",
+  "pills": [
+   "13 durak",
+   "≈ 7 saat",
+   "9,2 km yürüyüş",
+   "1 taşıt geçişi"
+  ],
+  "about": [
+   "Eyüp Sultan’la başlayıp Edirnekapı’dan yarımadanın tepelerini izleyerek Kadırga’ya inen 13 cami. Camiler namaz vakitleri dışında ziyaret edilir; kadınlar için başörtüsü gerekir."
+  ],
+  "how": {
+   "start": "T5 Eyüpsultan Teleferik; Eyüp’ten Edirnekapı’ya otobüs ya da taksi (yaklaşık 2 km).",
+   "along": "Mihrimah → Yavuz Selim → Fatih → Şehzade → Süleymaniye → Eminönü yürüyerek (çoğunlukla yokuş aşağı); Eminönü’nden Çemberlitaş’a T1 ile de çıkılabilir.",
+   "back": "Küçük Ayasofya’dan T6 Kumkapı/Cankurtaran ya da T1 Sultanahmet (11 dk)."
+  },
+  "tip": [
+   "<strong>İpucu</strong> Eyüp’ten Edirnekapı’ya otobüs ya da taksiyle geçin; Mihrimah’tan sonrası çoğunlukla yokuş aşağıdır. Şehzade ve Süleymaniye M2 Vezneciler’e, Eminönü–Beyazıt–Sultanahmet T1 hattına yakındır; rota T6 Kumkapı/Cankurtaran duraklarının yakınında biter."
+  ],
+  "cards": [
+   "zr-about",
+   "zr-howto",
+   "zr-steps"
+  ]
+ },
+ "r5": {
+  "h1": "Tarihî Mekânlar & Gezi",
+  "pills": [
+   "13 durak",
+   "≈ 9 saat",
+   "5,1 km yürüyüş",
+   "1 taşıt geçişi"
+  ],
+  "about": [
+   "Topkapı’dan Dolmabahçe’ye 13 durak. Ayasofya 2020’den beri yeniden camidir; yabancı ziyaretçiler yalnızca üst galeriye ücretli girer. Müze saat ve ücretleri sık değişir."
+  ],
+  "how": {
+   "start": "T1 Gülhane (Topkapı Sarayı 7 dk; salı kapalı).",
+   "along": "Sultanahmet kümesi yaya; Kapalıçarşı’dan Mısır Çarşısı’na yokuş aşağı 12 dk; Galata Köprüsü’nden Galata Kulesi’ne 16 dk ya da T1 Karaköy + Tünel.",
+   "back": "Tünel’den F2 ile Karaköy, T1 ile Kabataş; Dolmabahçe’ye 14 dk yürüyüş. Dönüş F1 Taksim ya da vapur."
+  },
+  "tip": [
+   "<strong>İpucu</strong> Sultanahmet kümesi yürüme mesafesindedir; T1 Gülhane ve Sultanahmet duraklarını kullanın. Galata için Karaköy + Tünel (F2) ya da M2 Şişhane; Dolmabahçe için T1 Kabataş."
+  ],
+  "cards": [
+   "zr-about",
+   "zr-howto",
+   "zr-steps"
+  ]
+ },
+ "r6": {
+  "h1": "Suriçi Ziyaretleri",
+  "pills": [
+   "7 durak",
+   "≈ 3,5 saat",
+   "5,7 km yürüyüş"
+  ],
+  "about": [
+   "Yedikule’den Tekfur Sarayı’na kara surlarının izinde yedi durak, yaklaşık 6 km. Kariye 2024’ten beri ibadete açık bir camidir; yabancı ziyaretçiler ücretli girer."
+  ],
+  "how": {
+   "start": "T6 Yedikule (4 dk) ya da Marmaray/T6 Kazlıçeşme.",
+   "along": "Surlar boyunca Silivrikapı, Mevlanakapı, Topkapı ve Edirnekapı; Topkapı’da T1 ve T4, Edirnekapı’da T4 durağı ile rota bölünebilir.",
+   "back": "T4 Edirnekapı → Topkapı (T1) ya da Tekfur’dan T5 Balat/Ayvansaray (9 dk)."
+  },
+  "tip": [
+   "<strong>İpucu</strong> Başlangıç için Marmaray ya da T6 ile Kazlıçeşme/Yedikule. Topkapı’da T1 ve T4, Edirnekapı’da T4 durağı vardır; yorulursanız rotayı buralarda bölebilirsiniz. Su ve şapka alın."
+  ],
+  "cards": [
+   "zr-about",
+   "zr-howto",
+   "zr-steps"
+  ]
+ }
+}

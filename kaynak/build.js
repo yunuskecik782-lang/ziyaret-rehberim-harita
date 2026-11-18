@@ -10,6 +10,8 @@ const LF = path.join(__dirname, "vendor/leaflet/");
 const fonts = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Plus+Jakarta+Sans:wght@500..800&display=swap">';
 // Gerçek haritalı sürümlerde, betik çalışmadan önce görünen varsayılan metinler şematik çizimden söz etmesin.
 const SITE = "https://ziyaretrehberim.com/";
+// Yeni ön yüzün (site/ klasöründen üretilir) bu alan adındaki yolu. Hesap ve "Rotalarım" bağlantıları buraya gider.
+const SITE_YOL = "/yeni/";
 const realBody = (h) => h
   .replace('<span class="brand">Ziyaret Rehberim</span>', `<a class="brand" href="${SITE}" title="Ziyaret Rehberim sitesine dön">Ziyaret Rehberim</a>`)
   .replace('<button class="btn sm dark" type="button" id="info-x">Anladım</button>', `<span class="info-acts"><button class="btn sm dark" type="button" id="info-x">Anladım</button><a class="btn sm" href="${SITE}">Siteye dön</a></span>`)
@@ -17,7 +19,7 @@ const realBody = (h) => h
   .split("Önizleme hakkında").join("Harita hakkında")
   .replace("Bu, yeni düzenin çalışan bir örneği", "Gerçek harita ve uydu görüntüsü")
   .replace(/<li>Harita <b>şematik bir çizimdir<\/b>;[^\n]*<\/li>/, "<li>Duraklar <b>gerçek harita</b> üzerinde gösterilir. Sağdaki düğmeyle sokak haritası ile uydu görüntüsü arasında geçersin.</li>")
-  .replace(/<li>Önizleme gerçek konumunu okuyamaz\.[^\n]*<\/li>/, "<li>“Konumumu bul”, tarayıcı izin verirse gerçek konumunu gösterir; konum yalnızca tarayıcında kalır.</li>");
+  .replace(/<li>Önizleme gerçek konumunu okuyamaz\.[^\n]*<\/li>/, "<li>“Konumumu bul”, tarayıcı izin verirse gerçek konumunu gösterir. Konumun bizde saklanmaz.</li>");
 const page = (real, web) => `${web ? "" : `<title>Ziyaret Rehberim Haritası</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 ${fonts}
@@ -26,7 +28,7 @@ ${real ? "/* Leaflet 1.9.4 · BSD-2-Clause · (c) Volodymyr Agafonkin */\n" + fs
 ${real ? realBody(rd("body.html")) : rd("body.html")}
 ${real ? "<script>\n/* Leaflet 1.9.4 · BSD-2-Clause · (c) Volodymyr Agafonkin */\n" + fs.readFileSync(LF + "leaflet.js", "utf8").replace(/\/\/# sourceMappingURL=.*$/m, "") + "</script>\n" : ""}<script>
 ${rd("data.js")}</script>
-<script>
+${real ? "<script>\n" + (web ? 'globalThis.ZR_SITE = "' + SITE_YOL + '";\n' : "") + rd("yol.js") + rd("hesap.js") + "</script>\n" : ""}<script>
 ${rd("app.js")}</script>
 `;
 const reset = ":root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}";
