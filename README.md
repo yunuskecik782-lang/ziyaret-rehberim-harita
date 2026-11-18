@@ -6,6 +6,11 @@ rotayı cihazına kaydeder ya da Google Haritalar / Apple Haritalar'da açar.
 
 Bu depo bir **deneme yayınıdır**; sayfa şimdilik arama motorlarına kapalıdır (`noindex`).
 
+## Yayın
+
+Sayfa GitHub Pages ile `gh-pages` dalından yayınlanır. `main` ve `gh-pages` aynı içeriği taşır;
+her güncellemede ikisi birlikte gönderilir: `git push origin main main:gh-pages`.
+
 ## Dosyalar
 
 - `index.html`: yayınlanan sayfa. Tek dosyadır, `kaynak/` içindeki parçalardan üretilir. Elle düzenlenmez.
