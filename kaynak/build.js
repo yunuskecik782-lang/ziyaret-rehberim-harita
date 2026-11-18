@@ -13,6 +13,9 @@ const fonts = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fa
 const SITE = "https://ziyaretrehberim.com/";
 // Sitenin (site/ klasöründen üretilir) bu alan adındaki yolu. Hesap, "Rotalarım" ve rota sayfası bağlantıları buraya gider.
 const SITE_YOL = "/";
+// "Rotayı başlat" ekranındaki eğik harita MapLibre GL ile çizilir. Dosyalar kaynak/vendor/maplibre içinde durur, site/build.js onları /a/ altına kopyalar;
+// sayfa bu dosyaları yalnızca rota başlatılınca yükler.
+const GL_SURUM = "4.7.1";
 // web sürümünde site bağlantıları aynı alan adına görelidir ve gömülü görünümde üst pencerede açılır.
 const realBody = (h, web) => h
   .replace('<span class="brand">Ziyaret Rehberim</span>', `<a class="brand" href="${web ? SITE_YOL : SITE}"${web ? ' target="_top"' : ""} title="Ziyaret Rehberim sitesine dön">Ziyaret Rehberim</a>`)
@@ -30,7 +33,7 @@ ${real ? "/* Leaflet 1.9.4 · BSD-2-Clause · (c) Volodymyr Agafonkin */\n" + fs
 ${real ? realBody(rd("body.html"), web) : rd("body.html")}
 ${real ? "<script>\n/* Leaflet 1.9.4 · BSD-2-Clause · (c) Volodymyr Agafonkin */\n" + fs.readFileSync(LF + "leaflet.js", "utf8").replace(/\/\/# sourceMappingURL=.*$/m, "") + "</script>\n" : ""}<script>
 ${rd("data.js")}</script>
-${real ? "<script>\n" + (web ? 'globalThis.ZR_SITE = location.origin + "' + SITE_YOL + '";\n' : "") + rd("yol.js") + rd("hesap.js") + "</script>\n" : ""}<script>
+${real ? "<script>\n" + (web ? 'globalThis.ZR_SITE = location.origin + "' + SITE_YOL + '";\nglobalThis.ZR_GL = { js: "' + SITE_YOL + 'a/maplibre-gl.js?v=' + GL_SURUM + '", css: "' + SITE_YOL + 'a/maplibre-gl.css?v=' + GL_SURUM + '" };\n' : "") + rd("yol.js") + rd("hesap.js") + "</script>\n" : ""}<script>
 ${rd("app.js")}</script>
 `;
 const reset = ":root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}";

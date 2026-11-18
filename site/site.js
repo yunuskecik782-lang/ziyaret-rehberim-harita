@@ -92,10 +92,24 @@
   }
 
   /* ——— Ortak harita kurulumu ——— */
-  function haritaKur(host, ipucuMetni) {
+  // Haritalar uydu görünümüyle açılır. Ziyaretçi düğmeyle sokak haritasına geçerse bu tercih saklanır (harita uygulamasıyla ortak anahtar).
+  const KATMAN = "zr.katman.2", UYDU_K = "Uydu görüntüsü: Esri, Maxar, Earthstar Geographics", SOKAK_K = '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> katkıda bulunanlar';
+  function haritaKur(host, ipucuMetni, dugme, kaynak) {
     const map = L.map(host, { zoomControl: false, attributionControl: false, scrollWheelZoom: false, dragging: !dokunmatik, touchZoom: true, minZoom: 10, maxZoom: 19, zoomSnap: 0.5, maxBounds: [[40.85, 28.6], [41.25, 29.35]], maxBoundsViscosity: 0.6 });
     L.control.zoom({ position: "bottomright", zoomInTitle: "Yakınlaştır", zoomOutTitle: "Uzaklaştır" }).addTo(map);
-    const sokak = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, referrerPolicy: "strict-origin-when-cross-origin" }).addTo(map);
+    const sokak = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, referrerPolicy: "strict-origin-when-cross-origin" });
+    const uydu = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19 });
+    const uyduAd = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, zIndex: 2 });
+    function katman(a, sakla) {
+      if (a) { map.removeLayer(sokak); uydu.addTo(map); uyduAd.addTo(map); } else { map.removeLayer(uydu); map.removeLayer(uyduAd); sokak.addTo(map); }
+      host.classList.toggle("uydu", a);
+      if (dugme) { dugme.setAttribute("aria-pressed", a); dugme.lastElementChild.textContent = a ? "Harita" : "Uydu"; dugme.title = a ? "Sokak haritasına geç" : "Uydu görüntüsüne geç"; }
+      if (kaynak) kaynak.innerHTML = a ? UYDU_K : SOKAK_K;
+      if (sakla) try { localStorage.setItem(KATMAN, a ? "uydu" : "sokak"); } catch (e) {}
+    }
+    let ilk = true; try { ilk = localStorage.getItem(KATMAN) !== "sokak"; } catch (e) {}
+    katman(ilk);
+    if (dugme) dugme.addEventListener("click", () => katman(!map.hasLayer(uydu), true));
     // Bilgisayarda fare tekerleği sayfayı kaydırır; haritaya bir kez tıklanınca yakınlaştırmaya geçer.
     map.on("click", () => map.scrollWheelZoom.enable()); host.addEventListener("mouseleave", () => map.scrollWheelZoom.disable());
     // Telefonda tek parmak sayfayı kaydırır, harita iki parmakla oynar.
@@ -103,7 +117,7 @@
       const ip = document.createElement("div"); ip.className = "h-ipucu"; ip.textContent = ipucuMetni; host.appendChild(ip); let t;
       host.addEventListener("touchmove", (e) => { if (e.touches.length === 1 && !map.dragging.enabled()) { ip.classList.add("gor"); clearTimeout(t); t = setTimeout(() => ip.classList.remove("gor"), 1400); } else ip.classList.remove("gor"); }, { passive: true });
     }
-    return { map, sokak };
+    return { map };
   }
   const imk = (sinif, yazi, stil) => L.divIcon({ className: "imk " + sinif, html: `<span${stil ? ` style="${stil}"` : ""}>${yazi}</span>`, iconSize: [0, 0] });
   function konumAl(tamam, hata) {
@@ -114,9 +128,7 @@
   /* ——— Rota sayfası: geniş harita, numaralı duraklar, sokaklardan yürüyüş yolu ve dönüş tarifi ——— */
   function rotaSayfa() {
     const R = veri, DU = R.duraklar, n = DU.length, host = $("#harita"), kart = $("#harita-kart");
-    const { map, sokak } = haritaKur(host, "Haritayı kaydırmak için iki parmağını kullan ya da “Büyüt”e dokun");
-    const uydu = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19 });
-    const uyduAd = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, zIndex: 2 });
+    const { map } = haritaKur(host, "Haritayı kaydırmak için iki parmağını kullan ya da “Büyüt”e dokun", $('[data-h="uydu"]'), $("#h-kaynak"));
     const pts = DU.map((d) => [d.lat, d.lng]), sinir = L.latLngBounds(pts).pad(0.14);
     map.fitBounds(sinir);
     const cizgi = L.layerGroup().addTo(map);
@@ -127,17 +139,18 @@
     });
     function sec(no) { isaret.forEach((m, i) => { const el = m.getElement(); if (el) el.classList.toggle("sec", DU[i].n === no); }); }
 
-    // Aralar: taşıtla geçilenler düz kesik çizgi; yürünenler sokak yolu gelince dolu çizgi.
+    // Aralar: taşıtla geçilenler noktalı çizgi; yürünenler sokak yolu gelince dolu çizgi.
+    // Sokak yolu beklenirken düz çizgi çizilmez; kuş uçuşu kesik çizgi yalnızca yol alınamazsa görünür.
     const tasit = new Set(R.tasit), ara = [];
     for (let k = 0; k < n - 1; k++) ara.push({ tasit: tasit.has(k), d: olc(pts[k], pts[k + 1]), pts: null, adim: null });
-    const kosular = []; let bas = 0;
+    const kosular = []; let bas = 0, bekle = true;
     for (let k = 0; k < n; k++) if (k === n - 1 || tasit.has(k)) { if (k > bas) kosular.push([bas, k]); bas = k + 1; }
     function ciz() {
       cizgi.clearLayers();
       ara.forEach((a, k) => {
         if (a.tasit) L.polyline([pts[k], pts[k + 1]], { className: "yl-tasit", interactive: false }).addTo(cizgi);
         else if (a.pts) { L.polyline(a.pts, { className: "yl-kasa", interactive: false }).addTo(cizgi); L.polyline(a.pts, { className: "yl-ana", interactive: false }).addTo(cizgi); }
-        else L.polyline([pts[k], pts[k + 1]], { className: "yl-kesik", interactive: false }).addTo(cizgi);
+        else if (!bekle) L.polyline([pts[k], pts[k + 1]], { className: "yl-kesik", interactive: false }).addTo(cizgi);
       });
     }
     ciz();
@@ -160,14 +173,14 @@
     const saklaAl = (k) => { try { const v = JSON.parse(localStorage.getItem(CK + k) || "null"); if (v && Date.now() - v.t < 30 * 864e5) return v.l; } catch (e) {} return null; };
     const saklaYaz = (k, l) => { try { localStorage.setItem(CK + k, JSON.stringify({ t: Date.now(), l: l.map((x) => ({ d: Math.round(x.d), pts: x.pts.map((p) => [+p[0].toFixed(5), +p[1].toFixed(5)]), adim: x.adim })) })); } catch (e) {} };
     async function yolGetir() {
-      if (!YOL || !kosular.length) { durum.hidden = true; return tarifYaz(); }
+      if (!YOL || !kosular.length) { durum.hidden = true; bekle = false; ciz(); return tarifYaz(); }
       durum.hidden = false; durum.className = "tarif-durum bekle"; durum.textContent = "Sokak sokak yürüyüş yolu hazırlanıyor…";
       const son = await Promise.allSettled(kosular.map(async ([a, b]) => {
         const p = pts.slice(a, b + 1), k = ozet(YOL.anahtar(p)); let l = saklaAl(k);
         if (!l) { l = (await YOL.yol(p)).legs; saklaYaz(k, l); }
         l.forEach((x, i) => { Object.assign(ara[a + i], { d: x.d, pts: x.pts, adim: x.adim }); });
       }));
-      ciz(); tarifYaz();
+      bekle = false; ciz(); tarifYaz();
       if (son.some((s) => s.status === "rejected")) {
         durum.className = "tarif-durum"; durum.innerHTML = `Sokak tarifi şu an alınamadı; haritadaki kesik çizgi durakları kuş uçuşu birleştirir. <button class="btn kucuk" type="button" id="yol-yeniden">Yeniden dene</button>`;
         $("#yol-yeniden").addEventListener("click", yolGetir);
@@ -176,7 +189,7 @@
     tarifYaz(); yolGetir();
 
     // Düğmeler: büyüt, uydu, konum
-    const bBuyut = $('[data-h="buyut"]'), bUydu = $('[data-h="uydu"]'), bKonum = $('[data-h="konum"]'), kaynak = $("#h-kaynak");
+    const bBuyut = $('[data-h="buyut"]'), bKonum = $('[data-h="konum"]');
     function buyut(a) {
       kart.classList.toggle("buyuk", a); bBuyut.setAttribute("aria-pressed", a); bBuyut.innerHTML = ic(a ? "kucult" : "buyut") + `<span>${a ? "Küçült" : "Büyüt"}</span>`;
       document.documentElement.style.overflow = a ? "hidden" : "";
@@ -185,12 +198,6 @@
     }
     bBuyut.addEventListener("click", () => buyut(!kart.classList.contains("buyuk")));
     addEventListener("keydown", (e) => { if (e.key === "Escape" && kart.classList.contains("buyuk")) buyut(false); });
-    bUydu.addEventListener("click", () => {
-      const a = !map.hasLayer(uydu);
-      if (a) { map.removeLayer(sokak); uydu.addTo(map); uyduAd.addTo(map); } else { map.removeLayer(uydu); map.removeLayer(uyduAd); sokak.addTo(map); }
-      host.classList.toggle("uydu", a); bUydu.setAttribute("aria-pressed", a); bUydu.lastElementChild.textContent = a ? "Harita" : "Uydu";
-      kaynak.innerHTML = a ? "Uydu görüntüsü: Esri, Maxar, Earthstar Geographics" : '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> katkıda bulunanlar';
-    });
     let ben, benC;
     bKonum.addEventListener("click", () => {
       bKonum.disabled = true;
@@ -224,7 +231,7 @@
     const AG = veri.ag, ROT = veri.rotalar, DUR = AG.durak, HAT = AG.hat;
     const HIZ = { T1: 280, T4: 280, T5: 280, T6: 450, M1: 550, M2: 550, Marmaray: 650 }, KISA = { Marmaray: "MR" };
     const yer = (ad) => [DUR[ad][0], DUR[ad][1]];
-    const { map } = haritaKur($("#harita"), "Haritayı kaydırmak için iki parmağını kullan");
+    const { map } = haritaKur($("#harita"), "Haritayı kaydırmak için iki parmağını kullan", $('[data-h="uydu"]'), $("#h-kaynak"));
     const tumu = L.latLngBounds(Object.keys(DUR).filter((d) => d !== "Üsküdar").map(yer)).pad(0.06);
     map.fitBounds(tumu);
     // Bütün hatlar soluk ve şematik; duraklar küçük nokta
@@ -365,7 +372,6 @@
   }
 
   /* ——— Hesabım ——— */
-  const CIHAZ_NOTU = `<div class="bilgi-not">${ic("bilgi")}<p>Hesabın şimdilik <b>yalnızca bu cihazda, bu tarayıcıda</b> durur. Başka bir telefonda ya da bilgisayarda görünmez; şifreni unutursan sıfırlanamaz. E-posta ya da telefon numarası istemiyoruz.</p></div>`;
   function hesabim() {
     const kok = $("#hesap"), rot = $("#hesap-rotalar"); let sek = location.hash === "#kayit" ? "kayit" : "giris", mesaj = "", liste = false;
     function ciz() {
@@ -380,18 +386,16 @@
 ${k ? '<div class="alan"><label for="h-sifre2">Şifre (tekrar)</label><input id="h-sifre2" name="sifre2" type="password" autocomplete="new-password" required></div>' : ""}
 <div class="hata" role="alert" hidden></div>
 <button class="btn koyu" type="submit">${k ? "Hesabımı oluştur" : "Giriş yap"}</button></form>
-${mis ? `<p class="ince" style="margin-top:14px">Bu cihazda giriş yapmadan kaydedilmiş ${mis} rota var. ${k ? "Hesabını oluşturunca" : "Giriş yapınca"} hesabına taşıyabilirsin.</p>` : ""}
-<div style="margin-top:16px">${CIHAZ_NOTU}</div></div>`;
+${mis ? `<p class="ince" style="margin-top:14px">Giriş yapmadan kaydedilmiş ${mis} rotan var. ${k ? "Hesabını oluşturunca" : "Giriş yapınca"} hesabına taşıyabilirsin.</p>` : ""}</div>`;
         return;
       }
       const n = HESAP.rotalar().length;
       kok.innerHTML = `<div class="kart">${mesaj ? `<p class="tamam" style="margin-bottom:16px">${esc(mesaj)}</p>` : ""}
-<div class="profil"><span class="harf">${esc(a.ad.charAt(0).toLocaleUpperCase("tr"))}</span><div><h2>${esc(a.ad)}</h2><p class="ince">${n ? n + " kayıtlı rota" : "Henüz kayıtlı rota yok"} · hesap bu cihazda</p></div></div>
+<div class="profil"><span class="harf">${esc(a.ad.charAt(0).toLocaleUpperCase("tr"))}</span><div><h2>${esc(a.ad)}</h2><p class="ince">${n ? n + " kayıtlı rota" : "Henüz kayıtlı rota yok"}</p></div></div>
 ${mis ? `<div class="uyari-serit" style="margin:16px 0 0"><span>Giriş yapmadan kaydettiğin ${mis} rota var.</span><button class="btn kucuk koyu" type="button" data-is="tasi">Hesabıma taşı</button></div>` : ""}
 <div class="dugmeler" style="margin-top:18px"><a class="btn altin" href="${ZR_YER.olustur}">${ic("rota")}Rota oluştur</a><a class="btn" href="${ZR_YER.rotalarim}">${ic("mark")}Rotalarım</a><button class="btn" type="button" data-is="cikis">Çıkış yap</button></div>
 <details class="katla"><summary>${ic("fwd")}Şifre değiştir</summary><form class="form" data-form="sifre" novalidate><div class="alan"><label for="s-eski">Şimdiki şifre</label><input id="s-eski" name="eski" type="password" autocomplete="current-password" required></div><div class="alan"><label for="s-yeni">Yeni şifre</label><input id="s-yeni" name="yeni" type="password" autocomplete="new-password" required><small>En az 6 karakter.</small></div><div class="hata" role="alert" hidden></div><button class="btn koyu" type="submit">Şifreyi değiştir</button></form></details>
-<details class="katla"><summary>${ic("fwd")}Hesabı sil</summary><form class="form" data-form="sil" novalidate><p class="ince">Hesap ve bu hesaba kayıtlı rotalar bu cihazdan silinir. Geri alınamaz.</p><div class="alan"><label for="x-sifre">Şifre</label><input id="x-sifre" name="sifre" type="password" autocomplete="current-password" required></div><div class="hata" role="alert" hidden></div><button class="btn" type="submit">Hesabımı sil</button></form></details>
-<div style="margin-top:16px">${CIHAZ_NOTU}</div></div>`;
+<details class="katla"><summary>${ic("fwd")}Hesabı sil</summary><form class="form" data-form="sil" novalidate><p class="ince">Hesap ve bu hesaba kayıtlı rotalar silinir. Geri alınamaz.</p><div class="alan"><label for="x-sifre">Şifre</label><input id="x-sifre" name="sifre" type="password" autocomplete="current-password" required></div><div class="hata" role="alert" hidden></div><button class="btn" type="submit">Hesabımı sil</button></form></details></div>`;
       if (!liste) { liste = true; kayitListesi($("#kayitlar")); }
     }
     kok.addEventListener("click", (e) => {
@@ -415,7 +419,7 @@ ${mis ? `<div class="uyari-serit" style="margin:16px 0 0"><span>Giriş yapmadan 
       if (f.dataset.form === "kayit") mesaj = "Hesabın oluşturuldu. Hoş geldin!";
       else if (f.dataset.form === "giris") mesaj = "Giriş yapıldı. Hoş geldin!";
       else if (f.dataset.form === "sifre") { mesaj = "Şifren değiştirildi."; }
-      else { mesaj = ""; bildir("Hesabın bu cihazdan silindi."); }
+      else { mesaj = ""; bildir("Hesabın silindi."); }
       ciz(); scrollTo({ top: 0, behavior: "smooth" });
     });
     HESAP.dinle(() => { if (!document.activeElement || !kok.contains(document.activeElement) || document.activeElement.tagName !== "INPUT") ciz(); });
@@ -425,7 +429,7 @@ ${mis ? `<div class="uyari-serit" style="margin:16px 0 0"><span>Giriş yapmadan 
   /* ——— Rotalarım ——— */
   function rotalarim() {
     const mis = $("#misafir");
-    const yaz = () => { const a = HESAP.aktif(), n = HESAP.rotalar().length; mis.innerHTML = a ? `<p class="ince" style="margin-bottom:14px"><b>${esc(a.ad)}</b> hesabına kayıtlı rotalar. Hesap bu cihazda durur.</p>` : `<div class="uyari-serit"><span>${n ? "Bu rotalar bu cihazda misafir olarak kayıtlı." : "Giriş yapmadın."} Kullanıcı adı ve şifre oluşturursan rotaların hesabında durur.</span><a class="btn kucuk koyu" href="${ZR_YER.hesap}">Giriş yap ya da hesap oluştur</a></div>`; };
+    const yaz = () => { const a = HESAP.aktif(), n = HESAP.rotalar().length; mis.innerHTML = a ? `<p class="ince" style="margin-bottom:14px"><b>${esc(a.ad)}</b> hesabına kayıtlı rotalar.</p>` : `<div class="uyari-serit"><span>${n ? "Bu rotalar giriş yapmadan kaydedilmiş. Giriş yapınca hesabına taşıyabilirsin." : "Rota kaydetmek için giriş yapman gerekir."}</span><a class="btn kucuk koyu" href="${ZR_YER.hesap}">Giriş yap ya da hesap oluştur</a></div>`; };
     HESAP.dinle(yaz); yaz(); kayitListesi($("#kayitlar"));
   }
 

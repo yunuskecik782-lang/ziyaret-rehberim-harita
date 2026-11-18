@@ -44,7 +44,7 @@ globalThis.ZR_HESAP = (() => {
     const hata = denetle(ad, sifre); if (hata) return { ok: false, hata };
     if (!kripto()) return { ok: false, hata: "Bu tarayıcı güvenli şifre saklamayı desteklemiyor ya da sayfa güvenli (https) adresten açılmadı." };
     const h = hesaplar(), id = kimlik(ad);
-    if (h[id]) return { ok: false, hata: "Bu kullanıcı adı bu cihazda zaten var. Giriş yapmayı dene." };
+    if (h[id]) return { ok: false, hata: "Bu kullanıcı adı zaten var. Giriş yapmayı dene." };
     const tuz = hex(kripto().getRandomValues(new Uint8Array(16)));
     h[id] = { ad: String(ad).trim(), tuz, ozet: await ozet(sifre, tuz), t: Date.now() };
     if (!ls.yaz(K_H, JSON.stringify(h))) return { ok: false, hata: "Tarayıcı kayda izin vermedi. Gizli pencerede olabilirsin." };
@@ -53,7 +53,7 @@ globalThis.ZR_HESAP = (() => {
   }
   async function giris(ad, sifre) {
     const h = hesaplar(), id = kimlik(ad), kay = h[id];
-    if (!kay) return { ok: false, hata: "Bu cihazda böyle bir kullanıcı adı yok. Hesaplar şimdilik oluşturuldukları cihazda durur." };
+    if (!kay) return { ok: false, hata: "Böyle bir kullanıcı adı bulunamadı. Yazımı kontrol et ya da hesap oluştur." };
     if (!kripto()) return { ok: false, hata: "Sayfa güvenli (https) adresten açılmadığı için giriş yapılamıyor." };
     if (!esit(await ozet(sifre, kay.tuz), kay.ozet)) return { ok: false, hata: "Şifre yanlış." };
     ls.yaz(K_O, id); duyur();

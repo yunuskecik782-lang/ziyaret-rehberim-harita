@@ -36,16 +36,47 @@
     <div class="sheet-head" id="sheet-head">
       <button class="grab" id="grab" type="button" aria-label="Paneli büyüt ya da küçült"><span></span></button>
       <div class="seg" role="tablist" aria-label="Görünüm">
+        <button type="button" role="tab" id="tab-hazir" data-tab="hazir" aria-selected="false">Hazır rotalar</button>
         <button type="button" role="tab" id="tab-kesfet" data-tab="kesfet" aria-selected="true">Keşfet</button>
         <button type="button" role="tab" id="tab-rota" data-tab="rota" aria-selected="false">Rotam <b id="rcount" hidden>0</b></button>
       </div>
     </div>
     <div class="sheet-body" id="body">
+      <div class="panel" id="p-hazir" hidden></div>
       <div class="panel" id="p-kesfet"></div>
       <div class="panel" id="p-detail" hidden></div>
       <div class="panel" id="p-rota" hidden></div>
     </div>
   </section>
+
+  <div class="go" id="go" hidden>
+    <button class="btn gold" type="button" id="go-start"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 17-7-4-7 4z"/></svg>Rotayı başlat</button>
+    <a class="go-x" id="go-g" href="#" target="_blank" rel="noopener" aria-label="Rotayı Google Haritalar’da aç"><b>Google</b><small>Haritalar’da aç</small></a>
+    <a class="go-x" id="go-a" href="#" target="_blank" rel="noopener" aria-label="Rotayı Apple Haritalar’da aç"><b>Apple</b><small>Haritalar’da aç</small></a>
+  </div>
+
+  <div class="sor" id="sor" hidden role="alertdialog" aria-labelledby="sor-b" aria-describedby="sor-t">
+    <b id="sor-b"></b><span id="sor-t"></span>
+    <div class="row"><button class="btn sm dark" type="button" id="sor-e">Evet</button><button class="btn sm" type="button" id="sor-h">Hayır</button></div>
+  </div>
+
+  <div class="nav" id="nav" hidden>
+    <div id="nmap"></div>
+    <div class="nav-top" aria-live="polite">
+      <span class="nav-ic" id="nav-ic"></span>
+      <div class="nav-tx"><b id="nav-d"></b><span id="nav-t"></span></div>
+    </div>
+    <p class="nav-msg" id="nav-msg" hidden></p>
+    <div class="nav-side">
+      <button class="fab" id="nav-v" type="button" aria-pressed="true" aria-label="Üstten görünüme geç"><b>3B</b></button>
+      <button class="fab on" id="nav-c" type="button" hidden aria-label="Konumuma ortala"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 17-7-4-7 4z"/></svg></button>
+    </div>
+    <p class="nav-cap" id="nav-cap"></p>
+    <div class="nav-bot">
+      <div class="nav-info"><small id="nav-k"></small><b id="nav-n"></b><span id="nav-r"></span><p id="nav-desc" hidden></p></div>
+      <div class="nav-acts"><button class="btn sm" type="button" id="nav-x">Bitir</button><button class="btn sm dark" type="button" id="nav-s">Sonraki durak</button></div>
+    </div>
+  </div>
 
   <div class="info" id="info" hidden>
     <p class="kicker">Önizleme hakkında</p>

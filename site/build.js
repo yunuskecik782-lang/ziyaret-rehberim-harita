@@ -24,12 +24,13 @@ const ICON = {
   tram: '<rect x="5.5" y="4.5" width="13" height="12.5" rx="2.2"/><path d="M5.5 11h13M9 17l-1.5 3M15 17l1.5 3M9.5 14h.01M14.5 14h.01M10 2.5h4"/>',
   etiket: '<path d="M4 12.2V5.5A1.5 1.5 0 0 1 5.5 4h6.7l7.9 7.9a1.5 1.5 0 0 1 0 2.1l-6 6a1.5 1.5 0 0 1-2.1 0z"/><path d="M8.5 8.5h.01"/>',
   kalp: '<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>',
-  yildiz: '<path d="M12 3.5l2.5 5.3 5.8.7-4.3 4 1.1 5.7L12 16.4 6.9 19.2 8 13.5l-4.3-4 5.8-.7z"/>',
-  tac: '<path d="M4 18.5h16"/><path d="M4.5 15l-1-8 5 4L12 5l3.5 6 5-4-1 8z"/>',
-  cami: '<path d="M6 20v-5.5c0-3.3 2.7-5 6-7.5 3.3 2.5 6 4.2 6 7.5V20"/><path d="M3.5 20h17M12 7V4.5M10.5 20v-3a1.5 1.5 0 0 1 3 0v3"/>',
-  sutun: '<path d="M4 20h16M5.5 17h13M7 17v-6M12 17v-6M17 17v-6M4.5 11h15L12 4.5z"/>',
-  sur: '<path d="M4 20V8h3v2.5h3V8h4v2.5h3V8h3v12z"/><path d="M10 20v-4a2 2 0 0 1 4 0v4"/>',
-  hepsi: '<rect x="4.5" y="4.5" width="6" height="6" rx="1.6"/><rect x="13.5" y="4.5" width="6" height="6" rx="1.6"/><rect x="4.5" y="13.5" width="6" height="6" rx="1.6"/><rect x="13.5" y="13.5" width="6" height="6" rx="1.6"/>',
+  // Kategori simgeleri: hilal ve yıldız (sahâbe), kubbeli türbe (padişah), kubbe ve minare (cami), kule (tarihî mekân), burçlu sur, pusula gülü (hepsi)
+  yildiz: '<path d="M11.5 3.5a6.3 6.3 0 0 0 9 8.6 8.6 8.6 0 1 1-9-8.6z"/><path d="M17.6 3.2l.75 1.75 1.75.75-1.75.75-.75 1.75-.75-1.75-1.75-.75 1.75-.75z"/>',
+  tac: '<path d="M12 2.6v2.2"/><path d="M5.8 12.2a6.2 6.2 0 0 1 12.4 0"/><path d="M4.6 12.2h14.8"/><path d="M6.4 12.2v8.3h11.2v-8.3"/><path d="M10 20.5v-3.6a2 2 0 0 1 4 0v3.6"/><path d="M3.5 20.5h17"/>',
+  cami: '<path d="M2.8 20.5h18.4"/><path d="M4.2 20.5v-5.8a5.4 5.4 0 0 1 10.8 0v5.8"/><path d="M9.6 9.3V7.2"/><path d="M8 20.5v-2.4a1.6 1.6 0 0 1 3.2 0v2.4"/><path d="M17.6 20.5V8.4l1.3-3.2 1.3 3.2v12.1"/><path d="M17.1 11.6h3.6"/>',
+  sutun: '<path d="M8.6 20.5V10.2l3.4-6.4 3.4 6.4v10.3"/><path d="M7.6 10.2h8.8"/><path d="M8.6 14.2h6.8"/><path d="M10.9 20.5v-2.8a1.1 1.1 0 0 1 2.2 0v2.8"/><path d="M5.5 20.5h13"/>',
+  sur: '<path d="M3.6 20.5V7.6h3v2.6h2.8V7.6h5.2v2.6h2.8V7.6h3v12.9z"/><path d="M9.8 20.5v-4a2.2 2.2 0 0 1 4.4 0v4"/><path d="M6 13.4h.01M18 13.4h.01"/>',
+  hepsi: '<circle cx="12" cy="12" r="8.6"/><path d="M14.9 9.1l-1.7 4.1-4.1 1.7 1.7-4.1z"/><path d="M12 3.4v1.6M12 19v1.6M3.4 12H5M19 12h1.6"/>',
   fincan: '<path d="M6 9h10v5a5 5 0 0 1-10 0z"/><path d="M16 10.5h1.5a2.2 2.2 0 0 1 0 4.4H16M5 20h12M9 3.5v2M12.5 3.5v2"/>',
   damla: '<path d="M12 3.5s6 6.2 6 10.5a6 6 0 0 1-12 0c0-4.3 6-10.5 6-10.5z"/>',
   balon: '<path d="M5 6.5A1.5 1.5 0 0 1 6.5 5h11A1.5 1.5 0 0 1 19 6.5v8a1.5 1.5 0 0 1-1.5 1.5H11l-4 3.5V16H6.5A1.5 1.5 0 0 1 5 14.5z"/>',
@@ -79,10 +80,55 @@ const ROTALAR = D.ROUTES.map((r, i) => {
 });
 const yol = { ana: KOK, olustur: KOK + "rota-olustur/", guz: KOK + "guzergahlar/", ulasim: KOK + "ulasim/", ucret: KOK + "ucretler-ve-saatler/", adab: KOK + "ziyaret-adabi/", hesap: KOK + "hesabim/", rotalarim: KOK + "rotalarim/" };
 
-/* ——— Zemin: çok soluk İstanbul çizgi haritası (kaynak/data.js içindeki kıyı, sur ve köprü çizgilerinden) ——— */
-const zx = (lng) => (500 + ((lng - 28.958) * 0.7547 / 0.124) * 1000).toFixed(1), zy = (lat) => (500 - ((lat - 41.022) / 0.124) * 1000).toFixed(1);
-const zd = (pts, kapat) => "M" + pts.map((p) => zx(p[1]) + " " + zy(p[0])).join("L") + (kapat ? "Z" : "");
-const ZEMIN = `<div class="zemin" aria-hidden="true"><svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice"><path class="kara" d="${zd(D.GEO.europe, 1)}"/><path class="kara" d="${zd(D.GEO.asia, 1)}"/><path class="sur" d="${zd(D.GEO.walls)}"/>${D.GEO.bridges.map((b) => `<path class="kopru" d="${zd(b)}"/>`).join("")}${ROTALAR.map((r, i) => `<path class="iz ${r.id}" style="--i:${i}" pathLength="1" d="${zd(r.duraklar.map((d) => [d.lat, d.lng]))}"/>`).join("")}${ROTALAR.map((r) => r.duraklar.filter((d, k) => k % 2 === 0).map((d) => `<circle class="nokta ${r.id}" cx="${zx(d.lng)}" cy="${zy(d.lat)}" r="2.4"/>`).join("")).join("")}</svg></div>`;
+/* ——— Zemin: tarihî yarımadanın (Fatih) yumuşak çizgilerle soluk bir haritası ———
+   Kıyı ve sur çizgisi, yedi tepeyi anlatan eşyükselti halkaları, ana caddeler boyunca akan noktalar ve gidip gelen küçük oklar.
+   Hepsi elle seçilmiş yaklaşık noktalardan yumuşatılarak çizilir; ölçekli bir harita değil, bir desendir. */
+const zx = (lng) => 500 + (lng - 28.9525) * 0.7547 * 111.32 * 98, zy = (lat) => 500 - (lat - 41.0155) * 111.05 * 98;
+const zp = (l) => l.map((p) => [zx(p[1]), zy(p[0])]);
+const f1 = (v) => v.toFixed(1);
+// Catmull-Rom noktalarından kübik Bézier yolu: köşesiz, organik çizgi
+const yumusak = (P, kapali) => {
+  const n = P.length, g = (i) => (kapali ? P[(i + n) % n] : P[Math.max(0, Math.min(n - 1, i))]);
+  let d = `M${f1(P[0][0])} ${f1(P[0][1])}`;
+  for (let i = 0; i < (kapali ? n : n - 1); i++) {
+    const p0 = g(i - 1), p1 = g(i), p2 = g(i + 1), p3 = g(i + 2), t = 1 / 6;
+    d += `C${f1(p1[0] + (p2[0] - p0[0]) * t)} ${f1(p1[1] + (p2[1] - p0[1]) * t)} ${f1(p2[0] - (p3[0] - p1[0]) * t)} ${f1(p2[1] - (p3[1] - p1[1]) * t)} ${f1(p2[0])} ${f1(p2[1])}`;
+  }
+  return d + (kapali ? "Z" : "");
+};
+const Z_HALIC = [[41.0405, 28.9415], [41.0345, 28.949], [41.0305, 28.954], [41.025, 28.96], [41.0205, 28.964], [41.0177, 28.9712], [41.0165, 28.979], [41.0155, 28.986]];
+const Z_MARMARA = [[41.0045, 28.984], [41.002, 28.973], [41.001, 28.964], [41.0015, 28.952], [41.0, 28.944], [40.9985, 28.934], [40.995, 28.927], [40.9905, 28.9215]];
+const Z_SUR = [[40.9935, 28.9225], [41.001, 28.9205], [41.0055, 28.9215], [41.0105, 28.921], [41.0175, 28.9225], [41.03, 28.935], [41.037, 28.9395], [41.0405, 28.9415]];
+const Z_YARIMADA = zp([...Z_HALIC, ...Z_MARMARA, ...Z_SUR.slice(0, -1)]);
+const zOrta = Z_YARIMADA.reduce((a, p) => [a[0] + p[0] / Z_YARIMADA.length, a[1] + p[1] / Z_YARIMADA.length], [0, 0]);
+const zBuyut = (k) => Z_YARIMADA.map((p) => [zOrta[0] + (p[0] - zOrta[0]) * k, zOrta[1] + (p[1] - zOrta[1]) * k]);
+const Z_KARSI = [
+  [[41.052, 28.938], [41.046, 28.9455], [41.04, 28.9525], [41.031, 28.964], [41.0245, 28.9692], [41.0215, 28.9765], [41.0265, 28.983], [41.0335, 28.9925], [41.041, 29.005], [41.047, 29.02]],
+  [[41.034, 29.018], [41.0275, 29.014], [41.019, 29.008], [41.009, 29.01], [40.998, 29.018], [40.984, 29.024]],
+];
+const Z_CADDE = [
+  [[41.0082, 28.977], [41.0085, 28.9712], [41.0102, 28.9645], [41.01, 28.953], [41.0128, 28.94], [41.0175, 28.9225]],
+  [[41.0102, 28.9645], [41.0145, 28.957], [41.0196, 28.9498], [41.025, 28.942], [41.03, 28.9355]],
+  [[41.0205, 28.964], [41.015, 28.9555], [41.01, 28.953], [41.003, 28.952]],
+  [[41.0177, 28.9712], [41.0205, 28.964], [41.0245, 28.9592], [41.0298, 28.9532], [41.0338, 28.9482], [41.0392, 28.9418]],
+  [[41.0125, 28.9842], [41.0052, 28.9822], [41.0028, 28.9728], [41.002, 28.964], [41.0026, 28.952], [41.001, 28.9435], [40.9996, 28.934], [40.9952, 28.9248]],
+  [[41.01, 28.953], [41.0165, 28.941], [41.0235, 28.9305]],
+  [[41.004, 28.933], [41.0075, 28.9405], [41.01, 28.953]],
+];
+const Z_TEPE = [[41.01, 28.982], [41.0095, 28.971], [41.0152, 28.964], [41.0196, 28.9498], [41.0265, 28.9515], [41.029, 28.9372], [41.004, 28.933]];
+const Z_DUGUM = [[41.0082, 28.977], [41.0102, 28.9645], [41.0162, 28.964], [41.0196, 28.9498], [41.03, 28.9355], [41.0177, 28.9712], [41.01, 28.953], [40.9935, 28.9225], [41.0392, 28.9418], [41.0338, 28.9482], [41.003, 28.952], [41.0175, 28.9225]];
+// Eşyükselti halkası: yarıçapı açıya göre hafifçe dalgalanan kapalı eğri (her tepe için aynı sonuç)
+const zHalka = (c, r, tohum) => { const P = []; for (let k = 0; k < 9; k++) { const a = (k / 9) * Math.PI * 2, w = 1 + 0.16 * Math.sin(a * 2 + tohum) + 0.09 * Math.cos(a * 3 + tohum * 1.7); P.push([zx(c[1]) + Math.cos(a) * r * w * 1.12, zy(c[0]) + Math.sin(a) * r * w * 0.86]); } return yumusak(P, true); };
+const ZEMIN = `<div class="zemin" aria-hidden="true"><svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
+${[1.4, 1.29, 1.19, 1.1].map((k, i) => `<path class="dalga" style="--i:${3 - i}" d="${yumusak(zBuyut(k), true)}"/>`).join("")}
+${Z_KARSI.map((l) => `<path class="karsi" d="${yumusak(zp(l))}"/>`).join("")}
+<path class="kara" d="${yumusak(Z_YARIMADA, true)}"/>
+<path class="sur" d="${yumusak(zp(Z_SUR))}"/>
+${Z_TEPE.map((c, i) => [15, 29, 44].map((r, j) => `<path class="tepe" style="--j:${j}" d="${zHalka(c, r, i * 1.9 + j * 0.6)}"/>`).join("")).join("")}
+${Z_CADDE.map((l, i) => { const d = yumusak(zp(l)), dt = yumusak(zp(l.slice().reverse())); return `<path class="cadde" id="zc${i}" d="${d}"/><path id="zt${i}" d="${dt}" fill="none"/><path class="akis" style="--i:${i}" d="${d}"/>`; }).join("")}
+${Z_DUGUM.map((p, i) => `<g class="dugum" style="--i:${i}" transform="translate(${f1(zx(p[1]))} ${f1(zy(p[0]))})"><circle class="hale" r="9"/><circle r="2.6"/></g>`).join("")}
+${Z_CADDE.map((l, i) => [0, 1].map((ters) => `<path class="ok${ters ? " ters" : ""}" d="M-4.5-3.4 1.8 0-4.5 3.4"><animateMotion dur="${26 + i * 5}s" begin="${-(i * 3.7 + ters * 11).toFixed(1)}s" repeatCount="indefinite" rotate="auto"><mpath href="#${ters ? "zt" : "zc"}${i}"/></animateMotion></path>`).join("")).join("")}
+</svg></div>`;
 
 /* ——— Ortak parçalar ——— */
 const marka = `<a class="marka" href="${KOK}" aria-label="Ziyaret Rehberim ana sayfa"><img src="${GORSEL}zr-logo.jpg" alt="" width="46" height="46"><span class="marka-y">Ziyaret<b>Rehberim</b></span></a>`;
@@ -177,14 +223,14 @@ const rkart = (r, i) => `<article class="rkart ${r.id}" data-g style="--i:${i % 
 <div class="dugmeler"><a class="btn kucuk koyu" href="${r.yol}">Rotayı aç${ic("fwd")}</a><a class="btn kucuk yumusak" href="${yol.olustur}#rota=${r.id}" data-hash="rota=${r.id}">${ic("rota")}Haritada başlat</a></div></div></article>`;
 
 /* ——— Ana sayfa ——— */
-const KAT = [["sahabe", "r1", "yildiz", "Sahâbe-i Kirâm", 29], ["padisah", "r3", "tac", "Padişah türbeleri", 13], ["cami", "r4", "cami", "Tarihî camiler", 13], ["mekan", "r5", "sutun", "Tarihî mekânlar", 13], ["sur", "r6", "sur", "Suriçi ve surlar", 7], ["sahabe,padisah,cami,mekan,sur", "", "hepsi", "Hepsi", 75]];
+const KAT = [["sahabe", "r1", "yildiz", "Sahâbe-i Kirâm", 29], ["padisah", "r3", "tac", "Padişah türbeleri", 13], ["cami", "r4", "cami", "Tarihî camiler", 13], ["mekan", "r5", "sutun", "Tarihî mekânlar", 13], ["sur", "r6", "sur", "Suriçi ve surlar", 7], ["sahabe,padisah,cami,mekan,sur", "tumu", "hepsi", "Tümü", 75]];
 function anaSayfa() {
-  const govde = `<section class="kapak kap"><div class="kapak-ic"><img src="${GORSEL}ana-kapak.jpg" alt="İstanbul: Haliç, tarihî yarımada ve Boğaz’ın çizimi" width="1254" height="600" fetchpriority="high">
+  const govde = `<section class="kapak kap"><div class="kapak-ic"><img src="${GORSEL}ana-kapak.jpg" srcset="${GORSEL}ana-kapak-k.jpg 1100w, ${GORSEL}ana-kapak.jpg 2000w" sizes="(max-width: 781px) 100vw, min(1240px, 96vw)" alt="Gün batımında Galata Kulesi, Haliç ve tarihî yarımada, havadan" width="2000" height="1125" fetchpriority="high">
 <div class="kapak-kart"><span class="goz">İstanbul · 6 rota · 75 durak</span><h1>${["İstanbul", "Ziyaret", "Rehberi"].map((w, i) => `<span style="--i:${i}">${w}</span>`).join(" ")}</h1>
 <p>Sahâbe kabirleri, padişah türbeleri, tarihî camiler ve kara surları. Haritada seç, rotanı oluştur, yola çık.</p>
 <div class="dugmeler"><a class="btn altin" href="#rota-olustur">${ic("rota")}Rotanı oluştur</a><a class="btn" href="#hazir-rotalar">Hazır rotalar</a></div></div></div></section>
 
-<section class="bolum kap" id="rota-olustur"><div class="bolum-bas" data-g><span class="kicker">Harita</span><h2>Ziyaret rotanı oluştur</h2><p>Ne görmek istediğini seç; duraklar gerçek harita üzerinde açılır. En yakın rotayı tek dokunuşla kur ya da durakları kendin seç.</p></div>
+<section class="bolum kap" id="rota-olustur"><div class="bolum-bas" data-g><span class="kicker">Harita</span><h2 class="vurgulu">Ziyaret <em>rotanı</em> oluştur</h2><p>Ne görmek istediğini seç; duraklar gerçek harita üzerinde açılır. En yakın rotayı tek dokunuşla kur ya da durakları kendin seç.</p></div>
 <div class="kat" role="group" aria-label="Ne görmek istersin?">${KAT.map((k, i) => `<a class="${k[1]}" data-g style="--i:${i}" href="${yol.olustur}#kategori=${k[0]}" data-hash="kategori=${k[0]}"><span class="kat-sim">${ic(k[2])}</span><span>${k[3]}<small>${k[4]} durak</small></span></a>`).join("")}</div>
 <div class="cerceve" data-g="buyu"><iframe title="Rota oluşturma haritası" data-src="${HARITA}?gomulu=1" allow="geolocation"></iframe>
 <a class="cerceve-on" href="${yol.olustur}" style="background-image:url(${GORSEL}ana-harita.jpg)"><b>75 durak gerçek harita üzerinde</b><span class="btn altin">${ic("rota")}Haritayı aç</span></a></div>
@@ -227,9 +273,9 @@ function rotaSayfa(r) {
   const govde = `<div class="kap">
 <header class="rota-bas"><span class="goz">Rota ${r.no} · ${esc(r.kicker)}</span><h1>${esc(m.h1)}</h1><p class="ozet">${esc(r.lede)}</p>${haplar(r)}</header>
 <div class="harita-kart" id="harita-kart"><div class="harita" id="harita" role="application" aria-label="${esc(r.name)} güzergâh haritası"></div>
-<div class="h-dugme"><button type="button" data-h="buyut" aria-pressed="false">${ic("buyut")}<span>Büyüt</span></button><button type="button" data-h="uydu" aria-pressed="false">${ic("layers")}<span>Uydu</span></button><button type="button" class="kare" data-h="konum" aria-label="Konumumu göster" title="Konumumu göster">${ic("loc")}</button></div>
+<div class="h-dugme"><button type="button" data-h="buyut" aria-pressed="false">${ic("buyut")}<span>Büyüt</span></button><button type="button" data-h="uydu" aria-pressed="true">${ic("layers")}<span>Harita</span></button><button type="button" class="kare" data-h="konum" aria-label="Konumumu göster" title="Konumumu göster">${ic("loc")}</button></div>
 <div class="h-ipucu" aria-hidden="true">Haritayı kaydırmak için iki parmağını kullan ya da “Büyüt”e dokun</div>
-<div class="harita-alt"><span id="h-kaynak">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> katkıda bulunanlar</span><span class="sag" id="h-yol">Duraklar sırasıyla numaralı</span></div></div>
+<div class="harita-alt"><span id="h-kaynak">Uydu görüntüsü: Esri, Maxar, Earthstar Geographics</span><span class="sag" id="h-yol">Duraklar sırasıyla numaralı</span></div></div>
 
 <section class="bolum" id="duraklar"><div class="bolum-bas" data-g><span class="kicker">Duraklar</span><h2>${n} durak, sırasıyla</h2></div>
 <div class="duraklar">${r.duraklar.map(durak).join("\n")}</div></section>
@@ -261,7 +307,7 @@ function ulasimSayfa() {
 <div class="dugmeler"><button class="btn altin" type="button" id="o-konum">${ic("loc")}Konumumu kullan</button></div>
 <div class="alan"><label for="o-durak">ya da bulunduğun durağı seç</label><select id="o-durak"><option value="">Durak seç…</option>${duraklar.map((d) => `<option>${esc(d)}</option>`).join("")}</select></div>
 <div class="oneri-sonuc" id="o-sonuc" aria-live="polite"><p class="ince">Konumun yalnızca bu sayfada, tarayıcında kullanılır; hiçbir yere gönderilmez ve saklanmaz. Öneri, rehberdeki raylı hatlara göre kabaca hesaplanır.</p></div></div>
-<div><div class="harita" id="harita" role="application" aria-label="Ulaşım önerisi haritası"></div><div class="harita-alt"><span>© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> katkıda bulunanlar</span><span class="sag">Hat çizgileri şematiktir; duraklar arası düz çizilir</span></div></div>
+<div class="oneri-h"><div class="harita" id="harita" role="application" aria-label="Ulaşım önerisi haritası"></div><div class="h-dugme"><button type="button" data-h="uydu" aria-pressed="true">${ic("layers")}<span>Harita</span></button></div><div class="harita-alt"><span id="h-kaynak">Uydu görüntüsü: Esri, Maxar, Earthstar Geographics</span><span class="sag">Hat çizgileri şematiktir; duraklar arası düz çizilir</span></div></div>
 </div></section>
 
 <section class="bolum" id="nasil"><div class="bolum-bas" data-g><span class="kicker">Rota rota</span><h2>Rotalara nasıl gidilir?</h2></div>
@@ -359,6 +405,8 @@ const dosyalar = {
 };
 SURUM = crypto.createHash("sha1").update(Object.values(dosyalar).join("\n")).digest("hex").slice(0, 8);
 for (const [ad, ic2] of Object.entries(dosyalar)) fs.writeFileSync(path.join(CIKTI, "a", ad), ic2);
+// "Rotayı başlat" ekranının eğik haritası (MapLibre GL 4.7.1 · BSD-3-Clause). Harita uygulaması bu iki dosyayı yalnızca rota başlatılınca yükler.
+for (const ad of ["maplibre-gl.js", "maplibre-gl.css"]) fs.copyFileSync(path.join(DEPO, "kaynak/vendor/maplibre", ad), path.join(CIKTI, "a", ad));
 const boy = [anaSayfa(), olusturSayfa(), guzSayfa(), ...ROTALAR.map(rotaSayfa), ulasimSayfa(), ucretSayfa(), adabSayfa(), hesapSayfa(), rotalarimSayfa(), yokSayfa()];
 fs.writeFileSync(path.join(CIKTI, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${HARITA_SAYFALARI.map((u) => `<url><loc>${u}</loc><lastmod>${BUGUN}</lastmod></url>`).join("\n")}\n</urlset>\n`);
 fs.writeFileSync(path.join(CIKTI, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${TAM}${KOK}sitemap.xml\n`);

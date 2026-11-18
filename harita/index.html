@@ -839,10 +839,10 @@ a.brand:hover { text-decoration: underline; text-underline-offset: 5px; text-dec
 .grab { display: grid; place-items: center; width: 100%; height: 22px; cursor: grab; }
 .grab span { width: 40px; height: 5px; border-radius: 99px; background: var(--line); transition: width .35s var(--ease), background-color .3s; }
 .sheet.dragging .grab span { width: 56px; background: var(--muted); }
-.seg { position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 15px; background: var(--seg); }
-.seg::before { content: ""; position: absolute; inset: 4px auto 4px 4px; width: calc(50% - 4px); border-radius: 11px; background: var(--glass-strong); box-shadow: 0 6px 14px -8px rgba(30,58,107,.6); transition: transform .55s var(--ease); }
-.app[data-tab="rota"] .seg::before { transform: translateX(100%); }
-.seg button { position: relative; height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: 11px; font: 700 14px/1 var(--f-display); color: var(--muted); transition: color .35s; }
+.seg { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 4px; border-radius: 15px; background: var(--seg); }
+.seg::before { content: ""; position: absolute; inset: 4px auto 4px 4px; width: calc((100% - 8px) / 3); transform: translateX(calc(var(--ti, 1) * 100%)); border-radius: 11px; background: var(--glass-strong); box-shadow: 0 6px 14px -8px rgba(30,58,107,.6); transition: transform .55s var(--ease); }
+.app[data-tab="hazir"] { --ti: 0; } .app[data-tab="kesfet"] { --ti: 1; } .app[data-tab="rota"] { --ti: 2; }
+.seg button { position: relative; height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 11px; font: 700 13.5px/1 var(--f-display); letter-spacing: -.01em; white-space: nowrap; color: var(--muted); transition: color .35s; }
 .seg button[aria-selected="true"] { color: var(--heading); }
 .seg b { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px; display: inline-grid; place-items: center; background: var(--accent); color: var(--on-gold); font: 800 11.5px/1 var(--f-display); font-variant-numeric: tabular-nums; }
 .seg b.bump { animation: bump .55s var(--spring); }
@@ -894,7 +894,7 @@ a.brand:hover { text-decoration: underline; text-underline-offset: 5px; text-dec
   transition: transform .5s var(--spring), background-color .3s, color .3s, border-color .3s; }
 .add svg { transition: transform .5s var(--spring); }
 .add[aria-pressed="true"] { background: var(--accent); border-color: transparent; color: var(--on-gold); }
-.add[aria-pressed="true"] svg { transform: rotate(180deg); }
+.add[aria-pressed="true"] svg { transform: none; }
 .add:active { transform: scale(.85); }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
@@ -1052,7 +1052,6 @@ a.btn { text-decoration: none; }
 /* ——— Yürüyüş yolu ——— */
 #map.sokak .rt-main { stroke-dasharray: none; stroke-width: 4.2px; }
 #map.sokak .rt-case { stroke-width: 9px; }
-.rt-gap { fill: none; stroke: var(--route); stroke-opacity: .55; stroke-width: 2.4px; stroke-dasharray: 2 8; stroke-linecap: round; }
 .yol-durum { display: flex; align-items: center; gap: 8px; margin: 2px 0 6px; font-size: 12.5px; color: var(--muted); }
 .yol-durum .ic { width: 16px; height: 16px; }
 .yol-durum.bekle { animation: nabiz 1.4s ease-in-out infinite; }
@@ -1088,6 +1087,142 @@ a.btn { text-decoration: none; }
   .app.gomulu .sheet { top: 14px; bottom: 14px; }
   .app.gomulu .chips { top: 12px; }
 }
+
+/* ——— Keşfet: uyarı, rota özeti, başlangıç satırı, kategori listesi ——— */
+.uyari { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px 12px; align-items: start; padding: 13px 12px 13px 14px; border-radius: 18px; background: color-mix(in srgb, var(--accent) 16%, var(--glass-strong)); border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); animation: rise .45s var(--ease) both; }
+.uyari-ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: var(--accent); color: var(--on-gold); font-size: 16px; }
+.uyari-tx { display: grid; gap: 3px; min-width: 0; }
+.uyari-tx b { font: 800 14.5px/1.25 var(--f-display); color: var(--heading); }
+.uyari-tx span { font-size: 12.5px; line-height: 1.45; color: var(--fg); }
+.uyari-x { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; color: var(--muted); font-size: 12px; }
+.uyari-x:hover { background: var(--seg); color: var(--heading); }
+.uyari .row { grid-column: 1 / -1; }
+.ozet { gap: 10px; padding: 12px; background: var(--glass-strong); border-color: color-mix(in srgb, var(--accent) 45%, var(--edge)); box-shadow: 0 14px 26px -22px rgba(14,27,46,.7); }
+.ozet.bos { background: var(--glass-soft); border-style: dashed; border-color: var(--line); box-shadow: none; }
+.ozet-bas { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 11px; }
+.ozet-ic { width: 40px; height: 40px; border-radius: 13px; display: grid; place-items: center; background: var(--heading); color: var(--gold-1); font-size: 16px; }
+.ozet.bos .ozet-ic { background: var(--seg); color: var(--muted); }
+.ozet-tx { display: grid; gap: 2px; min-width: 0; }
+.ozet-tx b { font: 800 15px/1.25 var(--f-display); color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ozet-tx span { font-size: 12.5px; line-height: 1.4; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ozet-tx span .ic { width: 13px; height: 13px; vertical-align: -2px; }
+.ozet .pill { height: 32px; padding: 0 8px 0 12px; }
+.ozet .pill .ic { width: 14px; height: 14px; }
+.ozet .btn { justify-self: start; }
+.ozet-liste { list-style: none; margin: 0 -12px; padding: 0 12px 2px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.ozet-liste::-webkit-scrollbar { display: none; }
+.ozet-liste li { flex: none; }
+.ozet-liste button { display: inline-flex; align-items: center; gap: 7px; height: 34px; max-width: 190px; padding: 0 12px 0 4px; border-radius: 999px; background: var(--seg); font: 650 12.5px/1 var(--f-display); color: var(--heading); transition: background-color .25s, transform .4s var(--spring); }
+.ozet-liste button:active { transform: scale(.95); }
+.ozet-liste button > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ozet-liste .bdg { width: 26px; height: 26px; border-radius: 50%; font-size: 11.5px; box-shadow: none; }
+.bas { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 7px 8px 7px 10px; border-radius: 16px; background: var(--glass-soft); border: 1px solid var(--edge); }
+.bas-ic { width: 32px; height: 32px; border-radius: 11px; display: grid; place-items: center; background: var(--seg); color: var(--muted); font-size: 14px; }
+.bas-ic.gps { background: color-mix(in srgb, var(--me) 16%, transparent); color: var(--me); }
+.bas-tx { display: grid; gap: 1px; min-width: 0; }
+.bas-tx small { font: 700 10.5px/1.2 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.bas-tx b { font: 750 14px/1.25 var(--f-display); color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bas .pill { height: 32px; }
+.bas .row { grid-column: 1 / -1; margin-inline: -8px; padding-inline: 8px; padding-block: 2px 4px; animation: rise .4s var(--ease) both; }
+.kl-grup { display: grid; gap: 4px; padding: 6px; border-radius: 18px; background: var(--glass-soft); border: 1px solid var(--edge); }
+.kl { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 11px; min-height: 40px; padding: 4px 12px 4px 8px; border-radius: 13px; text-align: left; --c: var(--heading); transition: background-color .25s; }
+.kl:hover { background: var(--seg); }
+.kl[aria-pressed="true"] { background: var(--glass-strong); box-shadow: 0 6px 14px -12px rgba(14,27,46,.7); }
+.tik { width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; border: 2px solid color-mix(in srgb, var(--c) 55%, transparent); color: transparent; font-size: 11px; transition: background-color .25s, border-color .25s, transform .4s var(--spring); }
+.tik .ic { stroke-width: 3; }
+.kl[aria-pressed="true"] .tik { background: var(--c); border-color: var(--c); color: var(--mk-fg); transform: scale(1.06); }
+.kl-ad { font: 700 14px/1.2 var(--f-display); color: var(--heading); }
+.kl small { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.kl.soon { opacity: .6; }
+.kl.soon .tik { border-style: dashed; }
+.kl.soon small { font: 700 10.5px/1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); }
+
+/* ——— Hazır rotalar ——— */
+.rc.hz { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.rc-acts { display: flex; align-items: center; gap: 14px; }
+.rc-link { font: 700 13px/1 var(--f-display); color: var(--accent-ink); text-underline-offset: 3px; }
+
+/* ——— Alt çubuk: Rotayı başlat ——— */
+.go { position: absolute; z-index: 35; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; align-items: stretch; padding: 10px var(--gut-r) calc(10px + env(safe-area-inset-bottom, 0px)) var(--gut-l); background: var(--glass-strong); border-top: 1px solid var(--line); box-shadow: 0 -14px 30px -22px rgba(14,27,46,.7); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); animation: go-in .5s var(--ease) both; }
+@keyframes go-in { from { transform: translateY(100%); } }
+.go .btn.gold { min-height: 50px; font-size: 15.5px; font-weight: 800; }
+.go-x { display: grid; align-content: center; justify-items: center; gap: 2px; min-width: 76px; padding: 0 10px; border-radius: 14px; background: var(--seg); color: var(--heading); text-decoration: none; transition: background-color .25s, transform .4s var(--spring); }
+.go-x b { font: 800 12.5px/1.1 var(--f-display); }
+.go-x small { font: 600 9.5px/1.1 var(--f-text); color: var(--muted); white-space: nowrap; }
+.go-x:active { transform: scale(.94); }
+@media (hover: hover) { .go-x:hover { background: color-mix(in srgb, var(--accent) 22%, var(--seg)); } }
+.app.has-go .sheet-body { padding-bottom: calc(var(--pad, 0px) + 100px + env(safe-area-inset-bottom, 0px)); }
+@media (min-width: 900px) {
+  .go { left: var(--gut-l); right: auto; width: 404px; bottom: 16px; padding: 10px 14px 12px; border: 1px solid var(--edge); border-top-color: var(--line); border-radius: 0 0 26px 26px; box-shadow: none; animation: none; }
+  .app.has-go .sheet-body { padding-bottom: 96px; }
+  .app.gomulu .go { bottom: 14px; }
+}
+
+/* ——— Soru kutusu ——— */
+.sor { position: absolute; z-index: 90; left: 50%; top: 112px; transform: translateX(-50%); width: min(380px, calc(100% - 28px)); display: grid; gap: 8px; padding: 16px; border-radius: 20px; background: var(--glass-strong); border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--edge)); box-shadow: 0 30px 60px -24px rgba(14,27,46,.75), 0 0 0 100vmax rgba(14,27,46,.14); animation: sor-in .45s var(--spring) both; }
+@keyframes sor-in { from { opacity: 0; transform: translate(-50%, -10px) scale(.94); } }
+.sor b { font: 800 15.5px/1.3 var(--f-display); color: var(--heading); }
+.sor span { font-size: 13px; line-height: 1.5; color: var(--fg); }
+.sor .row { margin-top: 4px; }
+.app.gomulu .sor { top: 60px; }
+@media (min-width: 900px) { .sor { left: calc(50% + 210px); } .app.navda .sor { left: 50%; } }
+
+/* ——— Rotayı başlat: yol tarifi ekranı ——— */
+.nav { position: absolute; inset: 0; z-index: 80; background: #16202F; color: #fff; overflow: hidden; animation: nav-in .45s var(--ease) both; }
+@keyframes nav-in { from { opacity: 0; } }
+#nmap { position: absolute; inset: 0; }
+.app.nav-lf .nav { background: none; pointer-events: none; animation: none; }
+.app.nav-lf .nav > * { pointer-events: auto; }
+.app.nav-lf #nmap { display: none; }
+.app.nav-lf #nav-v { display: none; }
+.app.nav-lf .sheet, .app.nav-lf .chips, .app.nav-lf .fabs, .app.nav-lf .cap, .app.nav-lf .scale, .app.nav-lf .top, .app.nav-lf .pick { display: none; }
+.nav-top { position: absolute; z-index: 3; left: max(10px, env(safe-area-inset-left, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); top: calc(10px + env(safe-area-inset-top, 0px)); display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 14px; padding: 12px 16px 12px 12px; border-radius: 22px; background: rgba(14,27,46,.94); border: 1px solid rgba(255,255,255,.14); box-shadow: 0 24px 44px -22px rgba(0,0,0,.8); }
+.nav-ic { width: 58px; height: 58px; border-radius: 17px; display: grid; place-items: center; background: linear-gradient(135deg, var(--gold-1), var(--gold-2) 45%, var(--gold-3)); color: #1A2B48; font-size: 26px; }
+.nav-ic .ic { stroke-width: 2.4; }
+.nav-ic[data-k="var"] { background: #2F8A73; color: #fff; }
+.nav-tx { display: grid; gap: 3px; min-width: 0; }
+.nav-tx b { font: 800 26px/1.05 var(--f-display); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.nav-tx span { font: 600 15px/1.3 var(--f-display); color: rgba(255,255,255,.86); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.nav-msg { position: absolute; z-index: 3; left: 50%; top: calc(104px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); margin: 0; width: max-content; max-width: calc(100% - 28px); padding: 9px 14px; border-radius: 14px; background: rgba(255,255,255,.96); color: #0E1B2E; font: 650 12.5px/1.4 var(--f-display); text-align: center; box-shadow: 0 16px 30px -18px rgba(0,0,0,.8); }
+.nav-side { position: absolute; z-index: 3; right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(var(--nb, 150px) + 46px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 10px; }
+.nav-side .fab b { font: 800 13px/1 var(--f-display); }
+.nav-cap { position: absolute; z-index: 2; left: max(10px, env(safe-area-inset-left, 0px)); bottom: calc(var(--nb, 150px) + 18px + env(safe-area-inset-bottom, 0px)); margin: 0; max-width: calc(100% - 20px); padding: 3px 8px; border-radius: 999px; background: rgba(14,27,46,.62); color: rgba(255,255,255,.88); font-size: 10px; line-height: 1.3; }
+.nav-bot { position: absolute; z-index: 3; left: max(10px, env(safe-area-inset-left, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); bottom: calc(10px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 12px; padding: 14px; border-radius: 24px; background: var(--glass-strong); color: var(--fg); border: 1px solid var(--edge); box-shadow: 0 -18px 44px -24px rgba(0,0,0,.75); }
+.nav-info { display: grid; gap: 3px; min-width: 0; }
+.nav-info small { font: 800 10.5px/1.2 var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--accent-ink); }
+.nav-info b { font: 800 18px/1.2 var(--f-display); letter-spacing: -.02em; color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-info span { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.nav-info p { margin: 4px 0 0; font-size: 13px; line-height: 1.5; color: var(--fg); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.nav-acts { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; }
+.nav-acts .btn { min-height: 44px; }
+.nav-acts .btn:only-child, .nav-acts .btn[hidden] + .btn { grid-column: 1 / -1; }
+#nav-x { padding: 0 20px; color: #B3261E; }
+#nav-s[hidden] { display: none; }
+#nav-x:has(+ #nav-s[hidden]) { grid-column: 1 / -1; }
+@media (min-width: 900px) {
+  .nav-top { left: 50%; right: auto; transform: translateX(-50%); width: min(520px, calc(100% - 40px)); top: 16px; }
+  .nav-msg { top: 112px; }
+  .nav-bot { left: 16px; right: auto; bottom: 16px; width: 380px; }
+  .nav-side { right: 16px; bottom: 24px; }
+  .nav-cap { left: 412px; bottom: 16px; }
+}
+/* Yol tarifi haritasındaki işaretler */
+.npuck { width: 34px; height: 34px; }
+.npuck span { position: absolute; inset: 0; border-radius: 50%; background: #2F6FED; box-shadow: 0 0 0 4px #fff, 0 0 0 14px rgba(47,111,237,.26), 0 10px 18px -4px rgba(0,0,0,.6); }
+.npuck span::after { content: ""; position: absolute; left: 50%; top: 50%; width: 0; height: 0; margin: -11px 0 0 -8px; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 18px solid #fff; }
+.nmk { display: grid; justify-items: center; gap: 0; --c: #0E1B2E; cursor: default; }
+.nmk i { order: 2; width: 30px; height: 30px; border-radius: 50% 50% 50% 4px; transform: rotate(-45deg); display: grid; place-items: center; background: var(--c); box-shadow: 0 0 0 3px #fff, 0 10px 16px -4px rgba(0,0,0,.65); font: 800 13px/1 var(--f-display); font-style: normal; color: #fff; margin-bottom: 7px; }
+.nmk i s { display: block; transform: rotate(45deg); text-decoration: none; }
+.nmk b { order: 1; max-width: 190px; margin-bottom: 9px; padding: 5px 10px; border-radius: 999px; background: rgba(14,27,46,.92); color: #fff; font: 700 12px/1.2 var(--f-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 10px 18px -8px rgba(0,0,0,.7); }
+.nmk.hedef i { width: 38px; height: 38px; font-size: 15px; box-shadow: 0 0 0 3px #fff, 0 0 0 8px color-mix(in srgb, var(--c) 40%, transparent), 0 10px 16px -4px rgba(0,0,0,.65); }
+.nmk.gecti { opacity: .55; }
+.nmk.gecti i { background: #5A6578; }
+.nav .c-r1 { --c: #2E5AAC; } .nav .c-r2 { --c: #B8862F; } .nav .c-r3 { --c: #B04A62; } .nav .c-r4 { --c: #2F8A73; } .nav .c-r5 { --c: #5B6FB8; } .nav .c-r6 { --c: #A9773A; }
+.nav .maplibregl-canvas { outline: none; }
+
+/* Uydu görüntüsü koyu olduğu için panel ve çipler onun üstünde daha dolu durur. */
+#map.real.is-sat ~ .sheet { background: color-mix(in srgb, var(--glass-strong) 93%, transparent); }
+#map.real.is-sat ~ .chips .chip:not([aria-pressed="true"]) { background: var(--glass-strong); }
 </style>
 <div class="app" id="app" data-tab="kesfet" data-sheet="half">
   <div id="map" role="application" aria-label="İstanbul şematik haritası: durakları seçmek için işaretlere dokun">
@@ -1127,16 +1262,47 @@ a.btn { text-decoration: none; }
     <div class="sheet-head" id="sheet-head">
       <button class="grab" id="grab" type="button" aria-label="Paneli büyüt ya da küçült"><span></span></button>
       <div class="seg" role="tablist" aria-label="Görünüm">
+        <button type="button" role="tab" id="tab-hazir" data-tab="hazir" aria-selected="false">Hazır rotalar</button>
         <button type="button" role="tab" id="tab-kesfet" data-tab="kesfet" aria-selected="true">Keşfet</button>
         <button type="button" role="tab" id="tab-rota" data-tab="rota" aria-selected="false">Rotam <b id="rcount" hidden>0</b></button>
       </div>
     </div>
     <div class="sheet-body" id="body">
+      <div class="panel" id="p-hazir" hidden></div>
       <div class="panel" id="p-kesfet"></div>
       <div class="panel" id="p-detail" hidden></div>
       <div class="panel" id="p-rota" hidden></div>
     </div>
   </section>
+
+  <div class="go" id="go" hidden>
+    <button class="btn gold" type="button" id="go-start"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 17-7-4-7 4z"/></svg>Rotayı başlat</button>
+    <a class="go-x" id="go-g" href="#" target="_blank" rel="noopener" aria-label="Rotayı Google Haritalar’da aç"><b>Google</b><small>Haritalar’da aç</small></a>
+    <a class="go-x" id="go-a" href="#" target="_blank" rel="noopener" aria-label="Rotayı Apple Haritalar’da aç"><b>Apple</b><small>Haritalar’da aç</small></a>
+  </div>
+
+  <div class="sor" id="sor" hidden role="alertdialog" aria-labelledby="sor-b" aria-describedby="sor-t">
+    <b id="sor-b"></b><span id="sor-t"></span>
+    <div class="row"><button class="btn sm dark" type="button" id="sor-e">Evet</button><button class="btn sm" type="button" id="sor-h">Hayır</button></div>
+  </div>
+
+  <div class="nav" id="nav" hidden>
+    <div id="nmap"></div>
+    <div class="nav-top" aria-live="polite">
+      <span class="nav-ic" id="nav-ic"></span>
+      <div class="nav-tx"><b id="nav-d"></b><span id="nav-t"></span></div>
+    </div>
+    <p class="nav-msg" id="nav-msg" hidden></p>
+    <div class="nav-side">
+      <button class="fab" id="nav-v" type="button" aria-pressed="true" aria-label="Üstten görünüme geç"><b>3B</b></button>
+      <button class="fab on" id="nav-c" type="button" hidden aria-label="Konumuma ortala"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 17-7-4-7 4z"/></svg></button>
+    </div>
+    <p class="nav-cap" id="nav-cap"></p>
+    <div class="nav-bot">
+      <div class="nav-info"><small id="nav-k"></small><b id="nav-n"></b><span id="nav-r"></span><p id="nav-desc" hidden></p></div>
+      <div class="nav-acts"><button class="btn sm" type="button" id="nav-x">Bitir</button><button class="btn sm dark" type="button" id="nav-s">Sonraki durak</button></div>
+    </div>
+  </div>
 
   <div class="info" id="info" hidden>
     <p class="kicker">Harita hakkında</p>
@@ -1335,6 +1501,7 @@ if (typeof module !== "undefined") module.exports = globalThis.ZR_DATA;
 </script>
 <script>
 globalThis.ZR_SITE = location.origin + "/";
+globalThis.ZR_GL = { js: "/a/maplibre-gl.js?v=4.7.1", css: "/a/maplibre-gl.css?v=4.7.1" };
 /* Yürüyüş yolu: sokakları izleyen yol çizgisi ve dönüş adımları.
    Hesap, OpenStreetMap verisiyle çalışan açık yol tarifi sunucusunda (FOSSGIS · routing.openstreetmap.de, OSRM "foot" profili) yapılır.
    Sunucuya yalnızca noktaların enlem ve boylamı gider; hiçbir şey kaydedilmez. Sunucu yanıt vermezse çağıran taraf düz çizgiye döner. */
@@ -1387,20 +1554,25 @@ globalThis.ZR_YOL = (() => {
       const j = await r.json();
       if (!j || j.code !== "Ok" || !j.routes || !j.routes[0]) throw new Error("yanit");
       return j.routes[0].legs.map((lg, i) => {
-        const hat = [];
-        for (const st of lg.steps || []) for (const c of (st.geometry && st.geometry.coordinates) || []) { const q = [c[1], c[0]], s = hat[hat.length - 1]; if (!s || s[0] !== q[0] || s[1] !== q[1]) hat.push(q); }
+        // Her adımın çizgi üzerindeki yeri (i: adımın başladığı noktanın sırası) saklanır; "şu kadar metre sonra dön" hesabı bundan yapılır.
+        const hat = [], ham = [];
+        for (const st of lg.steps || []) {
+          let ilk = -1;
+          for (const c of (st.geometry && st.geometry.coordinates) || []) { const q = [c[1], c[0]], s = hat[hat.length - 1]; if (!s || s[0] !== q[0] || s[1] !== q[1]) hat.push(q); if (ilk < 0) ilk = hat.length - 1; }
+          const ad = adim(st); ad.i = ilk < 0 ? Math.max(0, hat.length - 1) : ilk; ham.push(ad);
+        }
         // Durak yoldan içerideyse (avlu, hazire) çizgi durağın kendisine kadar uzatılır.
         const a = pts[i], b = pts[i + 1];
         if (!hat.length) hat.push([+a[0], +a[1]], [+b[0], +b[1]]);
         const bas = olc(a, hat[0]), son = olc(hat[hat.length - 1], b);
-        if (bas > 4) hat.unshift([+a[0], +a[1]]);
+        if (bas > 4) { hat.unshift([+a[0], +a[1]]); for (const ad of ham) ad.i++; }
         if (son > 4) hat.push([+b[0], +b[1]]);
-        return { d: (lg.distance || 0) + (bas > 4 ? bas : 0) + (son > 4 ? son : 0), pts: hat, adim: sadelestir((lg.steps || []).map(adim)) };
+        return { d: (lg.distance || 0) + (bas > 4 ? bas : 0) + (son > 4 ? son : 0), pts: hat, adim: sadelestir(ham) };
       });
     } finally { clearTimeout(zaman); }
   }
 
-  /* pts: [[enlem, boylam], …] (en az iki nokta). Sonuç: { d, legs: [{ d, pts, adim: [{ t, d, k }] }] } */
+  /* pts: [[enlem, boylam], …] (en az iki nokta). Sonuç: { d, legs: [{ d, pts, adim: [{ t, d, k, ad, i }] }] } */
   function yol(pts, { signal } = {}) {
     if (!pts || pts.length < 2) return Promise.resolve({ d: 0, legs: [] });
     const key = anahtar(pts);
@@ -1468,7 +1640,7 @@ globalThis.ZR_HESAP = (() => {
     const hata = denetle(ad, sifre); if (hata) return { ok: false, hata };
     if (!kripto()) return { ok: false, hata: "Bu tarayıcı güvenli şifre saklamayı desteklemiyor ya da sayfa güvenli (https) adresten açılmadı." };
     const h = hesaplar(), id = kimlik(ad);
-    if (h[id]) return { ok: false, hata: "Bu kullanıcı adı bu cihazda zaten var. Giriş yapmayı dene." };
+    if (h[id]) return { ok: false, hata: "Bu kullanıcı adı zaten var. Giriş yapmayı dene." };
     const tuz = hex(kripto().getRandomValues(new Uint8Array(16)));
     h[id] = { ad: String(ad).trim(), tuz, ozet: await ozet(sifre, tuz), t: Date.now() };
     if (!ls.yaz(K_H, JSON.stringify(h))) return { ok: false, hata: "Tarayıcı kayda izin vermedi. Gizli pencerede olabilirsin." };
@@ -1477,7 +1649,7 @@ globalThis.ZR_HESAP = (() => {
   }
   async function giris(ad, sifre) {
     const h = hesaplar(), id = kimlik(ad), kay = h[id];
-    if (!kay) return { ok: false, hata: "Bu cihazda böyle bir kullanıcı adı yok. Hesaplar şimdilik oluşturuldukları cihazda durur." };
+    if (!kay) return { ok: false, hata: "Böyle bir kullanıcı adı bulunamadı. Yazımı kontrol et ya da hesap oluştur." };
     if (!kripto()) return { ok: false, hata: "Sayfa güvenli (https) adresten açılmadığı için giriş yapılamıyor." };
     if (!esit(await ozet(sifre, kay.tuz), kay.ozet)) return { ok: false, hata: "Şifre yanlış." };
     ls.yaz(K_O, id); duyur();
@@ -1519,7 +1691,8 @@ globalThis.ZR_HESAP = (() => {
   const $ = (s, el = document) => el.querySelector(s);
   const app = $("#app"), mapEl = $("#map"), cv = $("#base"), ctx = cv.getContext("2d"), mkEl = $("#mk"), meEl = $("#me"), tipEl = $("#tip");
   const sheet = $("#sheet"), head = $("#sheet-head"), bodyEl = $("#body"), toastEl = $("#toast"), pickEl = $("#pick"), infoEl = $("#info"), scaleEl = $("#scale");
-  const P = { kesfet: $("#p-kesfet"), detail: $("#p-detail"), rota: $("#p-rota") };
+  const P = { hazir: $("#p-hazir"), kesfet: $("#p-kesfet"), detail: $("#p-detail"), rota: $("#p-rota") };
+  const goEl = $("#go"), navEl = $("#nav"), sorEl = $("#sor"), GLC = globalThis.ZR_GL || null;
   const RM = matchMedia("(prefers-reduced-motion: reduce)"), DESK = matchMedia("(min-width: 900px)");
   const HOSTED = !!(window.claude && typeof window.claude.use === "function");
   const REAL = typeof window.L !== "undefined"; // Leaflet sayfaya eklendiyse gerçek harita, yoksa şematik çizim
@@ -1560,6 +1733,9 @@ globalThis.ZR_HESAP = (() => {
     geri: '<path d="M8 20V9a4 4 0 0 1 8 0v3M12.5 9.5L16 13l3.5-3.5"/>',
     basla: '<circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8"/>',
     user: '<circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20c.9-3.6 3.7-5.4 7.2-5.4s6.3 1.8 7.2 5.4"/>',
+    rota: '<circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="6" r="2.4"/><path d="M8.4 18H14a3.5 3.5 0 0 0 0-7h-4a3.5 3.5 0 0 1 0-7h5.6"/>',
+    nav: '<path d="M12 3l7 17-7-4-7 4z"/>',
+    var: '<path d="M6 21V4"/><path d="M6 5h11.5l-2.6 4 2.6 4H6"/>',
   };
   const ic = (n) => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON[n]}</svg>`;
 
@@ -1625,15 +1801,15 @@ globalThis.ZR_HESAP = (() => {
   }
 
   /* ——— Durum ——— */
-  const S = { concepts: new Set(), me: null, sel: null, route: [], tab: "kesfet", sheet: "half", picking: false, count: 6, saved: [], from: "kesfet", name: "", sat: false };
+  const S = { concepts: new Set(), me: null, sel: null, route: [], tab: "kesfet", sheet: "half", picking: false, count: 6, saved: [], from: "kesfet", name: "", sat: true, warn: null, startOpen: false };
   const V = { cx: (BB.x0 + BB.x1) / 2, cy: (BB.y0 + BB.y1) / 2, k: 0.04, w: 0, h: 0, dpr: 1 };
   const KMIN = 0.018, KMAX = 0.8;
   const RT = { pts: [], cum: [], at: [], len: 0, prog: 1, duz: true, legD: null, adim: null };
   // Yürüyüş yolu durumu: yok · bekle · tamam · hata · tek (çizilecek ikinci nokta yok). izin: başlangıç noktasını sunucuya gönderme onayı.
-  const W = { durum: "yok", izin: null, anim: false, t: 0, q: 0, seq: 0 };
+  const W = { durum: "yok", izin: null, anim: false, t: 0, q: 0, seq: 0, soruldu: false };
   try { W.izin = localStorage.getItem("zr.yol.izin"); } catch (e) {}
   let C = {}, zcls = "", curPanel = "", raf = 0, flyRaf = 0, rtRaf = 0, toastT = 0, fanR = 10;
-  let map = null, lyStreet = null, lySat = null, lySatLbl = null, plCase = null, plMain = null, plGap = null, meMk = null, tipMk = null, tileFails = 0;
+  let map = null, lyStreet = null, lySat = null, lySatLbl = null, plCase = null, plMain = null, meMk = null, tipMk = null, tileFails = 0;
 
   const active = () => (S.concepts.size ? STOPS.filter((s) => S.concepts.has(s.r.concept)) : STOPS);
   const conceptLabel = () => (S.concepts.size ? D.CONCEPTS.filter((c) => S.concepts.has(c.id)).map((c) => c.label).join(" + ") : "Tüm duraklar");
@@ -1737,8 +1913,12 @@ globalThis.ZR_HESAP = (() => {
   const FILE = location.protocol === "file:";
   function renderReal() {
     raf = 0;
+    // Sokak yolu yoldayken düz (kuş uçuşu) çizgi çizilmez: önceki yol çizgisi yenisi gelene kadar yerinde kalır, ilk çizimde harita çizgisiz bekler.
+    // Kuş uçuşu kesik çizgi yalnızca yol tarifi sunucusuna ulaşılamadığında görünür.
+    const bekle = RT.duz && W.durum === "bekle";
+    if (bekle && RT.prog > 0) return;
     const n = RT.pts.length, out = [];
-    if (n > 1 && RT.prog > 0) {
+    if (n > 1 && RT.prog > 0 && !bekle && !(RT.duz && W.durum === "tek")) {
       const len = RT.len * RT.prog, g = (x, y) => { const q = unproj(x, y); return [q.lat, q.lng]; };
       out.push(g(RT.pts[0][0], RT.pts[0][1]));
       for (let i = 1; i < n; i++) {
@@ -1749,10 +1929,6 @@ globalThis.ZR_HESAP = (() => {
       }
     }
     plCase.setLatLngs(out); plMain.setLatLngs(out);
-    // Başlangıç noktası sunucuya gönderilmediyse, başlangıçtan ilk durağa olan bölüm ince kesik çizgiyle (kuş uçuşu) gösterilir.
-    const gap = [];
-    if (!RT.duz && S.route.length && !startOk()) { const s = STOPS[S.route[0]]; gap.push([S.me.lat, S.me.lng]); for (const p of leg(S.me, s).via) { const q = unproj(p[0], p[1]); gap.push([q.lat, q.lng]); } gap.push([s.lat, s.lng]); }
-    plGap.setLatLngs(gap);
     mapEl.classList.toggle("sokak", !RT.duz);
   }
   function zoomState() {
@@ -1764,14 +1940,15 @@ globalThis.ZR_HESAP = (() => {
     const osm = '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> katkıda bulunanlar';
     capEl.innerHTML = msg || (S.sat ? "Uydu görüntüsü: Esri, Maxar, Earthstar Geographics" : FILE ? "Harita: Esri, HERE, Garmin, " + osm : osm);
   }
-  function setLayer(sat) {
+  function setLayer(sat, sakla) {
     S.sat = sat; mapEl.classList.toggle("is-sat", sat);
     for (const l of [lyStreet, lySat, lySatLbl]) map.removeLayer(l);
     if (sat) { lySat.addTo(map); lySatLbl.addTo(map); } else lyStreet.addTo(map);
     const b = $("#layer");
     b.setAttribute("aria-pressed", sat); b.lastElementChild.textContent = sat ? "Harita" : "Uydu"; b.setAttribute("aria-label", sat ? "Sokak haritasına geç" : "Uydu görüntüsüne geç");
     tileFails = 0; capText();
-    try { localStorage.setItem("zr.katman", sat ? "uydu" : "harita"); } catch (e) {}
+    // Harita uydu görüntüsüyle açılır; tercih yalnızca ziyaretçi düğmeye basınca saklanır (site sayfalarıyla ortak anahtar).
+    if (sakla) try { localStorage.setItem("zr.katman.2", sat ? "uydu" : "sokak"); } catch (e) {}
   }
   function initReal() {
     const host = document.createElement("div");
@@ -1791,7 +1968,6 @@ globalThis.ZR_HESAP = (() => {
       l.on("tileload", () => { if (tileFails >= 6) { tileFails = 0; capText(); } });
     }
     map.fitBounds(L.latLngBounds(STOPS.map((s) => [s.lat, s.lng])), { animate: false });
-    plGap = L.polyline([], { className: "rt-gap", interactive: false }).addTo(map);
     plCase = L.polyline([], { className: "rt-case", interactive: false }).addTo(map);
     plMain = L.polyline([], { className: "rt-main", interactive: false }).addTo(map);
     const icon = (el) => L.divIcon({ className: "lmk", html: el, iconSize: [0, 0] });
@@ -1803,16 +1979,16 @@ globalThis.ZR_HESAP = (() => {
     });
     map.on("zoomend", zoomState);
     if (EMBED) map.scrollWheelZoom.disable(), map.on("click", () => map.scrollWheelZoom.enable()), mapEl.addEventListener("mouseleave", () => map.scrollWheelZoom.disable());
-    const lb = $("#layer"); lb.hidden = false; lb.addEventListener("click", () => setLayer(!S.sat));
-    let sat = false; try { sat = localStorage.getItem("zr.katman") === "uydu"; } catch (e) {}
+    const lb = $("#layer"); lb.hidden = false; lb.addEventListener("click", () => setLayer(!S.sat, true));
+    let sat = true; try { sat = localStorage.getItem("zr.katman.2") !== "sokak"; } catch (e) {}
     setLayer(sat); zoomState();
     $("#info-btn").textContent = "Harita hakkında";
     infoEl.querySelector(".kicker").textContent = "Harita hakkında";
     infoEl.querySelector(".h2").textContent = "Gerçek harita ve uydu görüntüsü";
     const li = infoEl.querySelectorAll("li");
-    li[0].innerHTML = "Duraklar <b>gerçek harita</b> üzerinde gösterilir. Sağdaki düğmeyle sokak haritası (" + (FILE ? "Esri" : "OpenStreetMap") + ") ile uydu görüntüsü (Esri) arasında geçersin.";
-    li[1].innerHTML = "“Konumumu bul”, tarayıcı izin verirse gerçek konumunu gösterir. Konumun bizde saklanmaz. İzin verilmezse başlangıç noktasını haritadan ya da hazır noktalardan seçersin.";
-    if (YOL) li[2].innerHTML = "Rotalar <b>sokakları izleyen yürüyüş yoluyla</b> çizilir; her durak için dönüş tarifi “Rotam”da açılır. Yol, OpenStreetMap verisiyle " + YOL.SERVIS.adres + " sunucusunda hesaplanır: durakların konumu, sen onaylarsan başlangıç noktan da bu sunucuya gönderilir. Sunucuya ulaşılamazsa çizgi kuş uçuşu çizilir ve mesafe tahmin edilir (× 1,3 · dakikada 75 m).";
+    li[0].innerHTML = "Duraklar <b>gerçek uydu görüntüsü</b> (Esri) üzerinde açılır. Sağdaki düğmeyle sokak haritasına (" + (FILE ? "Esri" : "OpenStreetMap") + ") geçebilirsin.";
+    li[1].innerHTML = "Harita açılınca tarayıcı izin verirse konumunu bulur ve durakları sana göre sıralar. Konumun bizde saklanmaz. İzin verilmezse başlangıç noktasını haritadan ya da hazır noktalardan seçersin.";
+    if (YOL) li[2].innerHTML = "Rotalar <b>sokakları izleyen yürüyüş yoluyla</b> çizilir; “Rotayı başlat” adım adım tarif verir. Yol, OpenStreetMap verisiyle " + YOL.SERVIS.adres + " sunucusunda hesaplanır: durakların konumu, sen onaylarsan kendi konumun da bu sunucuya gönderilir. Sunucuya ulaşılamazsa çizgi kuş uçuşu çizilir ve mesafe tahmin edilir (× 1,3 · dakikada 75 m).";
   }
 
   /* ——— Kamera ——— */
@@ -1838,7 +2014,7 @@ globalThis.ZR_HESAP = (() => {
   function pad() {
     const e = EMBED ? 52 : 0;
     if (DESK.matches) return { l: 440, t: 124 - e, r: 84, b: 40 };
-    return { l: 26, t: 140 - e, r: 74, b: (S.sheet === "peek" ? 132 : Math.round(V.h * 0.46)) + 26 };
+    return { l: 26, t: 140 - e, r: 74, b: (S.sheet === "peek" ? 132 + goH() : Math.round(V.h * 0.46)) + 26 };
   }
   function fit(pts, ms = 900, maxK = 0.22) {
     if (REAL) {
@@ -1921,7 +2097,8 @@ globalThis.ZR_HESAP = (() => {
   $("#zout").addEventListener("click", () => (REAL ? map.zoomOut(1) : zoomAt(V.w / 2, V.h / 2, 1 / 1.7, 380)));
 
   /* ——— Panel: alt sayfa ——— */
-  const sheetGeom = () => { const H = sheet.offsetHeight; return { H, peek: H - 132, half: H - Math.round(app.clientHeight * 0.46), full: 0 }; };
+  const goH = () => (goEl.hidden ? 0 : goEl.offsetHeight);
+  const sheetGeom = () => { const H = sheet.offsetHeight; return { H, peek: H - 132 - goH(), half: H - Math.round(app.clientHeight * 0.46), full: 0 }; };
   function setSheet(st) {
     S.sheet = st; app.dataset.sheet = st;
     if (DESK.matches) { sheet.style.removeProperty("--ty"); sheet.style.removeProperty("--pad"); app.style.setProperty("--sheet-vis", "0px"); return; }
@@ -1960,11 +2137,15 @@ globalThis.ZR_HESAP = (() => {
     const el = P[name]; el.hidden = false; el.style.setProperty("--dir", dir); void el.offsetWidth; el.classList.add("is-on");
     curPanel = name; bodyEl.scrollTop = 0;
   }
+  const SEKME = ["hazir", "kesfet", "rota"];
+  const sekmeIsaret = (tab) => { app.dataset.tab = tab; for (const k of SEKME) $("#tab-" + k).setAttribute("aria-selected", tab === k); };
   function setTab(tab) {
     if (tab === "kesfet" && S.tab === "kesfet" && S.sel != null) { closeDetail(); return; }
-    S.tab = tab; app.dataset.tab = tab;
-    $("#tab-kesfet").setAttribute("aria-selected", tab === "kesfet"); $("#tab-rota").setAttribute("aria-selected", tab === "rota");
-    if (tab === "rota") { renderRota(); show("rota", 1); } else show(S.sel != null ? "detail" : "kesfet", -1);
+    const once = SEKME.indexOf(S.tab), dir = SEKME.indexOf(tab) >= (once < 0 ? 1 : once) ? 1 : -1;
+    S.tab = tab; sekmeIsaret(tab);
+    if (tab === "rota") { renderRota(); show("rota", dir); }
+    else if (tab === "hazir") { renderHazir(); show("hazir", dir); }
+    else show(S.sel != null ? "detail" : "kesfet", dir);
     raise();
   }
   $(".seg").addEventListener("click", (e) => { const b = e.target.closest("[data-tab]"); if (b) setTab(b.dataset.tab); });
@@ -1983,14 +2164,15 @@ globalThis.ZR_HESAP = (() => {
     const b = e.target.closest(".chip"); if (!b) return;
     if (b.dataset.soon) { toast("Sabit ikram noktaları henüz eklenmedi. Liste gelince bu konsept açılacak."); return; }
     const id = b.dataset.c;
-    if (!id) S.concepts.clear(); else if (S.concepts.has(id)) S.concepts.delete(id); else S.concepts.add(id);
+    if (!id || (S.concepts.size === 1 && S.concepts.has(id))) S.concepts.clear(); else S.concepts = new Set([id]);
     applyConcepts();
   });
   function applyConcepts(ms = 950) {
     for (const c of $("#chips").querySelectorAll("[data-c]")) c.setAttribute("aria-pressed", c.dataset.c ? S.concepts.has(c.dataset.c) : !S.concepts.size);
     if (S.sel != null && !active().includes(STOPS[S.sel])) S.sel = null;
+    if (S.concepts.size === D.CONCEPTS.filter((c) => !c.soon).length) { S.concepts.clear(); return applyConcepts(ms); }
     syncMarkers(); renderKesfet();
-    if (S.tab === "rota") renderRota(true); else if (S.sel == null) show("kesfet", -1);
+    if (S.tab === "rota") renderRota(true); else if (S.tab === "kesfet" && S.sel == null) show("kesfet", -1);
     fit(S.concepts.size ? [...active(), S.me] : STOPS, ms, 0.2);
   }
 
@@ -2042,7 +2224,7 @@ globalThis.ZR_HESAP = (() => {
       }
     }
     RT.pts = pts; RT.cum = cum; RT.at = at; RT.len = cum[cum.length - 1] || 0; RT.duz = true; RT.legD = null; RT.adim = null;
-    walkSync();
+    walkSync(); syncGo(); syncOzet(); taslakYaz();
   }
 
   /* ——— Yürüyüş yolu: sokakları izleyen çizgi ve dönüş tarifi ——— */
@@ -2065,6 +2247,7 @@ globalThis.ZR_HESAP = (() => {
   function walkSync() {
     clearTimeout(W.q);
     if (!YOL || !REAL || !S.route.length) { W.durum = "yok"; W.seq++; return; }
+    yolIzniSor();
     const pts = walkPts();
     if (pts.length < 2) { W.durum = "tek"; W.seq++; return; }
     const res = YOL.hazir(pts);
@@ -2076,13 +2259,28 @@ globalThis.ZR_HESAP = (() => {
         cancelAnimationFrame(rtRaf); clearTimeout(W.t); computeRT();
         if (W.anim) { W.anim = false; animateRoute(); } else { RT.prog = 1; draw(); }
         if (S.tab === "rota") renderRota(true);
+        syncOzet();
       }, () => {
         if (seq !== W.seq) return;
         W.durum = "hata";
-        if (W.anim) { W.anim = false; clearTimeout(W.t); animateRoute(); }
+        if (W.anim) { W.anim = false; animateRoute(); } else { RT.prog = 1; draw(); }
         if (S.tab === "rota") renderRota(true);
+        syncOzet();
       });
     }, 160);
+  }
+  // Başlangıç noktası herkese açık bir yer değilse, yolun oradan başlaması için bir kez sorulur. Yanıt bu tarayıcıda saklanır.
+  function yolIzniSor() {
+    if (W.izin != null || W.soruldu || startOk() || N.on) return;
+    W.soruldu = true;
+    sor("Yol, bulunduğun yerden başlasın mı?", `Bunun için başlangıç noktanın konumu yol tarifi sunucusuna (${YOL.SERVIS.adres}) gönderilir. Biz saklamıyoruz. “Hayır” dersen yol yalnızca duraklar arasında çizilir.`, "Evet, çiz", "Hayır").then((ok) => {
+      if (ok == null) { W.soruldu = false; return; }
+      yolIzni(ok);
+    });
+  }
+  function yolIzni(ok) {
+    W.izin = ok ? "evet" : "hayir"; try { localStorage.setItem("zr.yol.izin", W.izin); } catch (e) {}
+    computeRT(); RT.prog = 1; draw(); if (S.tab === "rota") renderRota(true);
   }
   // Bir bacağın uzunluğu: sokak yolu geldiyse gerçek ölçü, yoksa kuş uçuşu × 1,3 tahmini.
   const legLen = (i, prev, s) => (RT.legD && RT.legD[i] != null ? RT.legD[i] : dist(prev, s) * WALK);
@@ -2117,11 +2315,11 @@ globalThis.ZR_HESAP = (() => {
   }
   function setRoute(ids, { name = "", animate = true, open = true } = {}) {
     S.route = ids; S.name = name; computeRT(); syncMarkers(); syncAdds();
-    if (open) { S.sel = null; syncMarkers(); S.tab = ""; setTab("rota"); } else if (S.tab === "rota") renderRota(true);
+    if (open) { S.sel = null; syncMarkers(); S.tab = ""; setTab("rota"); } else if (S.tab === "rota") renderRota(true); else if (S.tab === "hazir") renderHazir();
     if (ids.length && animate) {
       fit([S.me, ...ids.map((id) => STOPS[id])], 1000, 0.26); countUp();
-      // Sokak yolu yoldaysa çizgi onunla birlikte çizilir; sunucu gecikirse kuş uçuşu çizgiyle başlanır.
-      if (W.durum === "bekle") { W.anim = true; cancelAnimationFrame(rtRaf); RT.prog = 0; draw(); clearTimeout(W.t); W.t = setTimeout(() => { if (W.anim && W.durum === "bekle") animateRoute(); }, 2400); }
+      // Sokak yolu yoldaysa çizgi o gelince çizilir; arada düz çizgi gösterilmez.
+      if (W.durum === "bekle") { W.anim = true; cancelAnimationFrame(rtRaf); RT.prog = 0; draw(); }
       else animateRoute();
     } else { W.anim = false; RT.prog = 1; draw(); }
   }
@@ -2164,13 +2362,13 @@ globalThis.ZR_HESAP = (() => {
   /* ——— Konum ——— */
   function setMe(lat, lng, src, label, flyTo = true, acik = false) {
     const [x, y] = proj(lat, lng);
-    S.me = { lat, lng, x, y, src, label, acik };
+    S.me = { lat, lng, x, y, src, label, acik }; S.startOpen = false;
     meEl.hidden = false; meEl.className = "me " + src;
     if (REAL) meMk.setLatLng([lat, lng]);
     $("#locate").classList.toggle("on", src === "gps");
     computeRT(); renderKesfet(); draw();
     if (S.sel != null) renderDetail();
-    if (S.tab === "rota") renderRota(true);
+    if (S.tab === "rota") renderRota(true); else if (S.tab === "hazir") renderHazir();
     if (flyTo) { if (S.route.length) fit([S.me, ...S.route.map((id) => STOPS[id])], 1000, 0.26); else fitNear(); }
   }
   function startPick(msg) {
@@ -2179,16 +2377,29 @@ globalThis.ZR_HESAP = (() => {
   }
   function stopPick() { S.picking = false; mapEl.classList.remove("picking"); pickEl.hidden = true; if (!DESK.matches && S.sheet === "peek") setSheet("half"); }
   $("#pick-x").addEventListener("click", stopPick);
-  // Konum: izin penceresi açıkken sayaç işlemez (tarayıcının kendi zaman aşımı izin verildikten sonra başlar), geç gelen konum da kabul edilir.
-  // Hassas konum gelmezse bir kez de düşük hassasiyetle (Wi-Fi/ağ konumu) denenir. Hata nedeni kullanıcıya ayrı ayrı söylenir.
-  function locate() {
+  // Konum: harita açılınca kendiliğinden istenir (auto); izin penceresi açıkken sayaç işlemez, geç gelen konum da kabul edilir.
+  // Hassas konum gelmezse bir kez de düşük hassasiyetle (Wi-Fi/ağ konumu) denenir. Konum alınamazsa Keşfet'in üstünde nedenini söyleyen bir uyarı durur.
+  const KONUM = {
+    yok: ["Bu tarayıcı konum paylaşmıyor", "Başlangıç noktanı haritadan ya da hazır noktalardan seçebilirsin."],
+    https: ["Konum yalnızca güvenli adreste çalışır", "Adresin https ile başladığından emin ol ya da başlangıç noktanı haritadan seç."],
+    izin: ["Konumun kapalı", "Durakları sana göre sıralamak için konumu aç: adres çubuğundaki kilit ya da ayar simgesinden “Konum”a izin ver, sonra “Konumu aç”a dokun."],
+    sure: ["Konum zamanında gelmedi", "Açık havada yeniden dene ya da başlangıç noktanı haritadan seç."],
+    servis: ["Konum alınamadı", "Cihazının konum servisi kapalı olabilir. Ayarlardan konumu açıp yeniden dene."],
+  };
+  function konumUyar(kod, auto, ozel) {
+    const k = ozel || KONUM[kod];
+    S.warn = { kod, b: k[0], t: k[1] }; renderKesfet();
+    if (auto) toast(k[0] + "."); else startPick(k[0] + ". Başlangıç noktana haritada dokun.");
+  }
+  function locate(auto) {
+    auto = auto === true;
     const btn = $("#locate"), geo = navigator.geolocation;
     if (btn.classList.contains("busy")) return;
-    if (!geo) { startPick("Bu tarayıcı konum paylaşmıyor. Başlangıç noktana haritada dokun."); return; }
-    if (window.isSecureContext === false) { startPick("Konum yalnızca güvenli (https) adreste çalışır. Başlangıç noktana haritada dokun."); return; }
+    if (!geo) return konumUyar("yok", auto);
+    if (window.isSecureContext === false) return konumUyar("https", auto);
     btn.classList.add("busy");
     let tries = 0;
-    const hint = setTimeout(() => toast("Konum bekleniyor. Tarayıcı izin soruyorsa “İzin ver”i seç."), 5000);
+    const hint = auto ? 0 : setTimeout(() => toast("Konum bekleniyor. Tarayıcı izin soruyorsa “İzin ver”i seç."), 5000);
     const end = () => { clearTimeout(hint); btn.classList.remove("busy"); };
     const ok = (pos) => {
       end();
@@ -2196,58 +2407,105 @@ globalThis.ZR_HESAP = (() => {
       const inside = REAL ? la >= 40.88 && la <= 41.2 && lo >= 28.74 && lo <= 29.22 : la >= 40.93 && la <= 41.12 && lo >= 28.84 && lo <= 29.12;
       if (!inside) {
         const q = proj(la, lo), km = Math.max(1, Math.round(Math.hypot(q[0], q[1]) / 1000));
-        startPick("Konumun bulundu ama harita alanının dışında (yaklaşık " + km + " km). Başlangıç noktana haritada dokun."); return;
+        return konumUyar("disarida", auto, ["Harita alanının dışındasın", `Konumun bulundu ama İstanbul’daki duraklara yaklaşık ${km} km uzakta. Başlangıç için haritadan ya da hazır noktalardan bir yer seç.`]);
       }
       if (S.picking) stopPick();
-      setMe(la, lo, "gps", "Konumun"); toast("Konumun bulundu.");
+      S.warn = null; setMe(la, lo, "gps", "Konumun"); if (!auto) toast("Konumun bulundu.");
     };
     const bad = (err) => {
       const c = err && err.code;
       if (c !== 1 && tries++ === 0) { try { geo.getCurrentPosition(ok, bad, { enableHighAccuracy: false, timeout: 15000, maximumAge: 120000 }); return; } catch (e) {} }
-      end();
-      startPick(c === 1 ? (FILE ? "Konum izni alınamadı. Dosya olarak açılan sayfada tarayıcı izin vermeyebilir. Başlangıç noktana haritada dokun."
-          : "Konum izni verilmedi. Adres çubuğundaki konum izninden açabilirsin. Şimdilik başlangıç noktana haritada dokun.")
-        : c === 3 ? "Konum zamanında gelmedi. Yeniden dene ya da başlangıç noktana haritada dokun."
-        : "Konum alınamadı. Cihazın konum servisi kapalı olabilir. Başlangıç noktana haritada dokun.");
+      end(); konumUyar(c === 1 ? "izin" : c === 3 ? "sure" : "servis", auto);
     };
     try { geo.getCurrentPosition(ok, bad, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }); } catch (err) { bad(null); }
   }
-  $("#locate").addEventListener("click", locate);
+  $("#locate").addEventListener("click", () => locate());
+  // Harita açılınca konum kendiliğinden istenir. Sayfanın içine gömülüyken, harita ekranda görünür hâle gelince istenir.
+  function autoLocate() {
+    if (!REAL) return;
+    if (!navigator.geolocation) return konumUyar("yok", true);
+    if (window.isSecureContext === false) return konumUyar("https", true);
+    const basla = () => {
+      const git = () => locate(true);
+      if (!navigator.permissions || !navigator.permissions.query) return git();
+      navigator.permissions.query({ name: "geolocation" }).then((izin) => {
+        if (izin.state === "denied") konumUyar("izin", true); else git();
+        izin.onchange = () => { if (izin.state === "granted" && S.me.src !== "gps") locate(true); };
+      }, git);
+    };
+    if (!EMBED || !("IntersectionObserver" in window)) return basla();
+    const io = new IntersectionObserver((es) => { if (es.some((e) => e.intersectionRatio >= 0.5)) { io.disconnect(); basla(); } }, { threshold: [0.5] });
+    io.observe(app);
+  }
 
   /* ——— Keşfet ——— */
   const nameHtml = (s) => esc(s.name) + (s.hon ? `<em>${esc(s.hon)}</em>` : "");
+  const basAd = (me) => (me.src === "gps" ? "Konumun" : me.src === "ornek" ? me.label + " (örnek)" : me.label);
+  const KATAD = { sahabe: "Sahâbe-i Kirâm", cami: "Tarihî camiler", sur: "Suriçi ve surlar" };
+  // Rota özeti: Keşfet'in en üstünde durur; seçilen durakları, toplam yolu ve süreyi gösterir.
+  function ozetHtml() {
+    const ids = S.route;
+    if (!ids.length) return `
+        <div class="ozet-bas"><span class="ozet-ic">${ic("rota")}</span><div class="ozet-tx"><b>Rotan henüz boş</b><span>Durakları ${ic("plus")} ile ekle ya da tek dokunuşla en yakın rotayı kur.</span></div></div>
+        <button class="btn sm gold" type="button" data-act="build">${ic("spark")}En yakın rotayı oluştur</button>`;
+    const L = routeLen(), not = YOL && REAL && W.durum === "bekle" ? "yol hesaplanıyor…" : RT.duz ? "tahmini" : "sokaklardan";
+    return `
+        <div class="ozet-bas"><span class="ozet-ic">${ic("rota")}</span><div class="ozet-tx"><b>${esc(S.name || "Rotam")}</b><span>${ids.length} durak · ${fmtD(L)} · ≈ ${fmtT(L)} · ${not}</span></div><button class="pill" type="button" data-act="rotam">Ayrıntı${ic("fwd")}</button></div>
+        <ol class="ozet-liste">${ids.map((id, i) => { const t = STOPS[id]; return `<li class="c-${t.r.id}"><button type="button" data-stop="${t.id}" data-from="list"><span class="bdg">${i + 1}</span><span>${esc(t.name)}</span></button></li>`; }).join("")}</ol>`;
+  }
+  function syncOzet() { const el = $("#k-ozet"); if (el) { el.classList.toggle("bos", !S.route.length); el.innerHTML = ozetHtml(); } }
   function renderKesfet() {
-    const me = S.me, list = active().slice().sort((a, b) => dist(me, a) - dist(me, b));
-    const t = me.src === "ornek" ? [`Örnek konum: ${me.label}`, REAL ? "“Konumumu bul”a dokun ya da başlangıç noktanı aşağıdan veya haritadan seç." : "Önizleme gerçek konumunu okuyamaz. Başlangıç noktanı aşağıdan ya da haritadan seç."]
-      : me.src === "gps" ? ["Konumun bulundu", "Mesafeler bulunduğun yere göre hesaplanıyor."] : [`Başlangıç: ${me.label}`, "Mesafeler bu noktaya göre hesaplanıyor."];
-    const routes = S.concepts.size ? D.ROUTES.filter((r) => S.concepts.has(r.concept)) : [];
+    const me = S.me, list = active().slice().sort((a, b) => dist(me, a) - dist(me, b)), w = S.warn;
+    const say = (c) => STOPS.filter((t) => t.r.concept === c.id).length;
     P.kesfet.innerHTML = `
-      <div class="card loc">
-        <span class="loc-ic">${ic("loc")}</span>
-        <div class="loc-tx"><b>${esc(t[0])}</b><span>${esc(t[1])}</span></div>
-        <div class="row scroll">
+      ${w ? `<div class="uyari" role="status">
+        <span class="uyari-ic">${ic("loc")}</span>
+        <div class="uyari-tx"><b>${esc(w.b)}</b><span>${esc(w.t)}</span></div>
+        <button class="uyari-x" type="button" data-act="warn-x" aria-label="Uyarıyı kapat">${ic("x")}</button>
+        <div class="row">${w.kod === "disarida" || w.kod === "yok" || w.kod === "https" ? "" : `<button class="btn sm dark" type="button" data-act="locate">${ic("loc")}Konumu aç</button>`}<button class="btn sm" type="button" data-act="pick">${ic("hand")}Haritadan seç</button></div>
+      </div>` : ""}
+      <div class="card ozet${S.route.length ? "" : " bos"}" id="k-ozet">${ozetHtml()}</div>
+      <div class="bas${S.startOpen ? " acik" : ""}">
+        <span class="bas-ic ${me.src}">${ic(me.src === "gps" ? "loc" : "pin")}</span>
+        <span class="bas-tx"><small>Başlangıç</small><b>${esc(basAd(me))}</b></span>
+        <button class="pill" type="button" data-act="start-toggle" aria-expanded="${!!S.startOpen}">${S.startOpen ? "Kapat" : "Değiştir"}</button>
+        ${S.startOpen ? `<div class="row scroll">
           <button class="pill blue" type="button" data-act="locate">${ic("loc")}Konumumu bul</button>
           <button class="pill" type="button" data-act="pick">${ic("hand")}Haritadan seç</button>
           <span class="sep"></span>
           ${D.PRESETS.map((p, i) => `<button class="pill" type="button" data-preset="${i}" aria-pressed="${me.src !== "gps" && me.label === p.label}">${esc(p.label)}</button>`).join("")}
-        </div>
+        </div>` : ""}
       </div>
-      ${routes.map((r, i) => `
-      <div class="rc c-${r.id}" style="--i:${i}">
-        <div class="rc-tx"><i>Rota ${r.no} · ${esc(r.kicker)}</i><b>${esc(r.name)}</b><span>${esc(r.lede)}</span><small>${STOPS.filter((s) => s.r === r).length} durak · ${r.km} · ${r.sure}</small></div>
-        <button class="btn sm" type="button" data-load="${r.id}">Güzergâhı aç</button>
-      </div>`).join("")}
-      <div class="sec-head"><h2 class="h2">Sana en yakın duraklar</h2><small>${S.concepts.size ? esc(conceptLabel()) + " · " : ""}${list.length} durak</small></div>
-      <ul class="list">${list.map((s, i) => { const d = dist(me, s) * WALK, on = S.route.includes(s.id); return `
-        <li class="it c-${s.r.id}" style="--i:${i}">
-          <button class="it-main" type="button" data-stop="${s.id}">
-            <span class="bdg">${s.n}</span>
-            <span class="it-tx"><b>${nameHtml(s)}</b><small>${s.tag ? esc(s.tag) + " · " : ""}${esc(s.addr)}</small></span>
+      <div class="sec-head"><h2 class="h2">En yakın duraklar</h2><small>${list.length} durak · yakından uzağa</small></div>
+      <div class="kl-grup" role="group" aria-label="Kategoriler">
+        <button class="kl" type="button" data-kat="" aria-pressed="${!S.concepts.size}"><span class="tik">${ic("check")}</span><span class="kl-ad">Tümü</span><small>${STOPS.length} durak</small></button>
+        ${D.CONCEPTS.map((c) => c.soon
+          ? `<button class="kl soon" type="button" data-soon="1" aria-disabled="true"><span class="tik"></span><span class="kl-ad">${esc(c.label)}</span><small>yakında</small></button>`
+          : `<button class="kl c-${c.routes[0]}" type="button" data-kat="${c.id}" aria-pressed="${S.concepts.has(c.id)}"><span class="tik">${ic("check")}</span><span class="kl-ad">${esc(KATAD[c.id] || c.label)}</span><small>${say(c)} durak</small></button>`).join("")}
+      </div>
+      <ul class="list">${list.map((t, i) => { const d = dist(me, t) * WALK, on = S.route.includes(t.id); return `
+        <li class="it c-${t.r.id}" style="--i:${Math.min(i, 14)}">
+          <button class="it-main" type="button" data-stop="${t.id}">
+            <span class="bdg">${t.n}</span>
+            <span class="it-tx"><b>${nameHtml(t)}</b><small>${t.tag ? esc(t.tag) + " · " : ""}${esc(t.addr)}</small></span>
             <span class="it-d">${fmtD(d)}<small>${fmtT(d)}</small></span>
           </button>
-          <button class="add" type="button" data-add="${s.id}" aria-pressed="${on}" aria-label="${on ? "Rotadan çıkar" : "Rotaya ekle"}">${ic(on ? "check" : "plus")}</button>
+          <button class="add" type="button" data-add="${t.id}" aria-pressed="${on}" aria-label="${on ? "Rotadan çıkar" : "Rotaya ekle"}">${ic(on ? "check" : "plus")}</button>
         </li>`; }).join("")}</ul>
-      <p class="fine">${YOL && REAL ? "Bu listedeki mesafeler kuş uçuşu ölçümden tahmin edilir. Rotana eklediğin duraklar için sokak sokak yürüyüş yolu ve dönüş tarifi “Rotam”da çizilir." : "Mesafe ve süreler kuş uçuşu ölçümden tahmin edilir; sokak sokak yol tarifi için durağı Google ya da Apple Haritalar’da aç."}</p>`;
+      <p class="fine">${YOL && REAL ? "Bu listedeki mesafeler kuş uçuşu ölçümden tahmin edilir. Rotana eklediğin duraklar için yol sokak sokak çizilir; “Rotayı başlat” adım adım tarif verir." : "Mesafe ve süreler kuş uçuşu ölçümden tahmin edilir; sokak sokak yol tarifi için durağı Google ya da Apple Haritalar’da aç."}</p>`;
+  }
+
+  /* ——— Hazır rotalar: sitedeki altı rota, başlangıç noktasına yakından uzağa ——— */
+  function renderHazir() {
+    const me = S.me, near = D.ROUTES.map((r) => ({ r, d: Math.min(...STOPS.filter((t) => t.r === r).map((t) => dist(me, t))) })).sort((a, b) => a.d - b.d);
+    P.hazir.innerHTML = `
+      <div class="sec-head"><h2 class="h2">Hazır rotalar</h2><small>yakından uzağa</small></div>
+      ${near.map(({ r, d }, i) => `
+      <div class="rc hz c-${r.id}" style="--i:${i}">
+        <div class="rc-tx"><i>Rota ${r.no} · ${esc(r.kicker)}</i><b>${esc(r.name)}${i ? "" : '<span class="near">En yakın</span>'}</b><span>${esc(r.lede)}</span><small>${STOPS.filter((t) => t.r === r).length} durak · ${r.km} · ${r.sure} · en yakın durağı ${fmtD(d * WALK)}</small></div>
+        <span class="rc-acts"><button class="btn sm dark" type="button" data-load="${r.id}">Rotayı aç</button><a class="rc-link" href="${r.url}" target="${EMBED ? "_top" : "_blank"}" rel="noopener">Sayfasını oku</a></span>
+      </div>`).join("")}
+      <p class="fine">Hazır rota kendi sırasıyla açılır. “Rotam”da durak ekleyip çıkarabilir, sırayı değiştirebilirsin.</p>`;
   }
 
   /* ——— Durak ayrıntısı ——— */
@@ -2281,8 +2539,7 @@ globalThis.ZR_HESAP = (() => {
   }
   function selectStop(id, from) {
     if (from === "rota") S.from = "rota"; else if (from === "list" || (from === "map" && S.tab !== "rota")) S.from = "kesfet"; else if (from === "map") S.from = "rota";
-    S.sel = id; S.tab = "kesfet"; app.dataset.tab = "kesfet";
-    $("#tab-kesfet").setAttribute("aria-selected", true); $("#tab-rota").setAttribute("aria-selected", false);
+    S.sel = id; S.tab = "kesfet"; sekmeIsaret("kesfet");
     syncMarkers(); renderDetail();
     if (curPanel === "detail") { P.detail.classList.remove("is-on"); void P.detail.offsetWidth; P.detail.classList.add("is-on"); bodyEl.scrollTop = 0; } else show("detail", 1);
     if (!DESK.matches && S.sheet !== "half") setSheet("half");
@@ -2290,7 +2547,7 @@ globalThis.ZR_HESAP = (() => {
   }
   function closeDetail() {
     S.sel = null; syncMarkers();
-    if (S.from === "rota") { S.tab = ""; setTab("rota"); } else { S.tab = "kesfet"; show("kesfet", -1); }
+    if (S.from === "rota") { S.tab = ""; setTab("rota"); } else { S.tab = "kesfet"; syncOzet(); show("kesfet", -1); }
   }
 
   /* ——— Rotam ——— */
@@ -2314,7 +2571,7 @@ globalThis.ZR_HESAP = (() => {
     const durum = !YOL || !REAL || !ids.length ? ""
       : W.durum === "bekle" ? `<p class="yol-durum bekle">${ic("walk")}Yürüyüş yolu hesaplanıyor…</p>`
       : W.durum === "hata" ? `<div class="card yol-kart"><b>Sokak yolu şu an alınamadı</b><span>Yol tarifi sunucusuna ulaşılamadı. Çizgi kuş uçuşu çizildi; mesafeler tahmindir.</span><button class="btn sm" type="button" data-act="yol-yeniden">Yeniden dene</button></div>`
-      : !startOk() && W.izin !== "hayir" ? `<div class="card yol-kart"><b>Başlangıç noktandan ilk durağa da yol çizilsin mi?</b><span>Bunun için başlangıç noktanın konumu yol tarifi sunucusuna (${esc(YOL.SERVIS.adres)}) gönderilir. Biz saklamıyoruz. Onay vermezsen yol yalnızca duraklar arasında çizilir.</span><span class="row"><button class="btn sm dark" type="button" data-act="yol-evet">Evet, çiz</button><button class="btn sm" type="button" data-act="yol-hayir">Hayır</button></span></div>` : "";
+      : !startOk() ? `<div class="card yol-kart"><b>Yol, başlangıç noktandan çizilmiyor</b><span>Başlangıçtan ilk durağa da yol çizilmesi için konumun yol tarifi sunucusuna (${esc(YOL.SERVIS.adres)}) gönderilir. Biz saklamıyoruz.</span><span class="row"><button class="btn sm dark" type="button" data-act="yol-evet">Başlangıçtan da çiz</button></span></div>` : "";
     const builder = `
       <div class="card">
         <p class="kicker">Sana göre rota</p>
@@ -2337,7 +2594,7 @@ globalThis.ZR_HESAP = (() => {
       </div>
       ${durum}
       <ol class="rlist${sokak ? " yollu" : ""}">
-        <li class="rstart"><span class="dot"></span><span>Başlangıç: <b>${esc(me.src === "ornek" ? me.label + " (örnek)" : me.label)}</b></span></li>
+        <li class="rstart"><span class="dot"></span><span>Başlangıç: <b>${esc(basAd(me))}</b></span></li>
         ${ids.map((id, i) => { const s = STOPS[id], d = legLen(i, prev, s), kus = !RT.legD || RT.legD[i] == null; prev = s; return `${tarif(i)}
         <li class="ri c-${s.r.id}" style="--i:${i}">
           <span class="bdg">${i + 1}</span>
@@ -2353,8 +2610,19 @@ globalThis.ZR_HESAP = (() => {
         <button class="pill" type="button" data-act="opt">${ic("swap")}Sırayı kısalt</button>
         <button class="pill" type="button" data-act="clear">${ic("trash")}Temizle</button>
       </div>
+      ${!HESAP || kim ? `
+      <form class="card" data-form="save">
+        <p class="kicker">${kim ? "Hesabıma kaydet" : "Kaydet"}</p>
+        <div class="save"><input type="text" name="ad" maxlength="60" aria-label="Rota adı" placeholder="Rotaya bir ad ver" value="${esc(S.name)}"><button class="btn dark" type="submit">${ic("mark")}Kaydet</button></div>
+      </form>` : `
+      <div class="card acct">
+        <p class="kicker">Rotayı kaydet</p>
+        <b>Kaydetmek için giriş yap</b>
+        <span>Rotalar hesabına kaydedilir. Giriş yapıp bu sayfaya döndüğünde rotan seni burada bekler.</span>
+        <a class="btn sm dark" href="${SITE}hesabim/" target="_top">${ic("user")}Giriş yap ya da hesap oluştur</a>
+      </div>`}
       <div class="card exp">
-        <p class="kicker">Haritalara aktar</p>
+        <p class="kicker">Haritalara aktar ve indir</p>
         ${parts.length === 1
           ? `<a class="btn dark" href="${parts[0].url}" target="_blank" rel="noopener">${ic("ext")}Google Haritalar’da aç</a>`
           : `<p class="exp-lbl">Google Haritalar · ${parts.length} bölüm</p><div class="parts">${parts.map((p, i) => `<a class="btn sm dark" href="${p.url}" target="_blank" rel="noopener">${i + 1}. bölüm · ${nth(p.from)} → ${nth(p.to)}</a>`).join("")}</div>`}
@@ -2362,40 +2630,15 @@ globalThis.ZR_HESAP = (() => {
         <button class="btn" type="button" data-act="dl" id="dl-html">${ic("dl")}Rota sayfasını indir</button>
         ${HOSTED ? "" : `<button class="btn" type="button" data-act="gpx">${ic("dl")}GPX dosyasını indir</button>`}
         <p class="fine">${parts.length > 1 ? "Google Haritalar bir bağlantıda başlangıç, 3 ara durak ve varış açtığı için uzun rota bölümlere ayrılır. " : ""}Haritalar uygulaması yolu kendi verisine göre yeniden çizer.${sokak ? " Buradaki yürüyüş yolu: © OpenStreetMap katkıda bulunanlar · " + esc(YOL.SERVIS.ad) + "." : ""}</p>
-      </div>
-      <form class="card" data-form="save">
-        <p class="kicker">${kim ? "Hesabıma kaydet" : "Bu cihaza kaydet"}</p>
-        <div class="save"><input type="text" name="ad" maxlength="60" aria-label="Rota adı" placeholder="Rotaya bir ad ver" value="${esc(S.name)}"><button class="btn dark" type="submit">${ic("mark")}Kaydet</button></div>
-      </form>`;
+      </div>`;
     } else {
-      cur = `<div class="empty"><b>Henüz bir rotan yok</b><span>Üstten bir konsept seçip “En yakın rotayı oluştur”a dokun, hazır bir güzergâhı aç ya da durakları ${ic("plus")} ile tek tek ekle.</span></div>`;
+      cur = `<div class="empty"><b>Henüz bir rotan yok</b><span>Aşağıdan en yakın rotayı oluştur, “Hazır rotalar”dan birini aç ya da “Keşfet”te durakları ${ic("plus")} ile tek tek ekle.</span></div>`;
     }
     const saved = S.saved.length ? `
-      <div class="sec-head"><h2 class="h2">Kayıtlı rotalarım</h2><small>${kim ? esc(kim.ad) + " · bu cihazda" : "bu cihazda"}</small></div>
+      <div class="sec-head"><h2 class="h2">Kayıtlı rotalarım</h2><small>${kim ? esc(kim.ad) : "giriş yapılmadan kaydedilenler"}</small></div>
       ${S.saved.map((r, i) => `<div class="rc c-r2" style="--i:${i}"><div class="rc-tx"><b>${esc(r.name)}</b><small>${r.keys.length} durak · başlangıç ${esc(r.start.label)}</small></div><span class="ops"><button type="button" class="btn sm" data-saved="${i}">Aç</button><button type="button" data-del="${i}" aria-label="Kaydı sil">${ic("trash")}</button></span></div>`).join("")}` : "";
-    const near = D.ROUTES.map((r) => ({ r, d: Math.min(...STOPS.filter((s) => s.r === r).map((s) => dist(me, s))) })).sort((a, b) => a.d - b.d);
-    const ready = `
-      <div class="sec-head"><h2 class="h2">Hazır güzergâhlar</h2><small>yakından uzağa</small></div>
-      ${near.map(({ r, d }, i) => `
-      <div class="rc c-${r.id}" style="--i:${i}">
-        <div class="rc-tx"><i>Rota ${r.no} · ${esc(r.kicker)}</i><b>${esc(r.name)}${i ? "" : '<span class="near">En yakın</span>'}</b><small>${STOPS.filter((s) => s.r === r).length} durak · ${r.km} · ${r.sure} · en yakın durağı ${fmtD(d * WALK)}</small></div>
-        <button class="btn sm" type="button" data-load="${r.id}">Aç</button>
-      </div>`).join("")}`;
     P.rota.classList.toggle("no-anim", !!quiet);
-    const acct = !HESAP ? "" : kim ? (S.acct ? `
-      <div class="card acct">
-        <p class="kicker">Hesabım</p>
-        <b>${esc(kim.ad)}</b>
-        <span>Kaydettiğin rotalar bu cihazda, hesabının altında durur.</span>
-        <a class="btn sm" href="${SITE}rotalarim/" target="_top">${ic("mark")}Rotalarım</a>
-      </div>` : "") : S.acct || S.saved.length || ids.length ? `
-      <div class="card acct">
-        <p class="kicker">Giriş</p>
-        <b>Rotalarını kullanıcı adınla sakla</b>
-        <span>Giriş yapmadan kaydettiğin rotalar bu cihazda misafir olarak durur. Hesap açarsan kendi adınla saklanır.</span>
-        <a class="btn sm" href="${SITE}hesabim/" target="_top">${ic("user")}Giriş yap ya da hesap aç</a>
-      </div>` : "";
-    P.rota.innerHTML = (S.acct ? acct : "") + cur + builder + saved + (S.acct ? "" : acct) + ready;
+    P.rota.innerHTML = cur + builder + saved;
     if (HOSTED && ids.length) dlReady.then((d) => { const b = $("#dl-html"); if (b && !d) b.hidden = true; });
   }
 
@@ -2403,7 +2646,7 @@ globalThis.ZR_HESAP = (() => {
   const KEY = "zr.rotalar.v1";
   const loadSaved = () => { if (HESAP) { S.saved = HESAP.rotalar(); return; } try { const v = JSON.parse(localStorage.getItem(KEY) || "[]"); S.saved = Array.isArray(v) ? v.filter((r) => r && Array.isArray(r.keys) && r.start) : []; } catch (e) { S.saved = []; } };
   const storeSaved = () => { if (HESAP) return HESAP.rotalariYaz(S.saved); try { localStorage.setItem(KEY, JSON.stringify(S.saved)); return true; } catch (e) { return false; } };
-  if (HESAP) HESAP.dinle(() => { const once = JSON.stringify(S.saved); loadSaved(); if (S.tab === "rota" && JSON.stringify(S.saved) !== once) renderRota(true); });
+  if (HESAP) HESAP.dinle(() => { loadSaved(); if (S.tab === "rota") renderRota(true); });
   const openSaved = (r) => { const ids = r.keys.map((k) => BYKEY.get(k)).filter(Boolean).map((s) => s.id); setMe(r.start.lat, r.start.lng, "secim", r.start.label, false, !!r.start.acik); setRoute(ids, { name: r.name }); };
   const dlReady = HOSTED ? window.claude.use("downloads").catch(() => null) : Promise.resolve(null);
 
@@ -2454,7 +2697,8 @@ globalThis.ZR_HESAP = (() => {
       S.concepts = new Set(ids); if (S.tab !== "kesfet") setTab("kesfet"); applyConcepts(1200); return true;
     }
     if ((m = /^rota=(r[0-9]+)$/.exec(h))) return loadRoute(m[1]);
-    if (h === "rotalarim") { S.acct = true; setTab("rota"); if (!DESK.matches) setSheet("full"); return true; }
+    if (h === "rotalarim") { setTab("rota"); if (!DESK.matches) setSheet("full"); return true; }
+    if (h === "hazir") { setTab("hazir"); return true; }
     if ((m = /^kayit=([0-9]+)$/.exec(h))) { loadSaved(); const r = S.saved[+m[1]]; if (!r) return false; openSaved(r); return true; }
     if (h === "rotam") { setTab("rota"); return true; }
     return false;
@@ -2463,11 +2707,13 @@ globalThis.ZR_HESAP = (() => {
 
   /* ——— Panel tıklamaları ——— */
   bodyEl.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-stop],[data-add],[data-act],[data-preset],[data-load],[data-saved],[data-del],[data-mv],[data-rm]");
+    const t = e.target.closest("[data-stop],[data-add],[data-act],[data-preset],[data-load],[data-saved],[data-del],[data-mv],[data-rm],[data-kat],[data-soon]");
     if (!t || !bodyEl.contains(t)) return;
     const d = t.dataset;
     if (d.stop != null) return selectStop(+d.stop, d.from || (curPanel === "detail" ? "" : "list"));
     if (d.add != null) return toggleStop(+d.add);
+    if (d.soon) return toast("Sabit ikram noktaları henüz eklenmedi. Liste gelince bu kategori açılacak.");
+    if (d.kat != null) { if (!d.kat) S.concepts.clear(); else if (S.concepts.has(d.kat)) S.concepts.delete(d.kat); else S.concepts.add(d.kat); return applyConcepts(); }
     if (d.preset != null) { const p = D.PRESETS[+d.preset]; if (S.picking) stopPick(); return setMe(p.lat, p.lng, "secim", p.label, true, true); }
     if (d.load) return loadRoute(d.load);
     if (d.saved != null) return openSaved(S.saved[+d.saved]);
@@ -2478,26 +2724,314 @@ globalThis.ZR_HESAP = (() => {
       case "locate": return locate();
       case "pick": return S.picking ? stopPick() : startPick();
       case "back": return closeDetail();
+      case "rotam": S.tab = ""; return setTab("rota");
+      case "start-toggle": S.startOpen = !S.startOpen; return renderKesfet();
+      case "warn-x": S.warn = null; return renderKesfet();
       case "inc": case "dec": { const n = active().length; S.count = clamp(S.count + (d.act === "inc" ? 1 : -1), Math.min(3, n), Math.min(12, n)); $("#cnt").textContent = S.count; return; }
       case "build": return buildNearest();
       case "clear": setRoute([], { animate: false, open: false }); return toast("Rota temizlendi.");
       case "opt": { const a = pathLen(S.route), ids = twoOpt(S.route), b = pathLen(ids); if (a - b < 5) return toast("Sıra zaten en kısa hâlinde."); setRoute(ids, { name: S.name, open: false }); return toast(`Sıra kısaltıldı: ${fmtD((a - b) * WALK)} daha az yürüyüş.`); }
       case "dl": return download("ziyaret-rotam.html", sheetHtml(), "text/html");
       case "gpx": return download("ziyaret-rotam.gpx", gpx(), "application/gpx+xml");
-      case "yol-evet": case "yol-hayir": W.izin = d.act === "yol-evet" ? "evet" : "hayir"; try { localStorage.setItem("zr.yol.izin", W.izin); } catch (e) {} computeRT(); RT.prog = 1; draw(); return renderRota(true);
+      case "yol-evet": if (sorCoz) sorCoz(null); return yolIzni(true);
       case "yol-yeniden": computeRT(); RT.prog = 1; draw(); return renderRota(true);
     }
   });
   bodyEl.addEventListener("submit", (e) => {
     e.preventDefault();
     if (!S.route.length) return;
+    if (HESAP && !HESAP.aktif()) return toast("Rota kaydetmek için giriş yapman gerekir.");
     const name = (new FormData(e.target).get("ad") || "").toString().trim() || `Rotam · ${S.route.length} durak`;
     S.name = name;
     S.saved = S.saved.filter((r) => r.name !== name);
     S.saved.unshift({ name, keys: S.route.map((id) => STOPS[id].key), start: { lat: S.me.lat, lng: S.me.lng, label: S.me.label, acik: S.me.src === "ornek" || !!S.me.acik }, km: +(routeLen() / 1000).toFixed(2), sokak: !RT.duz, t: Date.now() });
     const ok = storeSaved(); renderRota(true);
-    toast(ok ? (HESAP && HESAP.aktif() ? "Rota hesabına kaydedildi." : "Rota bu cihaza kaydedildi.") : "Tarayıcı kayda izin vermedi; rota yalnızca bu oturumda duruyor.");
+    toast(ok ? (HESAP ? "Rota hesabına kaydedildi." : "Rota kaydedildi.") : "Tarayıcı kayda izin vermedi; rota yalnızca bu oturumda duruyor.");
   });
+
+  /* ——— Küçük soru kutusu (tarayıcı penceresi yerine sayfanın içinde) ——— */
+  let sorCoz = null;
+  function sor(b, t, evet = "Evet", hayir = "Hayır") {
+    if (sorCoz) sorCoz(null);
+    $("#sor-b").textContent = b; $("#sor-t").textContent = t; $("#sor-e").textContent = evet; $("#sor-h").textContent = hayir; sorEl.hidden = false;
+    return new Promise((res) => { sorCoz = (v) => { sorCoz = null; sorEl.hidden = true; res(v); }; });
+  }
+  $("#sor-e").addEventListener("click", () => sorCoz && sorCoz(true));
+  $("#sor-h").addEventListener("click", () => sorCoz && sorCoz(false));
+
+  /* ——— Alt çubuk: "Rotayı başlat" ve haritalara aktarma ——— */
+  function syncGo() {
+    const on = S.route.length > 0 && !N.on, once = !goEl.hidden;
+    goEl.hidden = !on; app.classList.toggle("has-go", on);
+    if (on && S.me) { const parts = gparts(), g = $("#go-g"); g.href = parts[0].url; g.dataset.cok = parts.length > 1 ? "1" : ""; $("#go-a").href = apple(xpts().map((x) => x.p)); }
+    if (on !== once) setSheet(S.sheet);
+  }
+  $("#go-start").addEventListener("click", () => navStart());
+  $("#go-g").addEventListener("click", (e) => {
+    if (!e.currentTarget.dataset.cok) return;
+    // Google Haritalar tek bağlantıda en çok beş nokta açar; uzun rotada bölümler "Rotam"daki listeden seçilir.
+    e.preventDefault(); S.sel = null; syncMarkers(); S.tab = ""; setTab("rota"); if (!DESK.matches) setSheet("full");
+    const x = P.rota.querySelector(".exp"); if (x) x.scrollIntoView({ block: "center" });
+    toast("Rota uzun olduğu için Google Haritalar’da bölüm bölüm açılır.");
+  });
+
+  /* ——— Taslak: kurulan rota bu sekmede saklanır; giriş yapıp dönünce ya da sayfa değişince kaybolmaz ———
+     Gerçek konum saklanmaz; yalnızca elle seçilmiş başlangıç noktası ve durakların sırası tutulur. Sekme kapanınca silinir. */
+  const TASLAK = "zr.taslak.1";
+  function taslakYaz() {
+    try {
+      if (!S.route.length) return sessionStorage.removeItem(TASLAK);
+      const me = S.me;
+      sessionStorage.setItem(TASLAK, JSON.stringify({ k: S.route.map((id) => STOPS[id].key), n: S.name, b: me.src === "secim" ? { lat: me.lat, lng: me.lng, label: me.label, acik: !!me.acik } : null, t: Date.now() }));
+    } catch (e) {}
+  }
+  function taslakAc() {
+    try {
+      const v = JSON.parse(sessionStorage.getItem(TASLAK) || "null");
+      if (!v || !Array.isArray(v.k) || Date.now() - v.t > 12 * 3600e3) return false;
+      const ids = v.k.map((k) => BYKEY.get(k)).filter(Boolean).map((t) => t.id);
+      if (!ids.length) return false;
+      if (v.b) setMe(v.b.lat, v.b.lng, "secim", v.b.label, false, !!v.b.acik);
+      setRoute(ids, { name: v.n || "", animate: false, open: false });
+      fit([S.me, ...ids.map((id) => STOPS[id])], 0, 0.26);
+      return v.b ? "baslangic" : true;
+    } catch (e) { return false; }
+  }
+
+  /* ——— Rotayı başlat: uygulama içinde adım adım yol tarifi ———
+     Harita gidiş yönüne döner ve eğik (üç boyut hissi veren) bir görünümle konumu izler. Bu görünüm MapLibre GL ile çizilir ve
+     yalnızca "Rotayı başlat"a basılınca yüklenir; yüklenemezse aynı tarif düz haritada (kuzey yukarıda) sürer.
+     Konum alınamıyorsa ya da rota çok uzaktaysa aynı ekran önizleme olarak çalışır: "Sonraki durak" ile duraktan durağa ilerlenir. */
+  const N = { on: false, gl: null, glP: null, hazir: false, lf: false, watch: null, pos: null, real: false, i: 0, leg: null, legOk: false, along: 0, offN: 0, tRe: 0, busy: false, follow: true, v3: true, wake: null, vardi: false, brg: 0, zoom: 0, seq: 0, mk: [], puck: null, msgT: 0 };
+  const fmtN = (m) => (m < 1000 ? Math.max(5, Math.round(m / 5) * 5) + " m" : (m / 1000).toFixed(1).replace(".", ",") + " km");
+  const brgOf = (a, b) => (Math.atan2(b[0] - a[0], a[1] - b[1]) / RAD + 360) % 360;
+  // Bir bacağı hesap için hazırlar: metre cinsinden noktalar, birikimli uzunluk ve her dönüşün çizgi üzerindeki yeri.
+  function navLeg(lg) {
+    const pts = lg.pts.length > 1 ? lg.pts : [lg.pts[0], lg.pts[0]], Pm = pts.map((c) => proj(c[0], c[1])), cum = [0];
+    for (let j = 1; j < Pm.length; j++) cum.push(cum[j - 1] + Math.hypot(Pm[j][0] - Pm[j - 1][0], Pm[j][1] - Pm[j - 1][1]));
+    return { P: Pm, cum, len: cum[cum.length - 1] || 0, ll: pts.map((c) => [c[1], c[0]]), steps: (lg.adim || []).filter((a) => a.i != null).map((a) => ({ ...a, at: cum[Math.min(a.i, cum.length - 1)] })) };
+  }
+  // Konumu yol çizgisine oturtur: çizgi boyunca kaç metre gidildi (along) ve çizgiden ne kadar uzakta (ham).
+  function navSnap(Lg, x, y) {
+    let b = { d: Infinity, along: 0, ham: Infinity };
+    for (let j = 0; j < Lg.P.length - 1; j++) {
+      const p = Lg.P[j], q = Lg.P[j + 1], dx = q[0] - p[0], dy = q[1] - p[1], l2 = dx * dx + dy * dy, t = l2 ? clamp(((x - p[0]) * dx + (y - p[1]) * dy) / l2, 0, 1) : 0;
+      const ham = Math.hypot(x - p[0] - dx * t, y - p[1] - dy * t), al = Lg.cum[j] + Math.sqrt(l2) * t;
+      // Aynı sokaktan gidip dönen yollarda geride kalan parçaya yapışmamak için geriye sıçramaya küçük bir ceza verilir.
+      const d = ham + (al < N.along - 30 ? 12 : 0);
+      if (d < b.d) b = { d, along: al, ham };
+    }
+    return b;
+  }
+  function navAt(Lg, m) {
+    m = clamp(m, 0, Lg.len); let j = 1; while (j < Lg.cum.length - 1 && Lg.cum[j] < m) j++;
+    const p = Lg.P[j - 1], q = Lg.P[j], t = (m - Lg.cum[j - 1]) / (Lg.cum[j] - Lg.cum[j - 1] || 1);
+    return [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t, j];
+  }
+  function navMsg(t, kal) {
+    const el = $("#nav-msg"); clearTimeout(N.msgT);
+    if (!t) { el.hidden = true; return; }
+    el.textContent = t; el.hidden = false; if (!kal) N.msgT = setTimeout(() => { el.hidden = true; }, 6500);
+  }
+  // Hedef duraktan sonra kalan yol: [boylam, enlem] noktaları.
+  function navRest() {
+    const out = [];
+    if (!RT.duz && RT.at[N.i] != null) { for (let k = 0; k < RT.pts.length; k++) if (RT.cum[k] >= RT.at[N.i] - 0.5) { const q = unproj(RT.pts[k][0], RT.pts[k][1]); out.push([q.lng, q.lat]); } }
+    else for (let k = N.i; k < S.route.length; k++) { const t = STOPS[S.route[k]]; out.push([t.lng, t.lat]); }
+    return out;
+  }
+
+  // Eğik harita (MapLibre GL): yalnızca gerektiğinde yüklenir.
+  function glLoad() {
+    if (N.glP) return N.glP;
+    N.glP = new Promise((res) => {
+      if (!GLC || !window.WebGLRenderingContext) return res(false);
+      const l = document.createElement("link"); l.rel = "stylesheet"; l.href = GLC.css; document.head.append(l);
+      const sc = document.createElement("script"); sc.src = GLC.js; sc.async = true; sc.onload = () => res(!!window.maplibregl); sc.onerror = () => res(false); document.head.append(sc);
+      setTimeout(() => res(false), 20000);
+    });
+    return N.glP;
+  }
+  const gj = (c) => ({ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: c.length > 1 ? c : [] } });
+  function glInit() {
+    const ras = (u) => ({ type: "raster", tiles: [u], tileSize: 256, maxzoom: 19 }), gor = (on) => ({ visibility: on ? "visible" : "none" });
+    const cizgi = { "line-cap": "round", "line-join": "round" }, ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/";
+    const gl = new maplibregl.Map({
+      container: "nmap", attributionControl: false, center: [N.pos.lng, N.pos.lat], zoom: 17.4, pitch: 58, bearing: N.brg, maxPitch: 60, minZoom: 11, maxZoom: 19.4, maxBounds: [[28.6, 40.85], [29.35, 41.25]], fadeDuration: 120,
+      style: { version: 8,
+        sources: { uydu: ras(ESRI + "World_Imagery/MapServer/tile/{z}/{y}/{x}"), ad: ras(ESRI + "Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"), sokak: ras("https://tile.openstreetmap.org/{z}/{x}/{y}.png"), kalan: { type: "geojson", data: gj([]) }, yol: { type: "geojson", data: gj([]) } },
+        layers: [
+          { id: "zemin", type: "background", paint: { "background-color": "#16202F" } },
+          { id: "uydu", type: "raster", source: "uydu", layout: gor(S.sat) }, { id: "ad", type: "raster", source: "ad", layout: gor(S.sat) }, { id: "sokak", type: "raster", source: "sokak", layout: gor(!S.sat) },
+          { id: "kalan-k", type: "line", source: "kalan", layout: cizgi, paint: { "line-color": "#0E1B2E", "line-width": 9, "line-opacity": 0.55 } },
+          { id: "kalan", type: "line", source: "kalan", layout: cizgi, paint: { "line-color": "#FFFFFF", "line-width": 4.5, "line-opacity": 0.92 } },
+          { id: "yol-k", type: "line", source: "yol", layout: cizgi, paint: { "line-color": "#0E1B2E", "line-width": 13 } },
+          { id: "yol", type: "line", source: "yol", layout: cizgi, paint: { "line-color": "#F5C451", "line-width": 7.5 } },
+        ] },
+    });
+    const elle = (e) => !!(e && e.originalEvent);
+    gl.on("load", () => { N.hazir = true; glKatman(); navDraw(); navCam(true); });
+    for (const olay of ["dragstart", "rotatestart", "pitchstart"]) gl.on(olay, (e) => { if (elle(e)) navFollow(false); });
+    gl.on("zoomend", (e) => { if (elle(e)) N.zoom = gl.getZoom(); });
+    gl.on("error", () => {});
+    N.gl = gl;
+    const pk = document.createElement("div"); pk.className = "npuck"; pk.innerHTML = "<span></span>";
+    N.puck = new maplibregl.Marker({ element: pk, rotationAlignment: "map", pitchAlignment: "map" }).setLngLat([N.pos.lng, N.pos.lat]).addTo(gl);
+  }
+  function glKatman() {
+    $("#nav-cap").innerHTML = (S.sat ? "Uydu: Esri, Maxar, Earthstar Geographics" : "© OpenStreetMap katkıda bulunanlar") + (YOL ? " · Yol: © OpenStreetMap" : "");
+    if (!N.gl || !N.hazir) return;
+    const v = (id, on) => N.gl.setLayoutProperty(id, "visibility", on ? "visible" : "none");
+    v("uydu", S.sat); v("ad", S.sat); v("sokak", !S.sat);
+  }
+  function navMarkers() {
+    if (!N.gl) return;
+    N.mk.forEach((m) => m.remove()); N.mk = [];
+    S.route.forEach((id, k) => {
+      const t = STOPS[id], el = document.createElement("div");
+      el.className = `nmk c-${t.r.id}${k === N.i ? " hedef" : k < N.i ? " gecti" : ""}`;
+      el.innerHTML = `<i><s>${k + 1}</s></i>${k === N.i ? `<b>${esc(t.name)}</b>` : ""}`;
+      N.mk.push(new maplibregl.Marker({ element: el, anchor: "bottom" }).setLngLat([t.lng, t.lat]).addTo(N.gl));
+    });
+  }
+  function navDraw() {
+    if (!N.on || !N.gl || !N.hazir) return;
+    const Lg = N.leg, a = navAt(Lg, N.along), q = unproj(a[0], a[1]);
+    N.gl.getSource("yol").setData(gj(N.vardi ? [] : [[q.lng, q.lat], ...Lg.ll.slice(a[2])]));
+    N.gl.getSource("kalan").setData(gj(navRest()));
+  }
+  function navCam(jump) {
+    const p = N.pos; if (!p) return;
+    if (N.lf) { meMk.setLatLng([p.lat, p.lng]); if (N.follow) map.setView([p.lat, p.lng], Math.max(map.getZoom(), 17), { animate: !jump && !RM.matches }); return; }
+    if (!N.gl) return;
+    N.puck.setLngLat([p.lng, p.lat]).setRotation(p.head != null ? p.head : N.brg);
+    if (!N.follow) return;
+    const h = navEl.clientHeight || 600;
+    const o = { center: [p.lng, p.lat], bearing: N.v3 ? N.brg : 0, pitch: N.v3 ? 58 : 0, zoom: N.zoom || (N.v3 ? 17.6 : 16.6), padding: { top: N.v3 ? Math.round(h * 0.3) : 96, bottom: 180, left: 0, right: 0 } };
+    if (jump || RM.matches) N.gl.jumpTo(o); else N.gl.easeTo({ ...o, duration: 950, easing: (t) => t * (2 - t), essential: true });
+  }
+  function navFollow(on) { N.follow = on; $("#nav-c").hidden = on; if (on) { N.zoom = 0; navCam(); } }
+
+  // Üstteki tarif şeridi ve alttaki durak kartı.
+  function navPaint() {
+    if (!N.on) return;
+    const Lg = N.leg, n = S.route.length, hedef = STOPS[S.route[N.i]], kalan = Math.max(0, Lg.len - N.along) * (N.legOk ? 1 : WALK);
+    let rest = 0, prev = hedef;
+    for (let k = N.i + 1; k < n; k++) { const t = STOPS[S.route[k]]; rest += legLen(k, prev, t); prev = t; }
+    let k = "duz", d = fmtN(kalan), t = "";
+    if (N.vardi) { k = "var"; d = "Vardın"; t = hedef.name; }
+    else if (!N.legOk) { k = N.busy ? "walk" : "duz"; t = N.busy ? "Yol hesaplanıyor…" : hedef.name + " yönünde ilerle"; }
+    else {
+      const nx = Lg.steps.find((a) => a.k !== "basla" && a.at > N.along + 4), ilk = Lg.steps[0];
+      if (nx) { k = nx.k; d = fmtN(nx.at - N.along); t = nx.t; }
+      else { k = "var"; t = "Durağa varıyorsun: " + hedef.name; }
+      if (N.along < 8 && ilk && ilk.k === "basla" && (!nx || nx.at - N.along > 80)) { k = "basla"; t = ilk.t; }
+    }
+    $("#nav-ic").innerHTML = ic(k); $("#nav-ic").dataset.k = k; $("#nav-d").textContent = d; $("#nav-t").textContent = t;
+    $("#nav-k").textContent = `Durak ${N.i + 1} / ${n}` + (N.real ? "" : " · önizleme");
+    $("#nav-n").textContent = hedef.name + (hedef.hon ? " " + hedef.hon : "");
+    $("#nav-r").textContent = N.vardi ? (N.i < n - 1 ? "Hazır olunca sonraki durağa geç." : "Rotanın son durağındasın.") : `${fmtN(kalan)} · ${fmtT(kalan)}` + (rest > 0 ? ` · rotada ${fmtD(kalan + rest)} kaldı` : "");
+    const ds = $("#nav-desc"); ds.hidden = !N.vardi; if (N.vardi) ds.textContent = hedef.desc;
+    const son = N.i >= n - 1, sb = $("#nav-s");
+    sb.hidden = son && N.real && !N.vardi; sb.textContent = son ? "Rotayı bitir" : N.vardi || !N.real ? "Sonraki durak" : "Bu durağı atla";
+    const nb = $(".nav-bot").offsetHeight; if (nb) navEl.style.setProperty("--nb", nb + "px");
+  }
+  // Bulunulan noktadan hedef durağa yol: önce düz çizgiyle yön gösterilir, sokak yolu gelince yerini alır.
+  function navLoadLeg() {
+    const hedef = STOPS[S.route[N.i]], p = N.pos, seq = ++N.seq, uc = [[p.lat, p.lng], [hedef.lat, hedef.lng]];
+    N.leg = navLeg({ pts: uc, adim: [] }); N.legOk = false; N.along = 0; N.offN = 0; N.tRe = Date.now(); N.busy = !!YOL;
+    navPaint(); navDraw();
+    if (!YOL) return;
+    YOL.yol(uc).then((res) => {
+      if (seq !== N.seq || !N.on) return;
+      N.busy = false; if (res.legs[0]) { N.leg = navLeg(res.legs[0]); N.legOk = true; N.along = 0; }
+      navTick(true);
+    }, () => { if (seq !== N.seq || !N.on) return; N.busy = false; navMsg("Sokak tarifi alınamadı; durağın yönü gösteriliyor."); navPaint(); });
+  }
+  function navTick(jump) {
+    if (!N.on) return;
+    const Lg = N.leg, p = N.pos, hedef = STOPS[S.route[N.i]], sn = navSnap(Lg, p.x, p.y);
+    N.along = N.real ? sn.along : 0;
+    const dH = Math.hypot(p.x - hedef.x, p.y - hedef.y);
+    if (N.real && !N.vardi && (dH < 28 || (N.legOk && Lg.len - N.along < 12 && sn.ham < 30))) {
+      N.vardi = true; navMsg(`${N.i + 1}. durağa vardın: ${hedef.name}`); navMarkers();
+      try { if (navigator.vibrate) navigator.vibrate(120); } catch (e) {}
+    }
+    // Rotadan 45 metreden fazla uzaklaşılırsa yol bulunulan yerden yeniden hesaplanır (en sık 20 saniyede bir).
+    if (N.real && !N.vardi && N.legOk && sn.ham > 45 && p.acc < 70) { if (++N.offN >= 3 && !N.busy && Date.now() - N.tRe > 20000) { navMsg("Rotadan ayrıldın; yol yeniden hesaplanıyor…"); return navLoadLeg(); } } else N.offN = 0;
+    const a = navAt(Lg, N.along), b = navAt(Lg, N.along + 16);
+    if (Math.hypot(b[0] - a[0], b[1] - a[1]) > 1.5) N.brg = brgOf(a, b);
+    if (p.head != null && sn.ham > 25) N.brg = p.head;
+    navPaint(); navDraw(); navCam(jump);
+  }
+  function navFix(pos) {
+    if (!N.on) return;
+    const c = pos.coords, [x, y] = proj(c.latitude, c.longitude);
+    const uzak = Math.min(Math.hypot(x - S.me.x, y - S.me.y), ...S.route.map((id) => Math.hypot(x - STOPS[id].x, y - STOPS[id].y)));
+    if (uzak > 6000) { if (!N.real) navMsg(`Rotaya yaklaşık ${Math.round(uzak / 1000)} km uzaktasın. Rota önizleme olarak gösteriliyor; “Sonraki durak” ile ilerleyebilirsin.`, true); return; }
+    const ilk = !N.real; N.real = true;
+    N.pos = { lat: c.latitude, lng: c.longitude, x, y, acc: c.accuracy || 0, head: Number.isFinite(c.heading) && (c.speed || 0) > 0.5 ? c.heading : null };
+    if (ilk) { navMsg(""); if (Math.hypot(x - N.leg.P[0][0], y - N.leg.P[0][1]) > 25) return navLoadLeg(); }
+    navTick();
+  }
+  function navWatch() {
+    const geo = navigator.geolocation;
+    if (!geo || window.isSecureContext === false) return navMsg("Bu tarayıcı konum paylaşmıyor. Rota önizleme olarak gösteriliyor.", true);
+    navMsg("Konumun bekleniyor…", true);
+    try { N.watch = geo.watchPosition(navFix, (e) => { if (!N.real) navMsg(e && e.code === 1 ? "Konum izni kapalı. Konumu açarsan rotadaki yerin gösterilir; şimdilik önizleme." : "Konumun bekleniyor…", true); }, { enableHighAccuracy: true, maximumAge: 2000, timeout: 20000 }); } catch (e) {}
+  }
+  function navWake() { if (N.on && navigator.wakeLock) navigator.wakeLock.request("screen").then((w) => { N.wake = w; }, () => {}); }
+  document.addEventListener("visibilitychange", () => { if (N.on && document.visibilityState === "visible") navWake(); });
+  function navNext() {
+    if (!N.on) return;
+    if (N.i >= S.route.length - 1) return navStop(true);
+    const t = STOPS[S.route[N.i]];
+    if (!N.real) N.pos = { lat: t.lat, lng: t.lng, x: t.x, y: t.y, acc: 0, head: null }; // önizlemede duraktan durağa ilerlenir
+    N.i++; N.vardi = false; navMsg(N.real ? "" : $("#nav-msg").textContent, true); if (N.real) navMsg("");
+    const h = STOPS[S.route[N.i]]; if (Math.hypot(h.x - N.pos.x, h.y - N.pos.y) > 2) N.brg = brgOf([N.pos.x, N.pos.y], [h.x, h.y]);
+    navLoadLeg(); navMarkers(); navTick(true);
+  }
+  function navStop(bitti) {
+    if (!N.on) return;
+    N.on = false; N.seq++; N.busy = false;
+    if (N.watch != null) { try { navigator.geolocation.clearWatch(N.watch); } catch (e) {} N.watch = null; }
+    if (N.wake) { try { N.wake.release(); } catch (e) {} N.wake = null; }
+    navEl.hidden = true; app.classList.remove("navda", "nav-lf"); navMsg("");
+    const p = N.pos; if (N.real && p) setMe(p.lat, p.lng, "gps", "Konumun", false);
+    syncGo();
+    if (REAL) { map.invalidateSize({ animate: false }); if (S.route.length) fit([S.me, ...S.route.map((id) => STOPS[id])], 600, 0.26); }
+    if (bitti === true) toast("Rotanın sonuna geldin.");
+  }
+  async function navStart() {
+    if (!S.route.length || N.on) return;
+    if (!REAL) return toast("Adım adım yol tarifi gerçek haritada çalışır.");
+    if (YOL && W.izin !== "evet") {
+      const ok = await sor("Yol tarifi için konumun kullanılsın mı?", `Adım adım tarif için bulunduğun nokta yol tarifi sunucusuna (${YOL.SERVIS.adres}) gönderilir. Biz saklamıyoruz.`, "Kabul et ve başlat", "Vazgeç");
+      if (!ok) return;
+      W.soruldu = true; yolIzni(true);
+    }
+    Object.assign(N, { on: true, i: 0, vardi: false, real: false, follow: true, zoom: 0, along: 0, offN: 0, v3: true });
+    N.pos = { lat: S.me.lat, lng: S.me.lng, x: S.me.x, y: S.me.y, acc: 0, head: null };
+    const t0 = STOPS[S.route[0]]; N.brg = Math.hypot(t0.x - S.me.x, t0.y - S.me.y) > 2 ? brgOf([S.me.x, S.me.y], [t0.x, t0.y]) : 0;
+    if (S.picking) stopPick();
+    navEl.hidden = false; app.classList.add("navda"); syncGo(); $("#nav-c").hidden = true; $("#nav-v").setAttribute("aria-pressed", true); $("#nav-v").firstElementChild.textContent = "3B";
+    glKatman(); navLoadLeg();
+    const ok = await glLoad();
+    if (!N.on) return;
+    if (ok && !N.gl) { try { glInit(); } catch (e) { N.gl = null; N.puck = null; } }
+    if (N.gl) { N.lf = false; N.gl.resize(); glKatman(); navMarkers(); navDraw(); navCam(true); }
+    else { N.lf = true; app.classList.add("nav-lf"); navMsg("Eğik görünüm bu cihazda açılamadı; tarif düz haritada sürüyor."); navCam(true); }
+    navWatch(); navWake();
+  }
+  $("#nav-x").addEventListener("click", () => navStop());
+  $("#nav-s").addEventListener("click", navNext);
+  $("#nav-c").addEventListener("click", () => navFollow(true));
+  $("#nav-v").addEventListener("click", (e) => {
+    N.v3 = !N.v3; N.zoom = 0; const b = e.currentTarget;
+    b.setAttribute("aria-pressed", N.v3); b.firstElementChild.textContent = N.v3 ? "3B" : "2B"; b.setAttribute("aria-label", N.v3 ? "Üstten görünüme geç" : "Eğik görünüme geç");
+    N.follow = true; $("#nav-c").hidden = true; navCam();
+  });
+  new ResizeObserver(() => { if (N.on && N.gl) N.gl.resize(); }).observe(navEl);
 
   /* ——— Bilgi kutusu ——— */
   const infoBtn = $("#info-btn");
@@ -2505,7 +3039,7 @@ globalThis.ZR_HESAP = (() => {
   infoBtn.addEventListener("click", (e) => { e.stopPropagation(); setInfo(infoEl.hidden); });
   $("#info-x").addEventListener("click", () => setInfo(false));
   document.addEventListener("click", (e) => { if (!infoEl.hidden && !infoEl.contains(e.target)) setInfo(false); });
-  document.addEventListener("keydown", (e) => { if (e.key !== "Escape") return; if (!infoEl.hidden) setInfo(false); else if (S.picking) stopPick(); else if (S.sel != null) closeDetail(); });
+  document.addEventListener("keydown", (e) => { if (e.key !== "Escape") return; if (sorCoz) sorCoz(false); else if (N.on) navStop(); else if (!infoEl.hidden) setInfo(false); else if (S.picking) stopPick(); else if (S.sel != null) closeDetail(); });
 
   /* ——— Başlangıç ——— */
   function resize() {
@@ -2535,9 +3069,14 @@ globalThis.ZR_HESAP = (() => {
     matchMedia("(prefers-color-scheme: dark)").addEventListener("change", readColors);
     new MutationObserver(readColors).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "class", "style"] });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
-    syncMarkers(); renderKesfet(); show("kesfet", 1);
+    syncMarkers(); renderKesfet(); show("kesfet", 1); syncGo();
     if (!DESK.matches && !RM.matches) { sheet.classList.add("dragging"); sheet.style.setProperty("--ty", sheet.offsetHeight + "px"); void sheet.offsetWidth; sheet.classList.remove("dragging"); requestAnimationFrame(() => setSheet("half")); }
-    setTimeout(() => { if (!fromHash()) fitNear(1700); }, 750);
+    setTimeout(() => {
+      const h = fromHash(), t = h ? false : taslakAc();
+      if (!h && !t) fitNear(1700);
+      // Kayıtlı bir rota ya da başlangıcı elle seçilmiş bir taslak açıldıysa başlangıç noktasına dokunulmaz; yoksa konum kendiliğinden istenir.
+      if (!/^#kayit=/.test(location.hash) && t !== "baslangic") autoLocate();
+    }, 750);
   }
   init();
 })();

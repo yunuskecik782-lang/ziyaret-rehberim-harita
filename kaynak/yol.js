@@ -50,20 +50,25 @@ globalThis.ZR_YOL = (() => {
       const j = await r.json();
       if (!j || j.code !== "Ok" || !j.routes || !j.routes[0]) throw new Error("yanit");
       return j.routes[0].legs.map((lg, i) => {
-        const hat = [];
-        for (const st of lg.steps || []) for (const c of (st.geometry && st.geometry.coordinates) || []) { const q = [c[1], c[0]], s = hat[hat.length - 1]; if (!s || s[0] !== q[0] || s[1] !== q[1]) hat.push(q); }
+        // Her adımın çizgi üzerindeki yeri (i: adımın başladığı noktanın sırası) saklanır; "şu kadar metre sonra dön" hesabı bundan yapılır.
+        const hat = [], ham = [];
+        for (const st of lg.steps || []) {
+          let ilk = -1;
+          for (const c of (st.geometry && st.geometry.coordinates) || []) { const q = [c[1], c[0]], s = hat[hat.length - 1]; if (!s || s[0] !== q[0] || s[1] !== q[1]) hat.push(q); if (ilk < 0) ilk = hat.length - 1; }
+          const ad = adim(st); ad.i = ilk < 0 ? Math.max(0, hat.length - 1) : ilk; ham.push(ad);
+        }
         // Durak yoldan içerideyse (avlu, hazire) çizgi durağın kendisine kadar uzatılır.
         const a = pts[i], b = pts[i + 1];
         if (!hat.length) hat.push([+a[0], +a[1]], [+b[0], +b[1]]);
         const bas = olc(a, hat[0]), son = olc(hat[hat.length - 1], b);
-        if (bas > 4) hat.unshift([+a[0], +a[1]]);
+        if (bas > 4) { hat.unshift([+a[0], +a[1]]); for (const ad of ham) ad.i++; }
         if (son > 4) hat.push([+b[0], +b[1]]);
-        return { d: (lg.distance || 0) + (bas > 4 ? bas : 0) + (son > 4 ? son : 0), pts: hat, adim: sadelestir((lg.steps || []).map(adim)) };
+        return { d: (lg.distance || 0) + (bas > 4 ? bas : 0) + (son > 4 ? son : 0), pts: hat, adim: sadelestir(ham) };
       });
     } finally { clearTimeout(zaman); }
   }
 
-  /* pts: [[enlem, boylam], …] (en az iki nokta). Sonuç: { d, legs: [{ d, pts, adim: [{ t, d, k }] }] } */
+  /* pts: [[enlem, boylam], …] (en az iki nokta). Sonuç: { d, legs: [{ d, pts, adim: [{ t, d, k, ad, i }] }] } */
   function yol(pts, { signal } = {}) {
     if (!pts || pts.length < 2) return Promise.resolve({ d: 0, legs: [] });
     const key = anahtar(pts);

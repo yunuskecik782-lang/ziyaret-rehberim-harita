@@ -4,7 +4,8 @@
 
 Bu depo sitenin kendisidir: ana sayfa, altı rota sayfası, Ulaşım (konuma göre hat ve durak önerisi), Ücretler ve Saatler,
 Ziyaret Âdâbı, Hesabım, Rotalarım ve harita uygulaması. Ziyaretçi konumunu görür, bir konsept seçer (camiler, sahâbe kabirleri,
-padişah türbeleri…), kendine en yakın rotayı kurar, rotayı cihazına kaydeder ya da Google Haritalar / Apple Haritalar'da açar.
+padişah türbeleri…), kendine en yakın rotayı kurar, "Rotayı başlat" ile adım adım tarif alır, giriş yaptıysa rotayı kaydeder
+ya da Google Haritalar / Apple Haritalar'da açar.
 
 ## Yayın
 
@@ -38,9 +39,13 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
   (FOSSGIS · routing.openstreetmap.de) yapılır; sunucuya yalnızca noktaların enlem ve boylamı gider. Ziyaretçinin kendi konumu,
   ekranda sorulup "evet" denmedikçe gönderilmez. Sunucu yanıt vermezse çizgi kuş uçuşuna döner. Ücretsiz bir topluluk hizmetidir, garanti vermez.
 - `kaynak/hesap.js`: kullanıcı adı ve şifreyle hesap. Sunucu yoktur: hesap ve kayıtlı rotalar yalnızca o cihazda, o tarayıcıda durur;
-  şifrenin kendisi saklanmaz (rastgele tuzla PBKDF2-SHA-256 özeti tutulur). Şifre sıfırlanamaz.
+  şifrenin kendisi saklanmaz (rastgele tuzla PBKDF2-SHA-256 özeti tutulur). Şifre sıfırlanamaz. Rota kaydetmek için giriş gerekir.
 - `kaynak/vendor/leaflet/`: Leaflet 1.9.4 (BSD-2-Clause, lisansı klasörün içinde).
-- `onizleme/`: sitede kullanılan görseller. `ana-harita.jpg` ve `rota-r1…r6.jpg` OpenStreetMap haritası üzerinde üretilmiştir
+- `kaynak/vendor/maplibre/`: MapLibre GL JS 4.7.1 (BSD-3-Clause, lisansı klasörün içinde). Yalnızca "Rotayı başlat" denince yüklenir
+  (`a/maplibre-gl.js`, `a/maplibre-gl.css`): uydu görüntüsünü eğik gösterir ve haritayı gidiş yönüne çevirir. Bina modeli yoktur.
+  Cihaz açamazsa tarif düz haritada sürer.
+- `onizleme/`: sitede kullanılan görseller. `ana-kapak.jpg` (ve küçük hâli `ana-kapak-k.jpg`) site sahibinin gönderdiği fotoğraftır;
+  kaynağı ve lisansı henüz yazılmadı. `ana-harita.jpg` ve `rota-r1…r6.jpg` OpenStreetMap haritası üzerinde üretilmiştir
   (© OpenStreetMap katkıda bulunanlar). `zr-simgeler.png` simge şerididir: Lucide (ISC) ve Tabler Icons (MIT) simgelerinden derlenmiştir.
 
 Arama motorları: site sayfaları açıktır (`sitemap.xml`). Hesabım, Rotalarım, 404 ve tek başına harita uygulaması (`/harita/`) kapalıdır (`noindex`).
@@ -48,11 +53,14 @@ Arama motorları: site sayfaları açıktır (`sitemap.xml`). Hesabım, Rotalar�
 ## Harita kaynakları
 
 - Sokak haritası: © [OpenStreetMap](https://www.openstreetmap.org/copyright) katkıda bulunanlar.
-- Uydu görüntüsü ve yer adları: Esri World Imagery (Esri, Maxar, Earthstar Geographics). Sağlayıcının kullanım şartları
-  henüz netleştirilmedi; site kalıcı adresinde olduğu için netleştirilmesi gerekir.
+- Uydu görüntüsü ve yer adları: Esri World Imagery (Esri, Maxar, Earthstar Geographics). Bütün haritalar uydu görünümüyle açılır;
+  ziyaretçi "Harita" düğmesiyle sokak haritasına geçerse seçimi o tarayıcıda hatırlanır. Sağlayıcının kullanım şartları
+  henüz netleştirilmedi; uydu artık varsayılan olduğu için netleştirilmesi gerekir.
 
 ## Konum
 
 Konum yalnızca tarayıcıda, ziyaretçinin izniyle kullanılır ve hiçbir yerde saklanmaz. Sokak yolu çizilirken başlangıç noktası,
 yalnızca ziyaretçi ekrandaki soruya "evet" derse yol tarifi sunucusuna gider; "hayır" derse ilk etap düz çizgiyle gösterilir.
+"Rotayı başlat" da konumu yol tarifi sunucusuna göndermeden önce bir kez sorar. Kurulmakta olan rota sekme kapanana kadar
+tarayıcıda tutulur (durakların sırası; ziyaretçinin konumu tutulmaz).
 Yürüyüş süreleri dakikada 75 m üzerinden hesaplanır; sokak yolu alınamazsa mesafe kuş uçuşu × 1,3 ile tahmin edilir.
