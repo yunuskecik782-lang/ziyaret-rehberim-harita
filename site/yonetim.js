@@ -40,7 +40,7 @@
     let r;
     try {
       r = await fetch(API + "/repos/" + A.depo + yol, { method: sec.method || "GET", cache: "no-store", body: sec.body ? JSON.stringify(sec.body) : undefined,
-        headers: { Accept: "application/vnd.github+json", Authorization: "Bearer " + (sec.jeton || JETON), "X-GitHub-Api-Version": "2022-11-28", ...(sec.body ? { "Content-Type": "application/json" } : {}) } });
+        headers: { Accept: "application/vnd.github+json", Authorization: "Bearer " + (sec.jeton || JETON), ...(sec.body ? { "Content-Type": "application/json" } : {}) } });
     } catch (e) { const h = new Error("ag"); h.kod = 0; throw h; }
     if (!r.ok) { const h = new Error("GitHub " + r.status); h.kod = r.status; try { h.ileti = (await r.json()).message; } catch (e) {} throw h; }
     return r.status === 204 ? null : r.json();
