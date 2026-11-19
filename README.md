@@ -39,6 +39,9 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
 - `site/icerik.js`: Ulaşım, Ücretler ve Saatler, Ziyaret Âdâbı metinleri. Bir maddeyi değiştirmek ya da eklemek için yalnızca bu dosya düzenlenir.
 - `site/rota-metin.json`: rota sayfalarındaki açıklamalar ("Güzergâh hakkında", "Nasıl gidilir?", ipucu).
 - `site/site.css`, `site/site.js`: görünüm ve davranış (harita, sokak tarifi, ulaşım önerisi, hesap).
+  Masaüstünde (900 pikselden geniş) sayfa pencereyi doldurur: logo en solda, "Giriş yap" en sağda. Logonun yanındaki "Menü" düğmesi
+  sol sütunu açar: filtreler, güzergâhlar, o sayfanın bölümleri, pratik bilgi (`yanCubuk` işlevi, `site/build.js`). Sütun 1480 pikselden
+  geniş ekranda sabit durur; kapatılırsa tercih o tarayıcıda saklanır (`zr.yan`). Telefonda sütun yoktur, tam ekran menü vardır.
 - `kaynak/data.js`: rotalar, duraklar, koordinatlar, hazır başlangıç noktaları. Her durağın son alanı kalıcı anahtarıdır
   (`r1-4` gibi); sıra ya da rota değişse de aynı kalır, ziyaretçilerin kayıtlı rotaları bozulmaz. Elle durak eklerken yeni,
   benzersiz bir anahtar verilir ve var olan anahtarlar değiştirilmez.

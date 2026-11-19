@@ -36,6 +36,33 @@ const ZR_IC = {"fwd":"<path d=\"M9.5 6l6 6-6 6\"/>","down":"<path d=\"M6 9.5l6 6
   addEventListener("pageshow", (e) => { if (e.persisted) menuAc(false); });
   $$(".acilir > button").forEach((b) => b.addEventListener("click", () => b.focus()));
 
+  /* ——— Geniş ekran: sol sütun. 1480 pikselden geniş ekranda sabit durur (kapatılırsa tercih saklanır),
+     daha dar masaüstünde "Menü" düğmesiyle sayfanın üstüne açılır. Tam ekran harita sayfasında hep üstüne açılır. ——— */
+  const yan = $("#yan"), yb = $(".yan-btn"), kok = document.documentElement;
+  if (yan && yb) {
+    const sabit = matchMedia("(min-width: 1480px)"), sabitMi = () => sabit.matches && sayfa !== "rota-olustur";
+    const acikMi = () => (sabitMi() ? !kok.classList.contains("yan-kapali") : kok.classList.contains("yan-acik"));
+    const yaz = () => { const a = acikMi(); yb.setAttribute("aria-expanded", a); yan.inert = !a; };
+    const ayarla = (a) => {
+      if (sabitMi()) {
+        kok.classList.toggle("yan-kapali", !a); try { localStorage.setItem("zr.yan", a ? "1" : "0"); } catch (e) {}
+      } else kok.classList.toggle("yan-acik", a);
+      yaz();
+    };
+    yb.addEventListener("click", () => ayarla(!acikMi()));
+    $(".yan-perde").addEventListener("click", () => ayarla(false));
+    addEventListener("keydown", (e) => { if (e.key === "Escape" && !sabitMi() && acikMi()) { ayarla(false); yb.focus(); } });
+    yan.addEventListener("click", (e) => { if (e.target.closest("a") && !sabitMi()) ayarla(false); });
+    const dar = () => { kok.classList.remove("yan-acik"); yaz(); };
+    sabit.addEventListener("change", dar); genis.addEventListener("change", dar);
+    addEventListener("pageshow", (e) => { if (e.persisted) dar(); });
+    // Sayfa değişince sütun kaldığı yerden devam etsin
+    const kay = $(".yan-kay");
+    try { const y = +sessionStorage.getItem("zr.yan.y"); if (y) kay.scrollTop = y; } catch (e) {}
+    addEventListener("pagehide", () => { try { sessionStorage.setItem("zr.yan.y", kay.scrollTop); } catch (e) {} });
+    yaz();
+  }
+
   /* ——— Hesap durumu: "Giriş yap" yerine kullanıcı adı ——— */
   function hesapYaz() {
     const a = HESAP && HESAP.aktif();
@@ -82,8 +109,11 @@ const ZR_IC = {"fwd":"<path d=\"M9.5 6l6 6-6 6\"/>","down":"<path d=\"M6 9.5l6 6
     document.addEventListener("click", (e) => {
       const a = e.target.closest("a[data-hash]"); if (!a || !genis.matches) return; // telefonda bağlantı tam ekran harita sayfasına gider
       e.preventDefault(); yukle(a.dataset.hash);
-      $$(".kat a").forEach((k) => k.classList.toggle("secili", k === a));
-      $(".kat").scrollIntoView({ behavior: "smooth", block: "start" });
+      $$(".kat a, .yan-ic a[data-hash]").forEach((k) => k.classList.toggle("secili", k.dataset.hash === a.dataset.hash));
+      if (a.closest(".yan")) { // Sol sütundan seçilince harita ekrana tam otursun (giriş animasyonu ölçümü kaydırmasın diye yerleşim konumu kullanılır)
+        let y = 0; for (let el = kutu; el; el = el.offsetParent) y += el.offsetTop;
+        scrollTo({ top: y - ust.offsetHeight - 14, behavior: "smooth" });
+      } else $(".kat").scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }
 
@@ -115,6 +145,8 @@ const ZR_IC = {"fwd":"<path d=\"M9.5 6l6 6-6 6\"/>","down":"<path d=\"M6 9.5l6 6
     if (dugme) dugme.addEventListener("click", () => katman(!map.hasLayer(uydu), true));
     // Bilgisayarda fare tekerleği sayfayı kaydırır; haritaya bir kez tıklanınca yakınlaştırmaya geçer.
     map.on("click", () => map.scrollWheelZoom.enable()); host.addEventListener("mouseleave", () => map.scrollWheelZoom.disable());
+    // Kutu genişleyip daralınca (sol sütun açılıp kapanınca, pencere büyüyünce) harita yeni boyuta oturur.
+    if ("ResizeObserver" in window) { let rt; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => map.invalidateSize({ pan: false }), 140); }).observe(host); }
     // Telefonda tek parmak sayfayı kaydırır, harita iki parmakla oynar.
     if (dokunmatik) {
       const ip = document.createElement("div"); ip.className = "h-ipucu"; ip.textContent = ipucuMetni; host.appendChild(ip); let t;

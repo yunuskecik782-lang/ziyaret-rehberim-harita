@@ -70,6 +70,9 @@ const ic = (n) => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON
 // Sayfa betiğinin (site.js) çalışırken ürettiği parçalarda kullandığı simgeler
 const JS_SIMGE = ["fwd", "down", "x", "ext", "trash", "rota", "mark", "user", "loc", "pin", "clock", "walk", "tram", "bilgi", "sag", "sol", "duz", "geri", "basla", "buyut", "kucult", "check"];
 ICON.check = '<path d="M5 12.5l4.5 4.5L19 7.5"/>';
+ICON.menu = '<path d="M4 6.5h16M4 12h16M4 17.5h10"/>';
+ICON.filtre = '<path d="M4 6.5h16M7 12h10M10 17.5h4"/>';
+ICON.liste = '<path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.8" cy="6.5" r=".9"/><circle cx="4.8" cy="12" r=".9"/><circle cx="4.8" cy="17.5" r=".9"/>';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const R6 = 6371000, RAD = Math.PI / 180;
@@ -150,7 +153,7 @@ const MENU = [
 ];
 const cur = (a, b) => (a === b ? ' aria-current="page"' : "");
 function ust(s) {
-  return `<header class="ust"><div class="ust-ic">${marka}
+  return `<header class="ust"><div class="ust-ic"><div class="ust-sol">${marka}<button class="yan-btn" type="button" aria-controls="yan" aria-expanded="false" title="Listeyi aç ya da kapat">${ic("menu")}<span>Menü</span>${ic("down")}</button></div>
 <nav class="gezin" aria-label="Ana menü"><a href="${yol.ana}"${cur(s, "ana")}>Ana Sayfa</a>
 <div class="acilir${s === "guz" ? " secili" : ""}"><button type="button" aria-haspopup="true">Güzergâhlar${ic("down")}</button><div class="acilir-kutu">${ROTALAR.map((r) => `<a class="${r.id}" href="${r.yol}"><span class="no">${r.no}</span><span>${esc(r.name)}<small>${r.duraklar.length} durak · ${r.sure}</small></span></a>`).join("")}<a href="${yol.guz}"><span class="no">${ic("fwd")}</span><span>Tüm güzergâhlar<small>Altı rotayı yan yana gör</small></span></a></div></div>
 <a href="${yol.ulasim}"${cur(s, "ulasim")}>Ulaşım</a><a href="${yol.ucret}"${cur(s, "ucret")}>Ücretler ve Saatler</a><a href="${yol.adab}"${cur(s, "adab")}>Ziyaret Âdâbı</a></nav>
@@ -167,6 +170,26 @@ ${MENU.slice(3).map((m, i) => `<a class="m" style="--i:${6 + i}" href="${m[1]}"$
 <a class="m" style="--i:10" href="${yol.hesap}"${cur(s, "hesap")}><span class="menu-sim">${ic("user")}</span><span><span data-hesap-ad="Giriş yap ya da hesap oluştur">Giriş yap ya da hesap oluştur</span><small>Kullanıcı adı ve şifreyle</small></span>${ic("fwd")}</a>
 </nav></div>`;
 }
+/* ——— Geniş ekranda sol sütun: açılır listeler (bu sayfanın bölümleri, filtreler, güzergâhlar, pratik bilgi) ve kısa bilgi metni.
+   1480 pikselden geniş ekranda sabit durur, daha dar masaüstünde "Menü" düğmesiyle açılır; telefonda yoktur (orada tam ekran menü var). ——— */
+const yanGrup = (ad, simge, icerik, acik) => `<details class="yan-grup"${acik ? " open" : ""}><summary>${ic(simge)}<span>${ad}</span>${ic("down")}</summary><div class="yan-ic">${icerik}</div></details>`;
+function yanCubuk(s, bu, rid) {
+  const filtre = KAT.map((k) => `<a class="${k[1]}" href="${yol.olustur}#kategori=${k[0]}" data-hash="kategori=${k[0]}"><span class="yan-sim">${ic(k[2])}</span><span>${k[3]}</span><em>${k[4]}</em></a>`).join("");
+  const rotalar = ROTALAR.map((r) => `<a class="${r.id}" href="${r.yol}"${r.id === rid ? ' aria-current="page"' : ""}><span class="no">${r.no}</span><span>${esc(r.name)}<small>${r.duraklar.length} durak · ${r.sure}</small></span></a>`).join("")
+    + `<a href="${yol.guz}"${s === "guz" && !rid ? ' aria-current="page"' : ""}><span class="yan-sim sade">${ic("fwd")}</span><span>Tüm güzergâhlar</span></a>`;
+  const bilgi = [...MENU.slice(3), ["rotalarim", yol.rotalarim, "Rotalarım", "mark", "Kaydettiğin rotalar"]].map((m) => `<a href="${m[1]}"${cur(s, m[0])}><span class="yan-sim sade">${ic(m[3])}</span><span>${m[2]}<small>${m[4]}</small></span></a>`).join("");
+  const buSayfa = bu ? yanGrup(bu.ad, bu.simge || "liste", bu.ogeler.map((o) => `<a href="${o[0]}">${o[3] ? `<span class="no">${o[3]}</span>` : '<span class="yan-nokta"></span>'}<span>${esc(o[1])}${o[4] ? ` <i>${esc(o[4])}</i>` : ""}${o[2] ? `<small>${esc(o[2])}</small>` : ""}</span></a>`).join(""), true) : "";
+  return `<aside class="yan" id="yan" aria-label="Yan menü"><div class="yan-kay">
+${s === "olustur" ? "" : `<a class="btn altin yan-ana" href="${yol.olustur}">${ic("rota")}Rotanı oluştur</a>`}
+${s === "ana" ? "" : buSayfa}
+${yanGrup("Ne görmek istersin?", "filtre", filtre, s === "ana" || !bu)}
+${yanGrup("Güzergâhlar", "pin", rotalar, true)}
+${s === "ana" ? buSayfa : ""}
+${yanGrup("Pratik bilgi", "bilgi", bilgi, true)}
+<div class="yan-not">${ic("ampul")}<p><b>Yola çıkmadan önce</b>İstanbulkart tam biniş ${IC.ucret.kart[0][1]} (${IC.ucret.tarih}). Bazı türbeler ve müzeler pazartesi kapalıdır; rotandaki durakların saatine bak.</p></div>
+<p class="yan-ince">Konumun yalnızca iznin olursa kullanılır ve hiçbir yere kaydedilmez.</p>
+</div></aside><div class="yan-perde"></div>`;
+}
 const sekme = (s) => `<nav class="sekme" aria-label="Alt menü">${[["ana", yol.ana, "Ana sayfa", "ev"], ["olustur", yol.olustur, "Rota oluştur", "rota"], ["rotalarim", yol.rotalarim, "Rotalarım", "mark"], ["hesap", yol.hesap, "Hesabım", "user"]].map((m) => `<a href="${m[1]}"${cur(s, m[0])}>${ic(m[3])}<b>${m[2]}</b></a>`).join("")}</nav>`;
 const alt = `<footer class="alt"><div class="kap alt-ic">${marka}
 <p class="ince">İstanbul ziyaret ve gezi rehberi · ${ROTALAR.length} güzergâh, ${TOPLAM} durak</p>
@@ -180,7 +203,7 @@ const HARITA_SAYFALARI = []; // sitemap.xml için: arama motorlarına açık say
 /* http ile gelen ziyaretçi, https adresi çalışıyorsa oraya alınır (konum yalnızca https adreste sorulabilir).
    Önce https adresi denenir: güvenlik sertifikası henüz hazır değilse ziyaretçi hata sayfasına itilmez, http'de kalır. */
 const HTTPS = `(function(){var l=location;if(l.protocol==="http:"&&/(^|\\.)${ALAN.replace(/\./g, "\\.")}$/.test(l.hostname)&&window.fetch)fetch("https://"+l.host+"${KOK}robots.txt?"+Date.now(),{mode:"no-cors",cache:"no-store"}).then(function(){l.replace("https://"+l.host+l.pathname+l.search+l.hash)}).catch(function(){})})();`;
-function sayfa({ dosya, s, id, baslik, ozet, govde, sinif = "", veri, harita, yolJs, altsiz, gizli, gorsel = "ana-kapak.jpg", onBetik = "" }) {
+function sayfa({ dosya, s, id, baslik, ozet, govde, sinif = "", veri, harita, yolJs, altsiz, gizli, gorsel = "ana-kapak.jpg", onBetik = "", yan }) {
   const a = (f) => `${KOK}a/${f}?v=${SURUM}`;
   const adres = TAM + KOK + dosya.replace(/index\.html$/, ""), kapali = ONIZLEME || gizli;
   const tamBaslik = esc(baslik) + (id === "ana" ? "" : " · Ziyaret Rehberim");
@@ -190,7 +213,7 @@ function sayfa({ dosya, s, id, baslik, ozet, govde, sinif = "", veri, harita, yo
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<script>${onBetik}${HTTPS}document.documentElement.className="js";setTimeout(function(){if(!window.ZR_HAZIR)document.documentElement.className=""},3500);</script>
+<script>${onBetik}${HTTPS}(function(){var d=document.documentElement;d.className="js";try{if(localStorage.getItem("zr.yan")==="0")d.className+=" yan-kapali"}catch(e){}setTimeout(function(){if(!window.ZR_HAZIR)d.classList.remove("js")},3500)})();</script>
 <title>${tamBaslik}</title>
 <meta name="description" content="${esc(ozet)}">
 ${kapali ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${adres}">
@@ -208,6 +231,7 @@ ${harita ? `<script defer src="${a("leaflet.js")}"></script>\n` : ""}${yolJs ? `
 <a class="gizli" href="#icerik">İçeriğe geç</a>
 ${ZEMIN}
 ${ust(s)}
+${yanCubuk(s, yan, /^r\d$/.test(sinif) ? sinif : "")}
 <main id="icerik"${sinif ? ` class="${sinif}"` : ""}>
 ${govde}
 </main>
@@ -232,7 +256,7 @@ const rkart = (r, i) => `<article class="rkart ${r.id}" data-g style="--i:${i % 
 const katSay = (liste) => ROTALAR.filter((r) => liste.split(",").includes(r.concept)).reduce((n, r) => n + r.duraklar.length, 0);
 const KAT = [["sahabe", "r1", "yildiz", "Sahâbe-i Kirâm"], ["padisah", "r3", "tac", "Padişah türbeleri"], ["cami", "r4", "cami", "Tarihî camiler"], ["mekan", "r5", "sutun", "Tarihî mekânlar"], ["sur", "r6", "sur", "Suriçi ve surlar"], ["sahabe,padisah,cami,mekan,sur", "tumu", "hepsi", "Tümü"]].map((k) => [...k, katSay(k[0])]);
 function anaSayfa() {
-  const govde = `<section class="kapak kap"><div class="kapak-ic"><img src="${GORSEL}ana-kapak.jpg" srcset="${GORSEL}ana-kapak-k.jpg 1100w, ${GORSEL}ana-kapak.jpg 2000w" sizes="(max-width: 781px) 100vw, min(1240px, 96vw)" alt="Gün batımında Galata Kulesi, Haliç ve tarihî yarımada, havadan" width="2000" height="1125" fetchpriority="high">
+  const govde = `<section class="kapak kap"><div class="kapak-ic"><img src="${GORSEL}ana-kapak.jpg" srcset="${GORSEL}ana-kapak-k.jpg 1100w, ${GORSEL}ana-kapak.jpg 2000w" sizes="(max-width: 781px) 100vw, (max-width: 1479px) 96vw, calc(100vw - 368px)" alt="Gün batımında Galata Kulesi, Haliç ve tarihî yarımada, havadan" width="2000" height="1125" fetchpriority="high">
 <div class="kapak-kart"><span class="goz">İstanbul · ${ROTALAR.length} rota · ${TOPLAM} durak</span><h1>${["İstanbul", "Ziyaret", "Rehberi"].map((w, i) => `<span style="--i:${i}">${w}</span>`).join(" ")}</h1>
 <p>Sahâbe kabirleri, padişah türbeleri, tarihî camiler ve kara surları. Haritada seç, rotanı oluştur, yola çık.</p>
 <div class="dugmeler"><a class="btn altin" href="#rota-olustur">${ic("rota")}Rotanı oluştur</a><a class="btn" href="#hazir-rotalar">Hazır rotalar</a></div></div></div></section>
@@ -247,7 +271,7 @@ function anaSayfa() {
 <section class="bolum kap" id="hazir-rotalar"><div class="bolum-bas" data-g><span class="kicker">Güzergâhlar</span><h2>Hazır rotalar</h2><p>Altı hazır rota. Sayfasını aç, durakları oku ya da doğrudan haritada başlat.</p></div>
 <div class="rkartlar">${ROTALAR.map(rkart).join("\n")}</div></section>
 
-<section class="bolum kap"><div class="bolum-bas" data-g><span class="kicker">Pratik bilgi</span><h2>Yola çıkmadan önce</h2></div>
+<section class="bolum kap" id="yola-cikmadan"><div class="bolum-bas" data-g><span class="kicker">Pratik bilgi</span><h2>Yola çıkmadan önce</h2></div>
 <div class="dortlu">
 <a class="bkart" data-g style="--i:0" href="${yol.ulasim}"><span class="menu-sim">${ic("tram")}</span><b>Buradan nasıl giderim?</b><span>Konumuna göre hangi tramvaya, hangi duraktan bineceğini haritada gör.</span><em>Ulaşım →</em></a>
 <a class="bkart" data-g style="--i:1" href="${yol.ucret}"><span class="menu-sim">${ic("etiket")}</span><b>İstanbulkart</b><span>Tam biniş ${IC.ucret.kart[0][1]}; 120 dakika içindeki aktarmalar indirimli (${IC.ucret.tarih}).</span><em>Ücretler →</em></a>
@@ -257,7 +281,7 @@ function anaSayfa() {
 <p class="ince" style="margin-top:18px">Bilgiler Kasım 2026’da derlenmiştir. Ziyaret saatleri, ücretler ve sefer bilgileri değişebilir; yola çıkmadan önce kontrol et.</p></section>`;
   // Harita uygulaması eskiden kökte duruyordu: /#kategori=…, /#rota=r3, /#kayit=2, /#rotam, /#rotalarim bağlantıları yeni yerlerine alınır.
   const onBetik = `(function(){var h=location.hash;if(/^#(kategori=|rota=r[1-6]$|kayit=\\d|rotam$)/.test(h))location.replace("${yol.olustur}"+h);else if(h==="#rotalarim")location.replace("${yol.rotalarim}")})();`;
-  return sayfa({ onBetik, dosya: "index.html", s: "ana", id: "ana", baslik: "Ziyaret Rehberim · İstanbul ziyaret ve gezi rehberi", ozet: `İstanbul’da sahâbe kabirleri, padişah türbeleri, tarihî camiler ve kara surları: altı rota, ${TOPLAM} durak. Haritada seç, rotanı oluştur, yola çık.`, govde });
+  return sayfa({ yan: { ad: "Bu sayfada", ogeler: [["#rota-olustur", "Rotanı oluştur", "Harita ve kategoriler"], ["#hazir-rotalar", "Hazır rotalar", "Altı güzergâh"], ["#yola-cikmadan", "Yola çıkmadan önce", "Ulaşım, ücretler, âdâb"]] }, onBetik, dosya: "index.html", s: "ana", id: "ana", baslik: "Ziyaret Rehberim · İstanbul ziyaret ve gezi rehberi", ozet: `İstanbul’da sahâbe kabirleri, padişah türbeleri, tarihî camiler ve kara surları: altı rota, ${TOPLAM} durak. Haritada seç, rotanı oluştur, yola çık.`, govde });
 }
 
 /* ——— Rota oluştur (tam sayfa harita) ——— */
@@ -296,7 +320,8 @@ ${m.tip.map((t) => `<div class="ipucu" data-g><span class="menu-sim">${ic("ampul
 <p class="ince" style="margin-top:14px">Yürüyüş yolu ve dönüşler OpenStreetMap verisiyle hesaplanır; süreler dakikada 75 metre yürüyüşe göre yaklaşıktır. Sahada tabelalara ve kapalı yollara dikkat et.</p></div>
 <div class="dugmeler" data-g><a class="btn altin" href="${yol.olustur}#rota=${r.id}">${ic("rota")}Bu rotayı haritada başlat</a><a class="btn" href="${yol.guz}">Tüm güzergâhlar</a></div>
 </section></div>`;
-  return sayfa({ gorsel: `rota-${r.id}.jpg`, dosya: `guzergahlar/${r.slug}/index.html`, s: "guz", id: "rota", sinif: r.id, baslik: m.h1, ozet: r.lede + " " + m.pills.join(", ") + ".", govde, harita: true, yolJs: true,
+  const yan = { ad: "Bu rotanın durakları", simge: "liste", ogeler: r.duraklar.map((d) => ["#durak-" + d.n, d.ad, d.yer, d.n, d.hon]) };
+  return sayfa({ yan, gorsel: `rota-${r.id}.jpg`, dosya: `guzergahlar/${r.slug}/index.html`, s: "guz", id: "rota", sinif: r.id, baslik: m.h1, ozet: r.lede + " " + m.pills.join(", ") + ".", govde, harita: true, yolJs: true,
     veri: { id: r.id, no: r.no, ad: r.name, tasit: r.tasit, ulasim: yol.ulasim, duraklar: r.duraklar.map((d) => ({ n: d.n, ad: d.ad, hon: d.hon, tur: d.tur, lat: d.lat, lng: d.lng })) } });
 }
 
@@ -324,16 +349,16 @@ function ulasimSayfa() {
 <section class="bolum" id="hatlar"><div class="bolum-bas" data-g><span class="kicker">Ayrıntı</span><h2>Hatlar ve önemli duraklar</h2><p>Bir hatta dokun; rehberdeki duraklara yakın istasyonlar açılır.</p></div>
 <div class="hatlar" data-g>${U.hatlar.map(hat).join("\n")}</div></section>
 
-<section class="bolum"><div class="ikili">
+<section class="bolum" id="otobus"><div class="ikili">
 <div class="kart" data-g><h2>Otobüsler</h2><div class="tablo-sar"><table class="tablo kartla"><thead><tr><th>Hat</th><th>Yön</th><th>Not</th></tr></thead><tbody>${U.otobus.map((o) => `<tr><td>${esc(o[0])}</td><td data-b="Yön">${esc(o[1])}</td><td data-b="Not">${esc(o[2])}</td></tr>`).join("")}</tbody></table></div><p class="ince" style="margin-top:12px">Hat numaraları ve güzergâhlar değişebilir; İETT’nin kendi kanallarından doğrulayın.</p></div>
 <div class="kart" data-g><h2>Sefer saatleri</h2><div class="liste">${U.sefer.map((s) => `<div><span>${esc(s[0])}</span><b>${esc(s[1])}</b></div>`).join("")}</div><p class="ince" style="margin-top:12px">${esc(U.seferNot)}</p></div>
 </div></section>
 
-<section class="bolum"><div class="kart" data-g><h2>Havalimanından merkeze</h2><p>${U.hava.metin}</p>
+<section class="bolum" id="havalimani"><div class="kart" data-g><h2>Havalimanından merkeze</h2><p>${U.hava.metin}</p>
 <div class="tablo-sar" style="margin-top:14px"><table class="tablo kartla"><thead><tr><th>Nereden nereye</th><th>Hat</th><th class="sayi">Ücret</th></tr></thead><tbody>${U.hava.tablo.map((o) => `<tr><td>${esc(o[0])}</td><td data-b="Hat">${esc(o[1])}</td><td class="sayi" data-b="Ücret">${esc(o[2])}</td></tr>`).join("")}</tbody></table></div>
 <p class="ince" style="margin-top:12px">${esc(U.hava.not)}</p></div></section>
 </div>`;
-  return sayfa({ dosya: "ulasim/index.html", s: "ulasim", id: "ulasim", baslik: "Ulaşım", ozet: U.ozet + " Konumuna göre hangi hatta, hangi duraktan bineceğini haritada gör.", govde, harita: true,
+  return sayfa({ yan: { ad: "Bu sayfada", ogeler: [["#oneri", "Buradan nasıl giderim?", "Konumuna göre öneri"], ["#nasil", "Rotalara nasıl gidilir?"], ["#hatlar", "Hatlar ve önemli duraklar"], ["#otobus", "Otobüsler ve sefer saatleri"], ["#havalimani", "Havalimanından merkeze"]] }, dosya: "ulasim/index.html", s: "ulasim", id: "ulasim", baslik: "Ulaşım", ozet: U.ozet + " Konumuna göre hangi hatta, hangi duraktan bineceğini haritada gör.", govde, harita: true,
     veri: { ag: U.ag, rotalar: ROTALAR.map((r) => ({ id: r.id, no: r.no, ad: r.name, yol: r.yol, lat: r.duraklar[0].lat, lng: r.duraklar[0].lng, ilk: r.duraklar[0].ad, varis: U.varis[r.id] })) } });
 }
 
@@ -362,7 +387,7 @@ function ucretSayfa() {
 <div class="kart" data-g style="margin-top:clamp(14px,1.8vw,20px)"><h2>Bilmeniz gerekenler</h2>${notlar(C.muzeIpucu)}</div>
 <p class="ince" style="margin-top:16px">${esc(C.dip)}</p></section>
 </div>`;
-  return sayfa({ dosya: "ucretler-ve-saatler/index.html", s: "ucret", id: "ucretler", baslik: "Ücretler ve Saatler", ozet: C.ozet, govde });
+  return sayfa({ yan: { ad: "Bu sayfada", ogeler: [["#kart", "İstanbulkart ve ücretler"], ["#turbeler", "Türbe saatleri"], ["#muzeler", "Müzeler, saraylar ve çarşılar"]] }, dosya: "ucretler-ve-saatler/index.html", s: "ucret", id: "ucretler", baslik: "Ücretler ve Saatler", ozet: C.ozet, govde });
 }
 
 /* ——— Ziyaret Âdâbı ——— */
@@ -372,13 +397,13 @@ function adabSayfa() {
   const toplam = A.gruplar.reduce((s, x) => s + x.maddeler.length, 0);
   const govde = `<div class="kap">
 <header class="sayfa-bas"><span class="goz">${toplam} madde · ${A.gruplar.length} başlık</span><h1>Ziyaret Âdâbı</h1><p class="ozet">${esc(A.ozet)}</p></header>
-${A.gruplar.map((gr, gi) => { const bas = say; say += gr.maddeler.length; return `<section class="adab-grup"><header data-g="sol"><span class="kicker">${String(gi + 1).padStart(2, "0")}</span><h2>${esc(gr.baslik)}</h2><p>${esc(gr.not)}</p></header>
+${A.gruplar.map((gr, gi) => { const bas = say; say += gr.maddeler.length; return `<section class="adab-grup" id="adab-${gi + 1}"><header data-g="sol"><span class="kicker">${String(gi + 1).padStart(2, "0")}</span><h2>${esc(gr.baslik)}</h2><p>${esc(gr.not)}</p></header>
 <div class="adab-liste" style="--bas:${bas}">${gr.maddeler.map((m, i) => `<article class="madde" data-g style="--i:${i % 2}"><span class="menu-sim">${ic(ADAB_SIM[m[0]] || "spark")}</span><div><b>${esc(m[1])}</b><p>${esc(m[2])}</p></div></article>`).join("")}</div></section>`; }).join("\n")}
 <section class="bolum"><div class="ikili">
 <div class="kart" data-g><h2>Kısaltmalar</h2><ul class="kisalt">${A.kisaltmalar.map((k) => `<li><b>${esc(k[0])}</b><span>${esc(k[1])}</span></li>`).join("")}</ul></div>
 <div class="kart" data-g style="--i:1" id="hakkinda"><h2>Bu rehber hakkında</h2>${A.hakkinda.map((p) => `<p>${p}</p>`).join("")}<p class="ince" style="margin-top:12px">${esc(A.ince)}</p></div>
 </div></section></div>`;
-  return sayfa({ dosya: "ziyaret-adabi/index.html", s: "adab", id: "adab", baslik: "Ziyaret Âdâbı", ozet: A.ozet, govde });
+  return sayfa({ yan: { ad: "Bu sayfada", ogeler: [...A.gruplar.map((gr, gi) => ["#adab-" + (gi + 1), gr.baslik, gr.maddeler.length + " madde", String(gi + 1).padStart(2, "0")]), ["#hakkinda", "Bu rehber hakkında"]] }, dosya: "ziyaret-adabi/index.html", s: "adab", id: "adab", baslik: "Ziyaret Âdâbı", ozet: A.ozet, govde });
 }
 
 /* ——— Hesabım ve Rotalarım (içerik tarayıcıda, cihazdaki kayıtlardan çizilir) ——— */
