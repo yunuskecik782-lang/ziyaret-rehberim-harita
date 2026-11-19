@@ -50,10 +50,11 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
   Kategori resimleri (`RESIM` ve `rs()`, `site/build.js`) bu site için çizilmiş altı küçük resimdir; fotoğraf değildir, dışarıdan dosya yüklenmez.
   Sayfa geçişinde bilerek efekt yoktur: tarayıcı eski sayfayı yeni sayfa çizilene kadar tutar, tek karede değiştirir (titreme olmasın diye).
   Aşağıdaki bölümler kaydırınca belirir; açılışta ekranda olan içerik hiç gizlenmez.
-  Arka plan (`.zemin`; `ZEMIN` ve `ZEMIN_CSS`, `site/build.js`): beyaza yakın zemin, çok yavaş kayan Osmanlı lale kafesi (`.z-desen`),
-  ortayı açık tutan beyaz bir örtü (`.z-sis`) ve yavaşça yer değiştiren iki yumuşak ışık. Desen karosu betikte çizilir; ikinci seçenek
-  Selçuklu sekiz köşeli yıldız kafesidir. Üçgen ya da başka geometrik dolgu kullanılmaz. Desen tam bir karo (lalede yarım karo çapraz)
-  kayınca kendi üzerine oturur, döngüde sıçrama olmaz. Yalnızca `transform` ile hareket eder; işi ekran kartı yapar.
+  Arka plan (`.zemin`; `ZEMIN` ve `ZEMIN_CSS`, `site/build.js`): beyaza yakın zemin, çok yavaş kayan Selçuklu yıldızı deseni (`.z-desen`;
+  sekiz köşeli yıldız ve haç), ortayı açık tutan beyaz bir örtü (`.z-sis`) ve yavaşça yer değiştiren iki yumuşak ışık. Desen karosu betikte
+  çizilir; ikinci seçenek şemsedir (Osmanlı cilt süslemesindeki dilimli madalyon). Lale kafesi site sahibinin isteğiyle kaldırıldı; üçgen ya da
+  soyut geometrik dolgu kullanılmaz. Desen tam bir karo (şemsede yarım karo çapraz) kayınca kendi üzerine oturur, döngüde sıçrama olmaz.
+  Yalnızca `transform` ile hareket eder; işi ekran kartı yapar.
   Hareketler sayfanın başındaki ortak saate (`--zt`) bağlıdır, sayfa değişince kaldığı yerden sürer. "Hareketi azalt" seçili cihazlarda durur.
 - `kaynak/data.js`: rotalar, duraklar, koordinatlar, hazır başlangıç noktaları. Her durağın son alanı kalıcı anahtarıdır
   (`r1-4` gibi); sıra ya da rota değişse de aynı kalır, ziyaretçilerin kayıtlı rotaları bozulmaz. Elle durak eklerken yeni,
@@ -63,8 +64,10 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
   iki satıra sığan kategori düğmeleri, sonra yakından uzağa durak listesi) ve Rotam. "Rotayı başlat" çubuğu yalnızca Rotam sekmesinde
   görünür (`syncGo`); Keşfet'teki "Rotama git" oraya götürür. Rota çizgisinin üstünde gidiş yönüne doğru küçük noktalar akar (`.rt-akis`).
   Harita işaretleri iki biçimdedir (`MK_SEKIL`, `kaynak/app.js`): Sahâbe, padişah türbeleri ve camiler konum işareti (ucu tam noktada),
-  tarihî mekânlar ve surlar yuvarlak. İçlerinde kategori simgesi (`MK_SIMGE`), rotaya girince sıra numarası vardır. Sahâbe işaretlerinin
-  ve seçili işaretin ucunda yavaş bir halka atar; padişah işaretlerinin kenarı altındır; yeri yaklaşık olanların kenarı kesiklidir.
+  tarihî mekânlar ve surlar yuvarlak. İkisi de üç boyutlu görünür: parlak, ortası delik konum işareti ve parlak boncuk. Resimleri `mkPin` ve
+  `mkTop` çizer (kendi çizimimiz, dışarıdan dosya yok); `mkResimler` her rota rengi için bir kez üretip CSS’e `--mk-pin` ve `--mk-top` olarak
+  verir. Rotaya giren işaretin deliğinin önünde sıra numarası durur. Sahâbe işaretlerinin ve seçili işaretin ucunda yavaş bir halka atar;
+  padişah işaretlerinin kenarı altındır; yeri yaklaşık olanların kenarı kesiklidir.
 - `kaynak/build.js`: harita uygulamasının parçalarını birleştirir. Sitenin bu alan adındaki yolu `SITE_YOL` sabitindedir.
 - `kaynak/yol.js`: sokakları izleyen yürüyüş yolu ve dönüş tarifi. Hesap, OpenStreetMap verisiyle çalışan açık yol tarifi sunucusunda
   (FOSSGIS · routing.openstreetmap.de) yapılır; sunucuya yalnızca noktaların enlem ve boylamı gider. Ziyaretçinin kendi konumu,

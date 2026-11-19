@@ -27,7 +27,7 @@ globalThis.ZR_HESAP = (() => {
   try { window.addEventListener("storage", (e) => { if (!e.key || e.key.indexOf("zr.") === 0) duyur(); }); } catch (e) {}
 
   // Görünüm seçenekleri. Her listenin ilk değeri varsayılandır.
-  const G_SEC = { rozet: ["altin", "lacivert", "zumrut", "gul", "gumus"], desen: ["lale", "yildiz", "yok"], cizgi: ["varsayilan", "altin", "turkuaz", "gul", "yesil"], stil: ["nokta", "kesik", "duz"], isaret: ["karisik", "igne", "daire"], hareket: ["acik", "az"] };
+  const G_SEC = { rozet: ["altin", "lacivert", "zumrut", "gul", "gumus"], desen: ["yildiz", "semse", "yok"], cizgi: ["varsayilan", "altin", "turkuaz", "gul", "yesil"], stil: ["nokta", "kesik", "duz"], isaret: ["karisik", "igne", "daire"], hareket: ["acik", "az"] };
   const gDuzelt = (v) => { const o = {}; for (const k in G_SEC) o[k] = v && G_SEC[k].includes(v[k]) ? v[k] : G_SEC[k][0]; return o; };
   const gorunum = () => gDuzelt(aktif() ? oku(K_G, null) : null);
   function gorunumUygula() {

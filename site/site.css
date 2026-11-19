@@ -38,18 +38,18 @@ p { margin: 0; }
 
 /* ——— Zemin ———
    Beyaza yakın sıcak zemin, yavaşça yer değiştiren iki yumuşak ışık (altın ve mavi) ve çok soluk, ağır ağır kayan bir desen.
-   Varsayılan desen Osmanlı lale kafesidir; Hesabım › Görünüm’den Selçuklu yıldızı ya da desensiz zemin seçilebilir (html[data-desen]).
+   Varsayılan desen Selçuklu yıldızıdır; Hesabım › Görünüm’den şemse (Osmanlı madalyonu) ya da desensiz zemin seçilebilir (html[data-desen]).
    Hareket yalnızca transform ile yapılır: ekran kartında çalışır, sayfayı yeniden çizdirmez.
    Hareketler sayfadan sayfaya kesilmesin diye ortak bir saate göre başlar (--zt; sayfanın başındaki küçük betik yazar).
    Desen karoları site/build.js içinde üretilip bu dosyanın sonuna eklenir. */
 .zemin { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; contain: strict; background: linear-gradient(180deg, #FFFFFF, #FEFCF8 45%, #FBF8F1); }
 .zemin i { position: absolute; display: block; }
-/* Desen katmanı ekrandan bir karo geniştir; bir karo boyu kayınca kendi üzerine oturur (lale kafesinde yarım karo çapraz, yıldızda tam karo). */
-.z-desen { inset: -300px -200px; background-repeat: repeat; background-size: 200px 300px; opacity: .9; animation: desen-lale 90s linear infinite; }
-[data-desen="yildiz"] .z-desen { inset: -180px; background-size: 180px 180px; opacity: .7; animation: desen-yildiz 110s linear infinite; }
+/* Desen katmanı ekrandan bir karo geniştir; bir karo boyu kayınca kendi üzerine oturur (yıldızda tam karo, şemsede yarım karo çapraz). */
+.z-desen { inset: -180px; background-repeat: repeat; background-size: 180px 180px; opacity: .78; animation: desen-yildiz 110s linear infinite; }
+[data-desen="semse"] .z-desen { inset: -301px -190px; background-size: 190px 301px; opacity: .95; animation: desen-semse 100s linear infinite; }
 [data-desen="yok"] .z-desen, [data-desen="yok"] .z-sis { display: none; }
-@keyframes desen-lale { to { transform: translate3d(-100px, -150px, 0); } }
 @keyframes desen-yildiz { to { transform: translate3d(-180px, -180px, 0); } }
+@keyframes desen-semse { to { transform: translate3d(-95px, -150.5px, 0); } }
 /* Sayfanın ortası açık kalır: desen kenarlara doğru belirir, yazının arkasında kaybolur. */
 .z-sis { inset: 0; background: radial-gradient(ellipse 66% 62% at 50% 42%, rgba(255,255,255,.8), rgba(255,255,255,.6) 48%, rgba(255,255,255,0)); }
 .isik { border-radius: 50%; }
@@ -59,9 +59,9 @@ p { margin: 0; }
 @keyframes isik2 { to { transform: translate3d(-18vmax, -15vmax, 0) scale(1.14); } }
 .isik, .z-desen { animation-delay: var(--zt, 0s); }
 [data-hareket="az"] .zemin i { animation: none; }
-@media (max-width: 781px) { .z-desen { inset: -225px -150px; background-size: 150px 225px; animation-name: desen-lale-k; } [data-desen="yildiz"] .z-desen { inset: -140px; background-size: 140px 140px; animation-name: desen-yildiz-k; } .z-sis { background: radial-gradient(ellipse 84% 58% at 50% 42%, rgba(255,255,255,.84), rgba(255,255,255,.66) 50%, rgba(255,255,255,0)); } }
-@keyframes desen-lale-k { to { transform: translate3d(-75px, -112.5px, 0); } }
+@media (max-width: 781px) { .z-desen { inset: -140px; background-size: 140px 140px; animation-name: desen-yildiz-k; } [data-desen="semse"] .z-desen { inset: -238px -150px; background-size: 150px 237.5px; animation-name: desen-semse-k; } .z-sis { background: radial-gradient(ellipse 84% 58% at 50% 42%, rgba(255,255,255,.84), rgba(255,255,255,.66) 50%, rgba(255,255,255,0)); } }
 @keyframes desen-yildiz-k { to { transform: translate3d(-140px, -140px, 0); } }
+@keyframes desen-semse-k { to { transform: translate3d(-75px, -118.75px, 0); } }
 
 /* ——— Üst şerit ——— */
 .ust { position: sticky; top: 0; z-index: 60; height: var(--ust-h); background: rgba(255,255,255,.84); backdrop-filter: saturate(1.4) blur(16px); -webkit-backdrop-filter: saturate(1.4) blur(16px); border-bottom: 1px solid rgba(201,151,58,.5); box-shadow: 0 10px 30px -22px rgba(20,40,75,.5); transition: box-shadow .4s, background-color .4s; }
@@ -555,8 +555,8 @@ table.tablo { width: 100%; border-collapse: collapse; font-size: .93rem; }
 .g-on .ic { width: 18px; height: 18px; color: var(--ink); }
 .g-on svg:not(.ic) { display: block; width: 42px; height: 34px; }
 .g-on.uydu { background: linear-gradient(140deg, #3B4A3E, #26302C); }
-.g-on.do-lale, .g-on.do-yildiz, .g-on.do-yok { background-color: #FFFDF8; box-shadow: inset 0 0 0 1px var(--cizgi); background-position: 50% 42%; background-size: 44px 66px; }
-.g-on.do-yildiz { background-size: 28px 28px; background-position: center; }
+.g-on.do-yildiz, .g-on.do-semse, .g-on.do-yok { background-color: #FFFDF8; box-shadow: inset 0 0 0 1px var(--cizgi); background-position: center; background-size: 30px 30px; }
+.g-on.do-semse { background-size: 36px 57px; }
 .g-akis { animation: g-akis 1s linear infinite; }
 @keyframes g-akis { from { stroke-dashoffset: 10; } to { stroke-dashoffset: 0; } }
 [data-hareket="az"] .g-akis { animation: none; }

@@ -70,8 +70,52 @@
   const BYKEY = new Map(STOPS.map((s) => [s.key, s]));
   const CONCEPT = new Map(D.CONCEPTS.map((c) => [c.id, c]));
   /* Harita işaretleri. Kategoriler yalnızca renkle değil biçimle de ayrılır: kabir ve türbeler ile camiler konum işareti (iğne),
-     gezi durakları ve surlar yuvarlak. Sahâbe kabirlerinin ucunda yavaş bir halka atar. İşaretin içinde kategorinin küçük simgesi durur.
+     gezi durakları ve surlar yuvarlak. Sahâbe kabirlerinin ucunda yavaş bir halka atar.
+     İşaretler üç boyutlu görünür: parlak, ortası delik konum işareti ve parlak boncuk. Resimleri aşağıdaki iki işlev çizer
+     (kendi çizimimiz, dışarıdan dosya yok); her rota rengi için bir kez üretilip CSS’e --mk-pin ve --mk-top olarak verilir.
      Hesabım › Görünüm’den "hepsi konum işareti" ya da "hepsi yuvarlak" seçilebilir (html[data-isaret]). */
+  const mkKar = (h, r, t) => { const n = parseInt(h.slice(1), 16); return "#" + [n >> 16, (n >> 8) & 255, n & 255].map((v, i) => Math.round(v + (r[i] - v) * t).toString(16).padStart(2, "0")).join(""); };
+  const mkAcik = (h, t) => mkKar(h, [255, 255, 255], t), mkKoyu = (h, t) => mkKar(h, [10, 14, 26], t);
+  const mkCember = (x, y, r) => `M${x - r} ${y}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`;
+  const MK_GOVDE = "M30 78C29 78 28.3 77.2 27.5 75.9C19.5 62.6 3.4 48 3.4 29.6A26.6 26.6 0 0 1 56.6 29.6C56.6 48 40.5 62.6 32.5 75.9C31.7 77.2 31 78 30 78Z";
+  const MK_BULANIK = (id, sd) => `<filter id="${id}" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="${sd}"/></filter>`;
+  // Konum işareti: ışık sol üstten gelir; gövde açıktan koyuya döner, deliğin iç duvarı görünür, üstte parlama vardır.
+  function mkPin(c, kenar, kesik) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 80"><defs>` +
+      `<radialGradient id="a" cx="19" cy="13" r="66" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${mkAcik(c, .42)}"/><stop offset=".3" stop-color="${mkAcik(c, .08)}"/><stop offset=".62" stop-color="${mkKoyu(c, .2)}"/><stop offset="1" stop-color="${mkKoyu(c, .52)}"/></radialGradient>` +
+      `<linearGradient id="w" x1="20" y1="18" x2="41" y2="43" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${mkKoyu(c, .64)}"/><stop offset=".55" stop-color="${mkKoyu(c, .34)}"/><stop offset="1" stop-color="${mkAcik(c, .5)}"/></linearGradient>` +
+      MK_BULANIK("f", 1.7) + MK_BULANIK("g", 2.6) + `<clipPath id="k"><path d="${MK_GOVDE}"/></clipPath></defs>` +
+      `<path fill-rule="evenodd" fill="url(#a)" d="${MK_GOVDE}${mkCember(30, 29.2, 13.4)}"/>` +
+      `<g clip-path="url(#k)"><path d="M9 50C16 62 24 70 30 80L44 66C52 54 58 42 58 28" fill="none" stroke="${mkKoyu(c, .7)}" stroke-width="7" opacity=".34" filter="url(#g)"/>` +
+      `<ellipse cx="17" cy="12.6" rx="10.5" ry="4.2" transform="rotate(-40 17 12.6)" fill="#fff" opacity=".74" filter="url(#f)"/>` +
+      `<path d="M52 21C55.2 31 53.2 43 46.6 53" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" opacity=".36" filter="url(#f)"/></g>` +
+      `<path fill-rule="evenodd" fill="url(#w)" d="${mkCember(30, 29.2, 13.4)}${mkCember(31.2, 30.8, 10.4)}"/>` +
+      `<path d="M40.2 38A13.4 13.4 0 0 1 21.4 39.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>` +
+      `<path d="${MK_GOVDE}" fill="none" stroke="${kenar}" stroke-width="${kesik ? 2 : 1.7}"${kesik ? ' stroke-dasharray="4.6 3.4"' : ""}/></svg>`;
+  }
+  // Yuvarlak işaret: parlak bir boncuk.
+  function mkTop(c, kenar, kesik) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><defs>` +
+      `<radialGradient id="a" cx="21" cy="17" r="50" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${mkAcik(c, .5)}"/><stop offset=".34" stop-color="${mkAcik(c, .06)}"/><stop offset=".72" stop-color="${mkKoyu(c, .26)}"/><stop offset="1" stop-color="${mkKoyu(c, .56)}"/></radialGradient>` +
+      MK_BULANIK("f", 2) + `<clipPath id="k"><circle cx="30" cy="30" r="27"/></clipPath></defs>` +
+      `<circle cx="30" cy="30" r="27" fill="url(#a)"/>` +
+      `<g clip-path="url(#k)"><ellipse cx="20" cy="15" rx="12" ry="5.6" transform="rotate(-34 20 15)" fill="#fff" opacity=".7" filter="url(#f)"/>` +
+      `<path d="M49 40C44 49 36 54 26 54" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".3" filter="url(#f)"/></g>` +
+      `<circle cx="30" cy="30" r="27" fill="none" stroke="${kenar}" stroke-width="${kesik ? 2.6 : 2.2}"${kesik ? ' stroke-dasharray="5 3.6"' : ""}/></svg>`;
+  }
+  const mkUrl = (svg) => `url("data:image/svg+xml,${svg.replace(/"/g, "'").replace(/[%#<>]/g, encodeURIComponent)}")`;
+  function mkResimler() {
+    let css = "";
+    for (const r of D.ROUTES) {
+      const t = document.createElement("i"); t.className = "c-" + r.id; mkEl.append(t);
+      let c = getComputedStyle(t).getPropertyValue("--c").trim(); t.remove();
+      if (!/^#[0-9a-f]{6}$/i.test(c)) c = "#2E5AAC";
+      const kenar = r.concept === "padisah" ? "#F6D88F" : "rgba(255,255,255,.9)";   // padişah türbelerinin kenarı altın
+      css += `.mk.c-${r.id}{--mk-pin:${mkUrl(mkPin(c, kenar))};--mk-top:${mkUrl(mkTop(c, kenar))}}` +
+        `.mk.c-${r.id}.approx{--mk-pin:${mkUrl(mkPin(c, kenar, 1))};--mk-top:${mkUrl(mkTop(c, kenar, 1))}}`;   // yeri yaklaşık olanların kenarı kesikli
+    }
+    const st = document.createElement("style"); st.textContent = css; document.head.append(st);
+  }
   const MK_SEKIL = { sahabe: "igne", padisah: "igne", cami: "igne", mekan: "daire", sur: "daire" };
   const MK_SIMGE = {
     sahabe: '<path d="M14.5 3.2a8.9 8.9 0 1 0 6.9 14.1A7.2 7.2 0 0 1 14.5 3.2z"/>',
@@ -506,13 +550,14 @@
 
   /* ——— İşaretler ——— */
   function buildMarkers() {
+    mkResimler();
     const f = document.createDocumentFragment();
     for (const s of STOPS) {
       const b = document.createElement("button");
       b.type = "button"; b.className = `mk c-${s.r.id} k-${s.r.concept} s-${mkSekil(s)}${s.approx ? " approx" : ""}`; b.dataset.stop = s.id;
       b.setAttribute("aria-label", `${s.name}${s.hon ? " " + s.hon : ""}, ${s.r.name}`);
-      // i: işaretin gövdesi · mk-g: iğne biçimi · mk-s: kategori simgesi · b: rotadaki sıra numarası
-      b.innerHTML = `<i><svg class="mk-g" viewBox="0 0 30 40" aria-hidden="true"><path d="M15 38.6C15 38.6 2.6 25.2 2.6 14.6a12.4 12.4 0 0 1 24.8 0C27.4 25.2 15 38.6 15 38.6z"/></svg><svg class="mk-s" viewBox="0 0 24 24" aria-hidden="true">${MK_SIMGE[s.r.concept] || ""}</svg><b></b></i>`;
+      // i: işaretin gövdesi (resmi CSS verir) · mk-s: kategori simgesi (yuvarlak işarette) · b: rotadaki sıra numarası
+      b.innerHTML = `<i><svg class="mk-s" viewBox="0 0 24 24" aria-hidden="true">${MK_SIMGE[s.r.concept] || ""}</svg><b></b></i>`;
       s.el = b; s.dot = b.querySelector("b");
       if (!REAL) { f.append(b); continue; }
       b.style.setProperty("--fx", s.fx.toFixed(3)); b.style.setProperty("--fy", s.fy.toFixed(3));

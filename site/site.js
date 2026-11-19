@@ -431,7 +431,7 @@
      biçimi, harita işaretlerinin biçimi, hareket. Seçim anında uygulanır; kaydı ve uygulaması kaynak/hesap.js içindedir. */
   const G_AD = {
     rozet: ["Sayı rozetleri", { altin: "Altın", lacivert: "Lacivert", zumrut: "Zümrüt", gul: "Gül", gumus: "Gümüş" }],
-    desen: ["Arka plan deseni", { lale: "Lale (Osmanlı)", yildiz: "Yıldız (Selçuklu)", yok: "Desensiz" }],
+    desen: ["Arka plan deseni", { yildiz: "Selçuklu yıldızı", semse: "Şemse (Osmanlı)", yok: "Desensiz" }],
     cizgi: ["Rota çizgisinin rengi", { varsayilan: "Varsayılan", altin: "Altın", turkuaz: "Turkuaz", gul: "Gül", yesil: "Yeşil" }],
     stil: ["Rota çizgisinin biçimi", { nokta: "Akan noktalar", kesik: "Akan çizgiler", duz: "Düz çizgi" }],
     isaret: ["Harita işaretleri", { karisik: "Kategoriye göre", igne: "Hepsi konum işareti", daire: "Hepsi yuvarlak" }],
@@ -444,7 +444,7 @@
     if (g === "desen") return `<span class="g-on do-${v}"></span>`;
     if (g === "cizgi") { const c = G_CIZGI[v]; return `<span class="g-on uydu"><svg viewBox="0 0 42 34" aria-hidden="true"><path d="${G_YOL}" fill="none" stroke="${c[1]}" stroke-width="7" stroke-linecap="round"/><path d="${G_YOL}" fill="none" stroke="${c[0]}" stroke-width="3.4" stroke-linecap="round"/><path d="${G_YOL}" fill="none" stroke="${c[2]}" stroke-width="2" stroke-linecap="round" stroke-dasharray=".1 7"/></svg></span>`; }
     if (g === "stil") { const c = G_CIZGI[sec.cizgi]; return `<span class="g-on uydu"><svg viewBox="0 0 42 34" aria-hidden="true"><path d="${G_YOL}" fill="none" stroke="${c[1]}" stroke-width="7" stroke-linecap="round"/><path d="${G_YOL}" fill="none" stroke="${c[0]}" stroke-width="3.4" stroke-linecap="round"/>${v === "duz" ? "" : `<path class="g-akis" d="${G_YOL}" fill="none" stroke="${c[2]}" stroke-width="2" stroke-linecap="round" stroke-dasharray="${v === "kesik" ? "4 6" : ".1 7"}"/>`}</svg></span>`; }
-    if (g === "isaret") { const igne = (x, r) => `<g transform="translate(${x} 13)"><path d="${G_IGNE}" fill="${r}" stroke="#fff" stroke-width="1.6"/></g>`, daire = (x, r) => `<circle cx="${x}" cy="17" r="6.6" fill="${r}" stroke="#fff" stroke-width="1.6"/>`;
+    if (g === "isaret") { const igne = (x, r) => `<g transform="translate(${x} 13)"><path d="${G_IGNE}" fill="${r}" stroke="#fff" stroke-width="1.4"/><circle cx=".2" cy=".4" r="2.9" fill="#0B1420" fill-opacity=".62"/><ellipse cx="-3.4" cy="-4" rx="2.6" ry="1.1" transform="rotate(-40 -3.4 -4)" fill="#fff" fill-opacity=".62"/></g>`, daire = (x, r) => `<circle cx="${x}" cy="17" r="6.6" fill="${r}" stroke="#fff" stroke-width="1.4"/><ellipse cx="${x - 2.4}" cy="13.8" rx="2.8" ry="1.3" transform="rotate(-34 ${x - 2.4} 13.8)" fill="#fff" fill-opacity=".6"/>`;
       return `<span class="g-on uydu"><svg viewBox="0 0 42 34" aria-hidden="true">${v === "karisik" ? igne(14, "#2E5AAC") + daire(29, "#5B6FB8") : v === "igne" ? igne(13, "#2E5AAC") + igne(29, "#B04A62") : daire(13, "#2E5AAC") + daire(29, "#B04A62")}</svg></span>`; }
     return `<span class="g-on">${ic(v === "az" ? "basla" : "spark")}</span>`;
   }

@@ -72,51 +72,49 @@ svg.ic { width: 1.25em; height: 1.25em; flex: none; fill: none; stroke: currentC
 
 /* ——— Harita işaretleri ———
    İki biçim var: yuvarlak (s-daire) ve konum işareti (s-igne; ucu tam noktaya değer). Hangi kategorinin hangisini kullandığı app.js içindeki
-   MK_SEKIL’dedir. i gövdedir; içinde iğnenin çizimi (mk-g), kategori simgesi (mk-s) ve rotadaki sıra numarası (b) durur.
+   MK_SEKIL’dedir. İkisi de üç boyutlu görünür; resimlerini app.js çizer ve rota rengine göre --mk-pin, --mk-top olarak verir.
+   i gövdedir; içinde kategori simgesi (mk-s, yalnızca yuvarlak işarette) ve rotadaki sıra numarası (b) durur.
    --ms işaretin genişliğidir: uzaktan küçük, yakından büyük; rotadaki ve seçili işaret daha büyük. */
-.mk { position: absolute; left: 0; top: 0; width: 34px; height: 34px; margin: -17px 0 0 -17px; display: grid; place-items: center; pointer-events: auto; border-radius: 50%; will-change: transform; }
-.mk i { --ms: 16px; position: relative; display: block; width: var(--ms); height: var(--ms); border-radius: 50%; background: var(--c); color: var(--mk-fg);
-  box-shadow: 0 0 0 2px var(--mk-ring), 0 5px 12px -3px rgba(14,27,46,.55); font-style: normal;
-  transition: width .45s var(--spring), height .45s var(--spring), opacity .35s, transform .45s var(--spring), box-shadow .35s; animation: mk-in .7s var(--spring) backwards; }
+.mk { position: absolute; left: 0; top: 0; width: 36px; height: 36px; margin: -18px 0 0 -18px; display: grid; place-items: center; pointer-events: auto; border-radius: 50%; will-change: transform; }
+.mk i { --ms: 18px; position: relative; display: block; width: var(--ms); height: var(--ms); border-radius: 50%; background: var(--mk-top, var(--c)) center / 100% 100% no-repeat; color: var(--mk-fg);
+  box-shadow: 0 5px 9px -3px rgba(8,14,26,.6); font-style: normal;
+  transition: opacity .35s, transform .45s var(--spring); animation: mk-in .7s var(--spring) backwards; }
 /* Leaflet harita içindeki bütün svg’lere z-index 200 verir; işaretin içindeki çizimler için sıra burada açıkça yazılır. */
-.mk .mk-g { display: none; position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; overflow: visible; }
-.mk-g path { fill: var(--c); stroke: var(--mk-ring); stroke-width: 2.6; stroke-linejoin: round; paint-order: stroke; }
 .mk .mk-s, .mk i b { position: absolute; left: 50%; top: 50%; z-index: 1; transform: translate(-50%, -50%); }
-.mk .mk-s { width: 64%; height: 64%; fill: var(--mk-fg); opacity: 0; transition: opacity .3s; }
-.mk i b { font: 800 11.5px/1 var(--f-display); font-variant-numeric: tabular-nums; color: var(--mk-fg); white-space: nowrap; }
-.z-lo .mk i { --ms: 10px; box-shadow: 0 0 0 1.5px var(--mk-ring), 0 3px 8px -3px rgba(14,27,46,.5); }
-.z-hi .mk i { --ms: 24px; }
+.mk .mk-s { width: 58%; height: 58%; fill: #fff; opacity: 0; filter: drop-shadow(0 1px 1px rgba(8,14,26,.45)); transition: opacity .3s; }
+.mk i b { font: 800 11.5px/1 var(--f-display); font-variant-numeric: tabular-nums; color: #fff; white-space: nowrap; text-shadow: 0 1px 1px rgba(8,14,26,.5); }
+.mk i b:empty { display: none; }
+.z-lo .mk i { --ms: 11px; box-shadow: 0 3px 6px -2px rgba(8,14,26,.55); }
+.z-hi .mk i { --ms: 26px; }
 .z-hi .mk .mk-s, .mk.sel .mk-s { opacity: 1; }
 .mk.inr .mk-s { opacity: 0; }
-.mk.approx i { box-shadow: 0 0 0 2px var(--mk-ring), 0 0 0 3.5px color-mix(in srgb, var(--c) 55%, transparent), 0 5px 12px -3px rgba(14,27,46,.5); }
 .mk.dim { pointer-events: none; }
 .mk.dim i { opacity: .2; transform: scale(.62); }
 .mk.inr { z-index: 2; }
-.mk.inr i, .z-lo .mk.inr i { --ms: 25px; box-shadow: 0 0 0 2.5px var(--mk-ring), 0 8px 16px -4px rgba(14,27,46,.6); }
+.mk.inr i, .z-lo .mk.inr i { --ms: 27px; box-shadow: 0 8px 14px -4px rgba(8,14,26,.65); }
 .mk.inr.wait i { transform: scale(.45); opacity: .45; }
 .mk.inr.pop i { animation: mk-pop .6s var(--spring); }
 .mk.sel { z-index: 3; }
-.mk.sel i, .z-lo .mk.sel i { --ms: 27px; box-shadow: 0 0 0 3px var(--mk-ring), 0 0 0 10px color-mix(in srgb, var(--c) 30%, transparent), 0 10px 20px -4px rgba(14,27,46,.6); }
-@media (hover: hover) { .mk:not(.dim):hover i { transform: scale(1.22); } }
+.mk.sel i, .z-lo .mk.sel i { --ms: 30px; box-shadow: 0 0 0 7px color-mix(in srgb, var(--c) 34%, transparent), 0 10px 18px -4px rgba(8,14,26,.65); }
+@media (hover: hover) { .mk:not(.dim):hover i { transform: scale(1.18); } }
 
-/* Konum işareti: kutu noktanın üstünde durur, ucu noktaya değer; büyüme ve küçülme uçtan olur. */
-.mk.s-igne { width: 36px; height: 48px; margin: -45px 0 0 -18px; place-items: end center; border-radius: 12px; }
-.mk.s-igne i { --ms: 21px; height: calc(var(--ms) * 1.3334); margin-bottom: 3px; border-radius: 0; background: none; box-shadow: none; transform-origin: 50% 100%; filter: drop-shadow(0 4px 3px rgba(14,27,46,.42)); animation-name: mk-dus; }
-.mk.s-igne .mk-g { display: block; }
-.mk.s-igne .mk-s, .mk.s-igne i b { top: 36.5%; }
-.mk.s-igne .mk-s { width: 50%; height: 37.5%; }
-.z-lo .mk.s-igne i { --ms: 14px; box-shadow: none; filter: drop-shadow(0 2px 2px rgba(14,27,46,.4)); }
-.z-hi .mk.s-igne i { --ms: 28px; }
-.mk.s-igne .mk-s { opacity: 1; }
-.z-lo .mk.s-igne:not(.sel) .mk-s, .mk.s-igne.inr .mk-s { opacity: 0; }
-.mk.s-igne.inr i, .z-lo .mk.s-igne.inr i { --ms: 30px; box-shadow: none; }
-.mk.s-igne.sel i, .z-lo .mk.s-igne.sel i { --ms: 36px; box-shadow: none; filter: drop-shadow(0 0 5px color-mix(in srgb, var(--c) 80%, white)) drop-shadow(0 6px 5px rgba(14,27,46,.5)); }
-.mk.s-igne.sel .mk-g path { stroke-width: 3.2; }
-.mk.s-igne.approx i { box-shadow: none; }
-.mk.s-igne.approx .mk-g path { stroke-dasharray: 3.2 2.4; }
-.mk.k-padisah .mk-g path { stroke: #F6D88F; }
+/* Konum işareti: kutu noktanın üstünde durur, ucu noktaya değer; büyüme ve küçülme uçtan olur. Altında yerde küçük bir gölge vardır. */
+.mk.s-igne { width: 42px; height: 60px; margin: -57px 0 0 -21px; place-items: end center; border-radius: 14px; }
+.mk.s-igne i { --ms: 24px; height: calc(var(--ms) * 1.3334); margin-bottom: 2px; border-radius: 0; background-image: var(--mk-pin); box-shadow: none; transform-origin: 50% 100%; animation-name: mk-dus; }
+.mk.s-igne .mk-s { display: none; }
+.z-lo .mk.s-igne i { --ms: 16px; box-shadow: none; }
+.z-hi .mk.s-igne i { --ms: 31px; }
+.mk.s-igne.inr i, .z-lo .mk.s-igne.inr i { --ms: 36px; box-shadow: none; }
+.mk.s-igne.sel i, .z-lo .mk.s-igne.sel i { --ms: 42px; box-shadow: none; filter: drop-shadow(0 0 5px color-mix(in srgb, var(--c) 75%, white)); }
+/* Sıra numarası deliğin önünde beyaz bir yüzde durur. */
+.mk.s-igne i b { left: 50.4%; top: 37.4%; width: 49%; aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 36% 30%, #fff, #F1EDE4); color: #14213A; text-shadow: none; font-size: 11px; letter-spacing: -.03em; box-shadow: inset 0 -1px 2px rgba(8,14,26,.22), 0 1px 2px rgba(8,14,26,.4); }
+.mk.s-igne.sel i b { font-size: 12.5px; }
+.mk.s-igne i b:empty { display: none; }
+.mk.s-igne::after { content: ""; position: absolute; left: 50%; bottom: 0; z-index: -1; width: 22px; height: 8px; margin-left: -11px; border-radius: 50%; background: radial-gradient(closest-side, rgba(6,12,24,.6), rgba(6,12,24,0)); pointer-events: none; transition: opacity .35s; }
+.z-lo .mk.s-igne:not(.inr):not(.sel)::after { width: 14px; height: 5px; margin-left: -7px; }
+.mk.dim::after { opacity: .25; }
 /* Uçtaki halka: sahâbe kabirlerinde ve seçili işarette yavaşça atar. */
-.mk.s-igne::before { content: ""; position: absolute; left: 50%; bottom: -3px; width: 18px; height: 10px; margin-left: -9px; border-radius: 50%; background: color-mix(in srgb, var(--c) 70%, white); opacity: 0; pointer-events: none; }
+.mk.s-igne::before { content: ""; position: absolute; left: 50%; bottom: -3px; z-index: -1; width: 18px; height: 10px; margin-left: -9px; border-radius: 50%; background: color-mix(in srgb, var(--c) 70%, white); opacity: 0; pointer-events: none; }
 .mk.s-igne.k-sahabe:not(.dim)::before, .mk.s-igne.sel::before { animation: mk-nabiz 2.6s ease-out infinite; animation-delay: inherit; }
 .z-lo .mk.s-igne.k-sahabe:not(.sel)::before, .mk.dim::before { animation: none; }
 @keyframes mk-in { from { transform: scale(0); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -135,7 +133,7 @@ svg.ic { width: 1.25em; height: 1.25em; flex: none; fill: none; stroke: currentC
 @keyframes me-pulse { 0% { transform: scale(1); opacity: .42; } 100% { transform: scale(3.6); opacity: 0; } }
 
 .tip { position: absolute; left: 0; top: 0; z-index: 5; pointer-events: none; will-change: transform; }
-.tip[data-s="igne"] span { bottom: 54px; }
+.tip[data-s="igne"] span { bottom: 64px; }
 .tip span { position: absolute; left: 0; bottom: 22px; transform: translateX(-50%); max-width: min(240px, 70vw); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   padding: 7px 12px; border-radius: 12px; background: var(--glass-strong); color: var(--heading); border: 1px solid var(--edge); box-shadow: var(--shadow); font: 700 12.5px/1.2 var(--f-display); animation: tip-in .45s var(--spring) both; }
 @keyframes tip-in { from { opacity: 0; transform: translateX(-50%) translateY(8px) scale(.9); } to { opacity: 1; transform: translateX(-50%); } }

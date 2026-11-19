@@ -109,22 +109,28 @@ const yol = { ana: KOK, olustur: KOK + "rota-olustur/", guz: KOK + "guzergahlar/
 /* ——— Zemin ———
    Beyaza yakın sıcak zemin, yavaşça yer değiştiren iki yumuşak ışık ve çok soluk bir desen. Desen küçük bir karo olarak CSS içinde durur,
    tarayıcı onu bir kez çizer ve yan yana dizer; hareket yalnızca transform ile yapılır (işi ekran kartı yapar, sayfa takılmaz).
-   Varsayılan desen Osmanlı kumaşlarındaki lale kafesidir: sivri kemerli (ogival) kafes, her gözde bir lale; karo 240×360, yarım kaydırmalı tekrar.
-   Hesabım › Görünüm’den seçilebilen ikinci desen Selçuklu çinilerindeki sekiz köşeli yıldız kafesidir; üçüncü seçenek desensizdir.
-   Desen bir karo boyu kaydığında kendi üzerine oturur; bu yüzden hareket kesintisiz döner. */
+   Varsayılan desen Selçuklu çinilerindeki sekiz köşeli yıldız ve haç düzenidir (Kubadabad çinilerindeki gibi): yıldızların uçları birbirine
+   değer, aradaki boşluk haç biçimini verir; karo 200×200.
+   Hesabım › Görünüm’den seçilebilen ikinci desen şemsedir: Osmanlı cilt ve kapı süslemesindeki dilimli madalyon, altında ve üstünde salbek;
+   karo 240×380, yarım kaydırmalı tekrar. Üçüncü seçenek desensizdir. Lale kafesi 19 Kasım 2026'da site sahibinin isteğiyle kaldırıldı.
+   Desen bir karo boyu (şemsede yarım karo çapraz) kaydığında kendi üzerine oturur; bu yüzden hareket kesintisiz döner. */
 const f1 = (v) => v.toFixed(1);
 const svgUrl = (s) => `url("data:image/svg+xml,${s.replace(/\s+/g, " ").replace(/"/g, "'").replace(/%/g, "%25").replace(/#/g, "%23").replace(/</g, "%3C").replace(/>/g, "%3E")}")`;
-const Z_STIL = (dolgu) => `<style>*{fill:none;stroke:rgba(169,119,58,.62);stroke-width:1.15;stroke-linecap:round;stroke-linejoin:round}.y{fill:rgba(169,119,58,${dolgu})}</style>`;
-// Lale: üç yapraklı çiçek, sap, iki uzun yaprak ve iki tomurcuk. Merkez, çiçeğin sapa oturduğu noktadır.
-const zLale = (x, y) => `<g transform="translate(${x} ${y})"><path class="y" d="M0 0C-20-4-29-26-25-48-23-60-27-70-33-78-21-74-13-64-11-50-9-34-6-16 0 0Z"/><path class="y" d="M0 0C20-4 29-26 25-48 23-60 27-70 33-78 21-74 13-64 11-50 9-34 6-16 0 0Z"/><path class="y" d="M0-5C-11-28-10-58 0-86 10-58 11-28 0-5Z"/><path d="M0 0C3 26-5 52 0 84"/><path class="y" d="M0 84C-22 77-43 57-48 24-37 46-18 66 0 84Z"/><path class="y" d="M0 84C20 75 40 53 43 18 34 42 17 64 0 84Z"/><path d="M-1 46C-14 40-24 28-27 12"/><path class="y" d="M-27 12C-33 5-32-5-27-12-22-5-21 5-27 12Z"/><path d="M1 54C15 46 24 32 26 14"/><path class="y" d="M26 14C20 7 21-3 26-10 31-3 32 7 26 14Z"/></g>`;
-const zDugum = (x, y) => `<path class="y" d="M${x} ${y - 11}C${x + 7} ${y - 5} ${x + 7} ${y + 5} ${x} ${y + 11}C${x - 7} ${y + 5} ${x - 7} ${y - 5} ${x} ${y - 11}Z"/>`;
-const Z_LALE = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 360">${Z_STIL(".07")}<path d="M120 0C120 70 240 110 240 180M240 180C240 250 120 290 120 360M120 360C120 290 0 250 0 180M0 180C0 110 120 70 120 0"/>${zDugum(120, 0)}${zDugum(120, 360)}${zDugum(0, 180)}${zDugum(240, 180)}${zLale(120, 194)}${zLale(0, 14)}${zLale(240, 14)}${zLale(0, 374)}${zLale(240, 374)}</svg>`;
-// Sekiz köşeli yıldız: iç içe iki karenin dış çizgisi (16 köşe). Karo 200×200; yıldızların uçları birbirine değer, aradaki boşluk haç biçimini verir.
-const zYildiz = (x, y, R) => { const r = (R * Math.SQRT1_2) / Math.cos(Math.PI / 8); let d = ""; for (let k = 0; k < 16; k++) { const a = (k * Math.PI) / 8, q = k % 2 ? r : R; d += `${k ? "L" : "M"}${f1(x + Math.cos(a) * q)} ${f1(y + Math.sin(a) * q)}`; } return d + "Z"; };
-const Z_YILDIZ = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">${Z_STIL(".05")}<path class="y" d="${zYildiz(100, 100, 100)}"/><path d="${zYildiz(100, 100, 58)}"/><path class="y" d="${zYildiz(100, 100, 22)}"/><path d="${zYildiz(0, 0, 26)}${zYildiz(200, 0, 26)}${zYildiz(0, 200, 26)}${zYildiz(200, 200, 26)}"/></svg>`;
-const ZEMIN_CSS = `/* ——— Zemin deseni (site/build.js üretir): lale kafesi ve sekiz köşeli yıldız karoları ——— */
-.z-desen, .do-lale { background-image: ${svgUrl(Z_LALE)}; }
-[data-desen="yildiz"] .z-desen, .g-on.do-yildiz { background-image: ${svgUrl(Z_YILDIZ)}; }
+const Z_STIL = (dolgu) => `<style>*{fill:none;stroke:rgba(169,119,58,.62);stroke-width:1.15;stroke-linecap:round;stroke-linejoin:round}.y{fill:rgba(169,119,58,${dolgu})}.i{stroke-width:.8}</style>`;
+// Sekiz köşeli yıldız: iç içe iki karenin dış çizgisi (16 köşe).
+const zYildiz = (x, y, R, don = 0) => { const r = (R * Math.SQRT1_2) / Math.cos(Math.PI / 8); let d = ""; for (let k = 0; k < 16; k++) { const a = (k * Math.PI) / 8 + don, q = k % 2 ? r : R; d += `${k ? "L" : "M"}${f1(x + Math.cos(a) * q)} ${f1(y + Math.sin(a) * q)}`; } return d + "Z"; };
+// Yapraklı gül: merkezden çıkan n yaprak.
+const zGul = (x, y, R, n = 8) => { let d = ""; for (let k = 0; k < n; k++) { const a = (k * 2 * Math.PI) / n, b = a + Math.PI / n, c = a - Math.PI / n; d += `M${f1(x)} ${f1(y)}Q${f1(x + Math.cos(c) * R * 0.62)} ${f1(y + Math.sin(c) * R * 0.62)} ${f1(x + Math.cos(a) * R)} ${f1(y + Math.sin(a) * R)}Q${f1(x + Math.cos(b) * R * 0.62)} ${f1(y + Math.sin(b) * R * 0.62)} ${f1(x)} ${f1(y)}`; } return d; };
+const Z_KOSE = (w, h) => [[0, 0], [w, 0], [0, h], [w, h]];
+const Z_YILDIZ = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">${Z_STIL(".055")}<path class="y" d="${zYildiz(100, 100, 100)}"/><path class="i" d="${zYildiz(100, 100, 88)}"/><path d="${zYildiz(100, 100, 50)}"/><path class="y" d="${zGul(100, 100, 30)}"/><path class="i" d="${Z_KOSE(200, 200).map(([x, y]) => zYildiz(x, y, 17, Math.PI / 8) + zGul(x, y, 9, 4)).join("")}"/></svg>`;
+// Dilimli çerçeve: elipsin çevresinde n dilim.
+const zDilimli = (x, y, rx, ry, n, tas, don) => { let d = ""; for (let k = 0; k <= n; k++) { const a = (k * 2 * Math.PI) / n + don, px = x + Math.cos(a) * rx, py = y + Math.sin(a) * ry; if (!k) { d += `M${f1(px)} ${f1(py)}`; continue; } const m = a - Math.PI / n; d += `Q${f1(x + Math.cos(m) * rx * tas)} ${f1(y + Math.sin(m) * ry * tas)} ${f1(px)} ${f1(py)}`; } return d + "Z"; };
+const zSalbek = (x, y, yon) => `<path class="y" d="M${x} ${y}C${x - 9} ${y + 7 * yon} ${x - 9} ${y + 17 * yon} ${x} ${y + 27 * yon}C${x + 9} ${y + 17 * yon} ${x + 9} ${y + 7 * yon} ${x} ${y}Z"/><path class="i" d="M${x} ${y + 6 * yon}C${x - 4} ${y + 10 * yon} ${x - 4} ${y + 16 * yon} ${x} ${y + 20 * yon}C${x + 4} ${y + 16 * yon} ${x + 4} ${y + 10 * yon} ${x} ${y + 6 * yon}Z"/>`;
+const zSemse = (x, y) => `<path class="y" d="${zDilimli(x, y, 30, 44, 16, 1.2, Math.PI / 16)}"/><path class="i" d="${zDilimli(x, y, 22, 34, 12, 1.16, Math.PI / 12)}"/><path d="${zGul(x, y, 13)}"/><path class="i" d="M${x} ${y - 17}v-6M${x} ${y + 17}v6M${x - 12} ${y}h-4M${x + 12} ${y}h4"/><path d="M${x} ${y - 52}v-6M${x} ${y + 52}v6"/>${zSalbek(x, y - 58, -1)}${zSalbek(x, y + 58, 1)}`;
+const Z_SEMSE = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 380">${Z_STIL(".06")}${zSemse(120, 190)}${Z_KOSE(240, 380).map(([x, y]) => zSemse(x, y)).join("")}<path class="i" d="M120 0v20M120 360v20M0 170v40M240 170v40"/><path class="y" d="${zGul(120, 0, 7, 4)}${zGul(120, 380, 7, 4)}${zGul(0, 190, 7, 4)}${zGul(240, 190, 7, 4)}"/></svg>`;
+const ZEMIN_CSS = `/* ——— Zemin deseni (site/build.js üretir): Selçuklu yıldızı ve şemse karoları ——— */
+.z-desen, .do-yildiz { background-image: ${svgUrl(Z_YILDIZ)}; }
+[data-desen="semse"] .z-desen, .g-on.do-semse { background-image: ${svgUrl(Z_SEMSE)}; }
 `;
 const ZEMIN = `<div class="zemin" aria-hidden="true"><i class="z-desen"></i><i class="z-sis"></i><i class="isik i1"></i><i class="isik i2"></i></div>`;
 
