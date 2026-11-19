@@ -30,43 +30,24 @@ p { margin: 0; }
 .ic { width: 1.25em; height: 1.25em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 .gizli { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-/* ——— Hareketli zemin ———
-   Beyaza yakın sıcak zemin üzerinde: yavaşça kayan büyük ışık alanları, yavaş dönen iki büyük geometrik gül, tarihî yarımadanın soluk çizimi,
-   kıyıdan açılan büyük dalgalar, kavşaklarda nabız gibi atan halkalar, caddelerde iki yöne giden oklar ve kayan ışıklar.
-   Bütün hareketler yalnızca transform ve opacity ile yapılır: ekran kartında çalışır, sayfayı yeniden çizdirmez, kaydırmayı yavaşlatmaz.
+/* ——— Zemin ———
+   Bilerek sade: beyaza yakın sıcak zemin, yavaşça yer değiştiren iki yumuşak ışık (altın ve mavi) ve köşelerde çok yavaş dönen
+   iki ince geometrik gül. Başka bileşen yok. Hareket yalnızca transform ile yapılır: ekran kartında çalışır, sayfayı yeniden çizdirmez.
    Hareketler sayfadan sayfaya kesilmesin diye ortak bir saate göre başlar (--zt; sayfanın başındaki küçük betik yazar).
-   Çizimler ve okların yolları site/build.js içinde üretilip bu dosyanın sonuna eklenir. */
-:root { --zb: max(135vw, 135vh); }
-@media (max-width: 781px) { :root { --zb: max(210vw, 120vh); } }
-.zemin { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; contain: strict; background: linear-gradient(180deg, #FFFFFF, #FEFCF8 45%, #FAF6EE); }
-.zemin i, .zemin svg, .z-kay, .z-duz { position: absolute; display: block; }
+   Gülün çizimi site/build.js içinde üretilip bu dosyanın sonuna eklenir. */
+.zemin { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; contain: strict; background: linear-gradient(180deg, #FFFFFF, #FEFCF8 45%, #FBF8F1); }
+.zemin i { position: absolute; display: block; }
 .isik { border-radius: 50%; }
-.i1 { width: 84vmax; height: 84vmax; left: -30vmax; top: -38vmax; background: radial-gradient(closest-side, rgba(236,196,110,.34), rgba(236,196,110,.12) 48%, rgba(236,196,110,0)); animation: isik1 46s ease-in-out infinite alternate; }
-.i2 { width: 78vmax; height: 78vmax; right: -30vmax; bottom: -40vmax; background: radial-gradient(closest-side, rgba(91,111,184,.2), rgba(91,111,184,.07) 50%, rgba(91,111,184,0)); animation: isik2 54s ease-in-out infinite alternate; }
-.i3 { width: 60vmax; height: 60vmax; left: 30vw; top: 22vh; background: radial-gradient(closest-side, rgba(47,138,115,.11), rgba(47,138,115,0)); animation: isik3 64s ease-in-out infinite alternate; }
-@keyframes isik1 { to { transform: translate3d(24vmax, 15vmax, 0) scale(1.22); } }
-@keyframes isik2 { to { transform: translate3d(-20vmax, -17vmax, 0) scale(1.16); } }
-@keyframes isik3 { from { transform: translate3d(-26vw, 12vh, 0) scale(.85); opacity: .55; } to { transform: translate3d(22vw, -16vh, 0) scale(1.25); opacity: 1; } }
+.i1 { width: 90vmax; height: 90vmax; left: -34vmax; top: -42vmax; background: radial-gradient(closest-side, rgba(236,196,110,.3), rgba(236,196,110,.1) 50%, rgba(236,196,110,0)); animation: isik1 38s ease-in-out infinite alternate; }
+.i2 { width: 84vmax; height: 84vmax; right: -34vmax; bottom: -44vmax; background: radial-gradient(closest-side, rgba(91,111,184,.17), rgba(91,111,184,.06) 50%, rgba(91,111,184,0)); animation: isik2 46s ease-in-out infinite alternate; }
+@keyframes isik1 { to { transform: translate3d(22vmax, 14vmax, 0) scale(1.18); } }
+@keyframes isik2 { to { transform: translate3d(-18vmax, -15vmax, 0) scale(1.14); } }
 .z-gul { background: center / contain no-repeat; }
-.g1 { width: 76vmax; height: 76vmax; right: -25vmax; top: -31vmax; opacity: .5; animation: don 240s linear infinite; }
-.g2 { width: 60vmax; height: 60vmax; left: -23vmax; bottom: -27vmax; opacity: .36; animation: don 300s linear infinite reverse; }
+.g1 { width: 70vmax; height: 70vmax; right: -24vmax; top: -27vmax; opacity: .5; animation: don 260s linear infinite; }
+.g2 { width: 46vmax; height: 46vmax; left: -17vmax; bottom: -19vmax; opacity: .34; animation: don 320s linear infinite reverse; }
 @keyframes don { to { transform: rotate(360deg); } }
-.z-kay { left: 50%; top: 50%; width: var(--zb); height: var(--zb); margin: calc(var(--zb) / -2) 0 0 calc(var(--zb) / -2); animation: suzul 90s ease-in-out infinite alternate; }
-@keyframes suzul { from { transform: translate(-1.5%, 1%) scale(1) rotate(-1deg); } to { transform: translate(2%, -1.5%) scale(1.08) rotate(1.2deg); } }
-.z-cizim, .z-duz { inset: 0; }
-.z-cizim { background: center / 100% 100% no-repeat; }
-.z-dalga { left: 0; top: 0; width: 100%; height: 100%; overflow: visible; opacity: 0; animation: dalga 15s cubic-bezier(.2,.6,.35,1) infinite; }
-.z-dalga path { fill: none; stroke: rgba(46,90,172,.3); stroke-width: 1.4; vector-effect: non-scaling-stroke; }
-@keyframes dalga { 0% { transform: scale(1); opacity: 0; } 14% { opacity: .9; } 100% { transform: scale(1.8); opacity: 0; } }
-.z-hale { width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; border: 1.3px solid rgba(201,151,58,.62); opacity: 0; animation: hale 5.6s ease-out infinite; }
-@keyframes hale { 0% { transform: scale(.3); opacity: .9; } 70%, 100% { transform: scale(1.7); opacity: 0; } }
-.z-ok, .z-akis { left: 0; top: 0; width: 0; height: 0; animation: var(--a) var(--s) linear infinite; }
-.z-ok::before { content: ""; position: absolute; left: -7px; top: -4.5px; width: 9px; height: 9px; border-top: 1.8px solid rgba(20,40,75,.5); border-right: 1.8px solid rgba(20,40,75,.5); border-radius: 0 2px 0 0; transform: rotate(45deg); }
-.z-ok.ters { animation-direction: reverse; }
-.z-ok.ters::before { left: -2px; border-color: rgba(169,119,58,.85); transform: rotate(-135deg); }
-.z-akis::before { content: ""; position: absolute; left: -46px; top: -1.5px; width: 46px; height: 3px; border-radius: 3px; background: linear-gradient(90deg, rgba(230,188,99,0), rgba(214,166,72,.85)); }
-.z-akis::after { content: ""; position: absolute; left: -3.5px; top: -3.5px; width: 7px; height: 7px; border-radius: 50%; background: #E9C06A; box-shadow: 0 0 10px 3px rgba(233,192,106,.45); }
-.isik, .z-gul, .z-kay, .z-dalga, .z-hale, .z-ok, .z-akis { animation-delay: calc(var(--zt, 0s) + var(--d, 0s)); }
+.isik, .z-gul { animation-delay: var(--zt, 0s); }
+@media (max-width: 781px) { .g1 { opacity: .34; } .g2 { opacity: .26; } }
 
 /* ——— Üst şerit ——— */
 .ust { position: sticky; top: 0; z-index: 60; height: var(--ust-h); background: rgba(255,255,255,.84); backdrop-filter: saturate(1.4) blur(16px); -webkit-backdrop-filter: saturate(1.4) blur(16px); border-bottom: 1px solid rgba(201,151,58,.5); box-shadow: 0 10px 30px -22px rgba(20,40,75,.5); transition: box-shadow .4s, background-color .4s; }
@@ -648,7 +629,6 @@ body[data-sayfa="rota-olustur"] .alt { display: none; }
   .js [data-g].bekle { opacity: 1; transform: none; }
   .ilk .kapak-kart h1 span { opacity: 1; transform: none; }
   .zemin * { animation: none !important; }
-  .z-ok, .z-akis, .z-hale, .z-dalga { display: none !important; }
   .acilir .guz-cizim path { stroke-dashoffset: 0; }
 }
 

@@ -926,9 +926,9 @@ a.brand:hover { text-decoration: underline; text-underline-offset: 5px; text-dec
 @media (hover: hover) { .btn:hover { transform: translateY(-2px); border-color: var(--accent); } .btn.gold:hover::after { transform: translateX(130%); } }
 
 /* Rotam */
-.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.stat { display: grid; gap: 3px; padding: 12px 10px; border-radius: 16px; background: var(--glass-strong); border: 1px solid var(--line); text-align: center; }
-.stat b { font: 800 22px/1 var(--f-display); letter-spacing: -.02em; color: var(--heading); font-variant-numeric: tabular-nums; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.stat { display: flex; align-items: baseline; justify-content: center; gap: 5px; padding: 9px 6px; border-radius: 13px; background: var(--glass-strong); border: 1px solid var(--line); white-space: nowrap; }
+.stat b { font: 800 17px/1 var(--f-display); letter-spacing: -.02em; color: var(--heading); font-variant-numeric: tabular-nums; }
 .stat span { font-size: 11.5px; color: var(--muted); }
 .rlist { list-style: none; margin: 0; padding: 0; display: grid; }
 .rstart, .ri { position: relative; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; column-gap: 11px; padding-block: 7px; }
@@ -1029,13 +1029,19 @@ a.btn { text-decoration: none; }
 #lmap { position: absolute; inset: 0; z-index: 0; isolation: isolate; background: var(--map-land); font: inherit; outline-offset: -2px; }
 #map.real.is-sat #lmap { background: #2C3530; } /* uydu görüntüsü gelene kadar açık renk parlamasın */
 #map.real { cursor: auto; touch-action: auto; --r1: #2E5AAC; --r2: #B8862F; --r3: #B04A62; --r4: #2F8A73; --r5: #5B6FB8; --r6: #A9773A; --mk-ring: #FFFFFF; --mk-fg: #FFFFFF; --me: #2F6FED; --route: #0E1B2E; --route-casing: #FFFFFF; }
-#map.real.is-sat { --route: #FFE08A; --route-casing: #0E1B2E; }
+#map.real.is-sat { --route: #FFE08A; --route-casing: #0E1B2E; --route-flow: #0E1B2E; }
 #map.real.z-lo { --fr: 6px; } #map.real.z-mid { --fr: 10px; } #map.real.z-hi { --fr: 16px; }
 .lmk { background: none; border: 0; }
 .lmk .mk { transform: translate(calc(var(--fx, 0) * var(--fr, 10px)), calc(var(--fy, 0) * var(--fr, 10px))); will-change: auto; }
 .rt-case, .rt-main { fill: none; stroke-linecap: round; stroke-linejoin: round; }
 .rt-case { stroke: var(--route-casing); stroke-opacity: .9; stroke-width: 8px; }
 .rt-main { stroke: var(--route); stroke-opacity: 1; stroke-width: 3.4px; stroke-dasharray: 9 7; }
+/* Rota çizgisinin üstünde gidiş yönüne doğru akan küçük noktalar. Yalnızca rota varken çalışır; “hareketi azalt” seçiliyse durur. */
+.rt-akis { fill: none; stroke: var(--route-flow, #F5C451); stroke-width: 2.2px; stroke-linecap: round; stroke-dasharray: .1 20; animation: akis 1.25s linear infinite; }
+.rt-akis.nav { stroke: #fff; stroke-width: 3px; stroke-dasharray: .1 26; animation-duration: 1.4s; --akis: 26.1; }
+@keyframes akis { from { stroke-dashoffset: var(--akis, 20.1); } to { stroke-dashoffset: 0; } }
+.navda .rt-akis:not(.nav) { display: none; }
+@media (prefers-reduced-motion: reduce) { .rt-akis { animation: none; display: none; } }
 #map.picking .leaflet-grab, #map.picking .leaflet-interactive, #map.picking .mk { cursor: crosshair; }
 #map.real ~ .cap { pointer-events: auto; background: var(--glass-strong); color: var(--fg); box-shadow: 0 6px 16px -10px rgba(14,27,46,.5); }
 .cap a { color: inherit; }
@@ -1088,56 +1094,59 @@ a.btn { text-decoration: none; }
 }
 
 /* ——— Keşfet: uyarı, rota özeti, başlangıç satırı, kategori listesi ——— */
-.uyari { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px 12px; align-items: start; padding: 13px 12px 13px 14px; border-radius: 18px; background: color-mix(in srgb, var(--accent) 16%, var(--glass-strong)); border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); animation: rise .45s var(--ease) both; }
-.uyari-ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: var(--accent); color: var(--on-gold); font-size: 16px; }
-.uyari-tx { display: grid; gap: 3px; min-width: 0; }
-.uyari-tx b { font: 800 14.5px/1.25 var(--f-display); color: var(--heading); }
-.uyari-tx span { font-size: 12.5px; line-height: 1.45; color: var(--fg); }
-.uyari-x { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; color: var(--muted); font-size: 12px; }
+.uyari { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 6px 9px; align-items: center; padding: 8px 6px 9px 9px; border-radius: 16px; background: color-mix(in srgb, var(--accent) 16%, var(--glass-strong)); border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); animation: rise .45s var(--ease) both; }
+.uyari-ic { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; background: var(--accent); color: var(--on-gold); font-size: 13px; }
+.uyari > b { font: 800 13.5px/1.25 var(--f-display); color: var(--heading); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.uyari .btn.sm { min-height: 32px; padding: 0 11px; font-size: 12.5px; gap: 6px; }
+.uyari-x { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; color: var(--muted); font-size: 11px; }
 .uyari-x:hover { background: var(--seg); color: var(--heading); }
-.uyari .row { grid-column: 1 / -1; }
-.ozet { gap: 10px; padding: 12px; background: var(--glass-strong); border-color: color-mix(in srgb, var(--accent) 45%, var(--edge)); box-shadow: 0 14px 26px -22px rgba(14,27,46,.7); }
-.ozet.bos { background: var(--glass-soft); border-style: dashed; border-color: var(--line); box-shadow: none; }
-.ozet-bas { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 11px; }
-.ozet-ic { width: 40px; height: 40px; border-radius: 13px; display: grid; place-items: center; background: var(--heading); color: var(--gold-1); font-size: 16px; }
-.ozet.bos .ozet-ic { background: var(--seg); color: var(--muted); }
-.ozet-tx { display: grid; gap: 2px; min-width: 0; }
-.ozet-tx b { font: 800 15px/1.25 var(--f-display); color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ozet-tx span { font-size: 12.5px; line-height: 1.4; color: var(--muted); font-variant-numeric: tabular-nums; }
-.ozet-tx span .ic { width: 13px; height: 13px; vertical-align: -2px; }
-.ozet .pill { height: 32px; padding: 0 8px 0 12px; }
-.ozet .pill .ic { width: 14px; height: 14px; }
-.ozet .btn { justify-self: start; }
-.ozet-liste { list-style: none; margin: 0 -12px; padding: 0 12px 2px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
-.ozet-liste::-webkit-scrollbar { display: none; }
-.ozet-liste li { flex: none; }
-.ozet-liste button { display: inline-flex; align-items: center; gap: 7px; height: 34px; max-width: 190px; padding: 0 12px 0 4px; border-radius: 999px; background: var(--seg); font: 650 12.5px/1 var(--f-display); color: var(--heading); transition: background-color .25s, transform .4s var(--spring); }
-.ozet-liste button:active { transform: scale(.95); }
-.ozet-liste button > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ozet-liste .bdg { width: 26px; height: 26px; border-radius: 50%; font-size: 11.5px; box-shadow: none; }
-.bas { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 7px 8px 7px 10px; border-radius: 16px; background: var(--glass-soft); border: 1px solid var(--edge); }
-.bas-ic { width: 32px; height: 32px; border-radius: 11px; display: grid; place-items: center; background: var(--seg); color: var(--muted); font-size: 14px; }
-.bas-ic.gps { background: color-mix(in srgb, var(--me) 16%, transparent); color: var(--me); }
-.bas-tx { display: grid; gap: 1px; min-width: 0; }
-.bas-tx small { font: 700 10.5px/1.2 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-.bas-tx b { font: 750 14px/1.25 var(--f-display); color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bas .pill { height: 32px; }
+.uyari-tx { grid-column: 1 / -1; padding: 0 4px 0 1px; font-size: 11.5px; line-height: 1.4; color: var(--fg); }
+/* Keşfet'in başı: rota özeti ve başlangıç noktası tek kutuda, birer satır. Altında kategori düğmeleri iki satıra sığar; listeye yer kalır. */
+.kutu { display: grid; border-radius: 18px; background: var(--glass-soft); border: 1px solid var(--edge); overflow: hidden; }
+.oz, .bas { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 7px 8px 7px 10px; }
+.oz { background: var(--glass-strong); }
+.oz.bos { background: none; }
+.oz-ic { width: 32px; height: 32px; border-radius: 11px; display: grid; place-items: center; background: var(--heading); color: var(--gold-1); font-size: 14px; }
+.oz.bos .oz-ic { background: var(--seg); color: var(--muted); }
+.oz-tx { display: grid; gap: 1px; min-width: 0; }
+.oz-tx b { font: 800 14px/1.25 var(--f-display); color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.oz-tx small { font-size: 12px; line-height: 1.3; color: var(--muted); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.oz-tx small .ic { width: 12px; height: 12px; vertical-align: -2px; }
+.oz .btn.sm { min-height: 34px; padding: 0 9px 0 12px; gap: 4px; }
+.oz .btn.sm.gold { padding: 0 12px 0 10px; gap: 6px; }
+.oz .btn .ic { width: 14px; height: 14px; }
+.bas { border-top: 1px solid var(--line); }
+.bas-ic { width: 32px; height: 28px; display: grid; place-items: center; color: var(--muted); font-size: 14px; }
+.bas-ic.gps { color: var(--me); }
+.bas-tx { display: flex; align-items: baseline; gap: 7px; min-width: 0; }
+.bas-tx small { flex: none; font: 700 10.5px/1.2 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.bas-tx b { font: 750 13.5px/1.25 var(--f-display); color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bas .pill { height: 30px; padding: 0 11px; font-size: 12.5px; }
 .bas .row { grid-column: 1 / -1; margin-inline: -8px; padding-inline: 8px; padding-block: 2px 4px; animation: rise .4s var(--ease) both; }
-.kl-grup { display: grid; gap: 4px; padding: 6px; border-radius: 18px; background: var(--glass-soft); border: 1px solid var(--edge); }
-.kl { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 11px; min-height: 40px; padding: 4px 12px 4px 8px; border-radius: 13px; text-align: left; --c: var(--heading); transition: background-color .25s; }
-.kl:hover { background: var(--seg); }
-.kl[aria-pressed="true"] { background: var(--glass-strong); box-shadow: 0 6px 14px -12px rgba(14,27,46,.7); }
-.tik { width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; border: 2px solid color-mix(in srgb, var(--c) 55%, transparent); color: transparent; font-size: 11px; transition: background-color .25s, border-color .25s, transform .4s var(--spring); }
-.tik .ic { stroke-width: 3; }
-.kl[aria-pressed="true"] .tik { background: var(--c); border-color: var(--c); color: var(--mk-fg); transform: scale(1.06); }
-.kl-ad { font: 700 14px/1.2 var(--f-display); color: var(--heading); }
-.kl small { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.kl.soon { opacity: .6; }
-.kl.soon .tik { border-style: dashed; }
-.kl.soon small { font: 700 10.5px/1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); }
+.kl-grup { display: flex; flex-wrap: wrap; gap: 6px; }
+.kl { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 11px 0 6px; border-radius: 999px; background: var(--glass-soft); border: 1px solid var(--edge); font: 700 12.5px/1 var(--f-display); color: var(--heading); white-space: nowrap; --c: var(--heading); transition: background-color .25s, border-color .25s, transform .4s var(--spring); }
+.kl:active { transform: scale(.95); }
+@media (hover: hover) { .kl:hover { background: var(--seg); } }
+.kl[aria-pressed="true"] { background: var(--glass-strong); border-color: color-mix(in srgb, var(--c) 60%, transparent); }
+.tik { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; border: 1.6px solid color-mix(in srgb, var(--c) 55%, transparent); color: transparent; font-size: 9.5px; transition: background-color .25s, border-color .25s; }
+.tik .ic { stroke-width: 3.2; }
+.kl[aria-pressed="true"] .tik { background: var(--c); border-color: var(--c); color: var(--mk-fg); }
 
 /* ——— Hazır rotalar ——— */
-.rc.hz { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+/* Hazır rotalar: her rota tek satırlık kart (numara, ad, kısa bilgi, “Aç”). Altısı birden kaydırmadan görünsün diye sıkı tutulur. */
+.hz-liste { display: grid; gap: 6px; }
+.hz { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; border-radius: 16px; background: var(--glass-soft); border: 1px solid var(--edge); transition: background-color .3s, border-color .3s, transform .45s var(--ease); animation: rise .5s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 40ms); }
+@media (hover: hover) { .hz:hover { background: var(--glass-strong); border-color: color-mix(in srgb, var(--c) 40%, var(--edge)); transform: translateX(3px); } }
+.hz-main { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 11px; padding: 9px 4px 9px 10px; text-align: left; min-width: 0; border-radius: 16px 0 0 16px; }
+.hz .bdg { width: 34px; height: 34px; border-radius: 11px; font-size: 12.5px; box-shadow: none; }
+.hz-tx { display: grid; gap: 2px; min-width: 0; }
+.hz-tx b { font: 750 14.5px/1.25 var(--f-display); color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hz-tx small { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hz-ac { display: inline-flex; align-items: center; gap: 2px; height: 32px; padding: 0 7px 0 12px; border-radius: 11px; background: var(--heading); color: var(--bg); font: 700 12.5px/1 var(--f-display); }
+.hz-ac .ic { width: 14px; height: 14px; }
+.hz-main:active .hz-ac { transform: scale(.94); }
+.hz-link { display: grid; place-items: center; width: 40px; margin: 6px 6px 6px 2px; border-radius: 11px; color: var(--muted); font-size: 14px; transition: background-color .25s, color .25s; }
+@media (hover: hover) { .hz-link:hover { background: var(--seg); color: var(--heading); } }
 .rc-acts { display: flex; align-items: center; gap: 14px; }
 .rc-link { font: 700 13px/1 var(--f-display); color: var(--accent-ink); text-underline-offset: 3px; }
 
@@ -1801,7 +1810,7 @@ globalThis.ZR_HESAP = (() => {
   const W = { durum: "yok", izin: null, anim: false, t: 0, q: 0, seq: 0, soruldu: false };
   try { W.izin = localStorage.getItem("zr.yol.izin"); } catch (e) {}
   let C = {}, zcls = "", curPanel = "", raf = 0, flyRaf = 0, rtRaf = 0, toastT = 0, fanR = 10;
-  let map = null, lyStreet = null, lySat = null, lySatLbl = null, plCase = null, plMain = null, meMk = null, tipMk = null, tileFails = 0;
+  let map = null, lyStreet = null, lySat = null, lySatLbl = null, plCase = null, plMain = null, plAkis = null, meMk = null, tipMk = null, tileFails = 0;
 
   const active = () => (S.concepts.size ? STOPS.filter((s) => S.concepts.has(s.r.concept)) : STOPS);
   const conceptLabel = () => (S.concepts.size ? D.CONCEPTS.filter((c) => S.concepts.has(c.id)).map((c) => c.label).join(" + ") : "Tüm duraklar");
@@ -1920,7 +1929,7 @@ globalThis.ZR_HESAP = (() => {
         out.push(g(a[0] + (p[0] - a[0]) * t, a[1] + (p[1] - a[1]) * t)); break;
       }
     }
-    plCase.setLatLngs(out); plMain.setLatLngs(out);
+    plCase.setLatLngs(out); plMain.setLatLngs(out); plAkis.setLatLngs(out);
     mapEl.classList.toggle("sokak", !RT.duz);
   }
   function zoomState() {
@@ -1962,6 +1971,8 @@ globalThis.ZR_HESAP = (() => {
     map.fitBounds(L.latLngBounds(STOPS.map((s) => [s.lat, s.lng])), { animate: false });
     plCase = L.polyline([], { className: "rt-case", interactive: false }).addTo(map);
     plMain = L.polyline([], { className: "rt-main", interactive: false }).addTo(map);
+    // Çizginin üstünde gidiş yönüne doğru akan küçük noktalar (yalnızca görsel; app.css içindeki "akis" hareketi)
+    plAkis = L.polyline([], { className: "rt-akis", interactive: false }).addTo(map);
     const icon = (el) => L.divIcon({ className: "lmk", html: el, iconSize: [0, 0] });
     meMk = L.marker([LAT0, LNG0], { icon: icon(meEl), interactive: false, keyboard: false, zIndexOffset: 2000 }).addTo(map);
     tipMk = L.marker([LAT0, LNG0], { icon: icon(tipEl), interactive: false, keyboard: false, zIndexOffset: 5000 }).addTo(map);
@@ -2127,7 +2138,7 @@ globalThis.ZR_HESAP = (() => {
     if (curPanel === name) { bodyEl.scrollTop = 0; return; }
     for (const k in P) if (k !== name) { P[k].classList.remove("is-on"); P[k].hidden = true; }
     const el = P[name]; el.hidden = false; el.style.setProperty("--dir", dir); void el.offsetWidth; el.classList.add("is-on");
-    curPanel = name; bodyEl.scrollTop = 0;
+    curPanel = name; bodyEl.scrollTop = 0; syncGo();
   }
   const SEKME = ["hazir", "kesfet", "rota"];
   const sekmeIsaret = (tab) => { app.dataset.tab = tab; for (const k of SEKME) $("#tab-" + k).setAttribute("aria-selected", tab === k); };
@@ -2433,17 +2444,12 @@ globalThis.ZR_HESAP = (() => {
   /* ——— Keşfet ——— */
   const nameHtml = (s) => esc(s.name) + (s.hon ? `<em>${esc(s.hon)}</em>` : "");
   const basAd = (me) => (me.src === "gps" ? "Konumun" : me.src === "ornek" ? me.label + " (örnek)" : me.label);
-  const KATAD = { sahabe: "Sahâbe-i Kirâm", cami: "Tarihî camiler", sur: "Suriçi ve surlar" };
-  // Rota özeti: Keşfet'in en üstünde durur; seçilen durakları, toplam yolu ve süreyi gösterir.
+  // Rota özeti: Keşfet'in en üstünde tek satır. Durak sayısı, yol ve süre; “Rotama git” Rotam sekmesini açar (“Rotayı başlat” oradadır).
   function ozetHtml() {
     const ids = S.route;
-    if (!ids.length) return `
-        <div class="ozet-bas"><span class="ozet-ic">${ic("rota")}</span><div class="ozet-tx"><b>Rotan henüz boş</b><span>Durakları ${ic("plus")} ile ekle ya da tek dokunuşla en yakın rotayı kur.</span></div></div>
-        <button class="btn sm gold" type="button" data-act="build">${ic("spark")}En yakın rotayı oluştur</button>`;
-    const L = routeLen(), not = YOL && REAL && W.durum === "bekle" ? "yol hesaplanıyor…" : RT.duz ? "tahmini" : "sokaklardan";
-    return `
-        <div class="ozet-bas"><span class="ozet-ic">${ic("rota")}</span><div class="ozet-tx"><b>${esc(S.name || "Rotam")}</b><span>${ids.length} durak · ${fmtD(L)} · ≈ ${fmtT(L)} · ${not}</span></div><button class="pill" type="button" data-act="rotam">Ayrıntı${ic("fwd")}</button></div>
-        <ol class="ozet-liste">${ids.map((id, i) => { const t = STOPS[id]; return `<li class="c-${t.r.id}"><button type="button" data-stop="${t.id}" data-from="list"><span class="bdg">${i + 1}</span><span>${esc(t.name)}</span></button></li>`; }).join("")}</ol>`;
+    if (!ids.length) return `<span class="oz-ic">${ic("rota")}</span><span class="oz-tx"><b>Rotan henüz boş</b><small>Durakları ${ic("plus")} ile ekle</small></span><button class="btn sm gold" type="button" data-act="build">${ic("spark")}En yakın rota</button>`;
+    const L = routeLen(), not = YOL && REAL && W.durum === "bekle" ? " · yol hesaplanıyor…" : RT.duz ? " · tahmini" : "";
+    return `<span class="oz-ic">${ic("rota")}</span><span class="oz-tx"><b>${esc(S.name || "Rotam")}</b><small>${ids.length} durak · ${fmtD(L)} · ≈ ${fmtT(L)}${not}</small></span><button class="btn sm dark" type="button" data-act="rotam">Rotama git${ic("fwd")}</button>`;
   }
   function syncOzet() { const el = $("#k-ozet"); if (el) { el.classList.toggle("bos", !S.route.length); el.innerHTML = ozetHtml(); } }
   function renderKesfet() {
@@ -2452,11 +2458,13 @@ globalThis.ZR_HESAP = (() => {
     P.kesfet.innerHTML = `
       ${w ? `<div class="uyari" role="status">
         <span class="uyari-ic">${ic("loc")}</span>
-        <div class="uyari-tx"><b>${esc(w.b)}</b><span>${esc(w.t)}</span></div>
+        <b>${esc(w.b)}</b>
+        ${w.kod === "disarida" || w.kod === "yok" || w.kod === "https" ? `<button class="btn sm dark" type="button" data-act="pick">${ic("hand")}Haritadan seç</button>` : `<button class="btn sm dark" type="button" data-act="locate">${ic("loc")}Konumu aç</button>`}
         <button class="uyari-x" type="button" data-act="warn-x" aria-label="Uyarıyı kapat">${ic("x")}</button>
-        <div class="row">${w.kod === "disarida" || w.kod === "yok" || w.kod === "https" ? "" : `<button class="btn sm dark" type="button" data-act="locate">${ic("loc")}Konumu aç</button>`}<button class="btn sm" type="button" data-act="pick">${ic("hand")}Haritadan seç</button></div>
+        <span class="uyari-tx">${esc(w.t)}</span>
       </div>` : ""}
-      <div class="card ozet${S.route.length ? "" : " bos"}" id="k-ozet">${ozetHtml()}</div>
+      <div class="kutu">
+      <div class="oz${S.route.length ? "" : " bos"}" id="k-ozet">${ozetHtml()}</div>
       <div class="bas${S.startOpen ? " acik" : ""}">
         <span class="bas-ic ${me.src}">${ic(me.src === "gps" ? "loc" : "pin")}</span>
         <span class="bas-tx"><small>Başlangıç</small><b>${esc(basAd(me))}</b></span>
@@ -2468,12 +2476,11 @@ globalThis.ZR_HESAP = (() => {
           ${D.PRESETS.map((p, i) => `<button class="pill" type="button" data-preset="${i}" aria-pressed="${me.src !== "gps" && me.label === p.label}">${esc(p.label)}</button>`).join("")}
         </div>` : ""}
       </div>
+      </div>
       <div class="sec-head"><h2 class="h2">En yakın duraklar</h2><small>${list.length} durak · yakından uzağa</small></div>
       <div class="kl-grup" role="group" aria-label="Kategoriler">
-        <button class="kl" type="button" data-kat="" aria-pressed="${!S.concepts.size}"><span class="tik">${ic("check")}</span><span class="kl-ad">Tümü</span><small>${STOPS.length} durak</small></button>
-        ${D.CONCEPTS.map((c) => c.soon
-          ? `<button class="kl soon" type="button" data-soon="1" aria-disabled="true"><span class="tik"></span><span class="kl-ad">${esc(c.label)}</span><small>yakında</small></button>`
-          : `<button class="kl c-${c.routes[0]}" type="button" data-kat="${c.id}" aria-pressed="${S.concepts.has(c.id)}"><span class="tik">${ic("check")}</span><span class="kl-ad">${esc(KATAD[c.id] || c.label)}</span><small>${say(c)} durak</small></button>`).join("")}
+        <button class="kl" type="button" data-kat="" aria-pressed="${!S.concepts.size}"><span class="tik">${ic("check")}</span>Tümü</button>
+        ${D.CONCEPTS.filter((c) => !c.soon).map((c) => `<button class="kl c-${c.routes[0]}" type="button" data-kat="${c.id}" aria-pressed="${S.concepts.has(c.id)}" title="${say(c)} durak"><span class="tik">${ic("check")}</span>${esc(c.label)}</button>`).join("")}
       </div>
       <ul class="list">${list.map((t, i) => { const d = dist(me, t) * WALK, on = S.route.includes(t.id); return `
         <li class="it c-${t.r.id}" style="--i:${Math.min(i, 14)}">
@@ -2491,13 +2498,17 @@ globalThis.ZR_HESAP = (() => {
   function renderHazir() {
     const me = S.me, near = D.ROUTES.map((r) => ({ r, d: Math.min(...STOPS.filter((t) => t.r === r).map((t) => dist(me, t))) })).sort((a, b) => a.d - b.d);
     P.hazir.innerHTML = `
-      <div class="sec-head"><h2 class="h2">Hazır rotalar</h2><small>yakından uzağa</small></div>
-      ${near.map(({ r, d }, i) => `
-      <div class="rc hz c-${r.id}" style="--i:${i}">
-        <div class="rc-tx"><i>Rota ${r.no} · ${esc(r.kicker)}</i><b>${esc(r.name)}${i ? "" : '<span class="near">En yakın</span>'}</b><span>${esc(r.lede)}</span><small>${STOPS.filter((t) => t.r === r).length} durak · ${r.km} · ${r.sure} · en yakın durağı ${fmtD(d * WALK)}</small></div>
-        <span class="rc-acts"><button class="btn sm dark" type="button" data-load="${r.id}">Rotayı aç</button><a class="rc-link" href="${r.url}" target="${EMBED ? "_top" : "_blank"}" rel="noopener">Sayfasını oku</a></span>
-      </div>`).join("")}
-      <p class="fine">Hazır rota kendi sırasıyla açılır. “Rotam”da durak ekleyip çıkarabilir, sırayı değiştirebilirsin.</p>`;
+      <div class="sec-head"><h2 class="h2">Hazır rotalar</h2><small>yakından uzağa · dokun, aç</small></div>
+      <div class="hz-liste">${near.map(({ r, d }, i) => `
+      <div class="hz c-${r.id}" style="--i:${i}">
+        <button class="hz-main" type="button" data-load="${r.id}" aria-label="${esc(r.name)} rotasını aç" title="En yakın durağı ${fmtD(d * WALK)} uzakta">
+          <span class="bdg">${r.no}</span>
+          <span class="hz-tx"><b>${esc(r.name)}${i ? "" : '<span class="near">En yakın</span>'}</b><small>${STOPS.filter((t) => t.r === r).length} durak · ${r.km} · ${r.sure}</small></span>
+          <span class="hz-ac">Aç${ic("fwd")}</span>
+        </button>
+        <a class="hz-link" href="${r.url}" target="${EMBED ? "_top" : "_blank"}" rel="noopener" aria-label="${esc(r.name)} sayfasını oku" title="Sayfasını oku">${ic("ext")}</a>
+      </div>`).join("")}</div>
+      <p class="fine">Hazır rota kendi sırasıyla “Rotam”da açılır; orada durak ekleyip çıkarabilir, sırayı değiştirebilir ve rotayı başlatabilirsin.</p>`;
   }
 
   /* ——— Durak ayrıntısı ——— */
@@ -2753,7 +2764,8 @@ globalThis.ZR_HESAP = (() => {
 
   /* ——— Alt çubuk: "Rotayı başlat" ve haritalara aktarma ——— */
   function syncGo() {
-    const on = S.route.length > 0 && !N.on, once = !goEl.hidden;
+    // “Rotayı başlat” çubuğu yalnızca Rotam sekmesinde görünür; Keşfet ve Hazır rotalar listelerine yer kalsın.
+    const on = S.route.length > 0 && !N.on && curPanel === "rota", once = !goEl.hidden;
     goEl.hidden = !on; app.classList.toggle("has-go", on);
     if (on && S.me) { const parts = gparts(), g = $("#go-g"); g.href = parts[0].url; g.dataset.cok = parts.length > 1 ? "1" : ""; $("#go-a").href = apple(xpts().map((x) => x.p)); }
     if (on !== once) setSheet(S.sheet);
@@ -2794,7 +2806,7 @@ globalThis.ZR_HESAP = (() => {
      Tarif, zaten açık olan düz haritada (kuzey yukarıda) sürer: ek bir harita yüklenmez, düğmeye basınca hemen başlar.
      Konum noktası gidiş yönünü gösterir; hedef durağa giden yol altın renkli çizgiyle çizilir, harita konumu izler.
      Konum alınamıyorsa ya da rota çok uzaktaysa aynı ekran önizleme olarak çalışır: "Sonraki durak" ile duraktan durağa ilerlenir. */
-  const N = { on: false, watch: null, pos: null, real: false, i: 0, leg: null, legOk: false, along: 0, offN: 0, tRe: 0, busy: false, follow: true, wake: null, vardi: false, brg: 0, zoom: 0, seq: 0, oto: false, lyr: null, yolK: null, yol: null, hedef: null, pk: null, msgT: 0 };
+  const N = { on: false, watch: null, pos: null, real: false, i: 0, leg: null, legOk: false, along: 0, offN: 0, tRe: 0, busy: false, follow: true, wake: null, vardi: false, brg: 0, zoom: 0, seq: 0, oto: false, lyr: null, yolK: null, yol: null, akis: null, hedef: null, pk: null, msgT: 0 };
   const fmtN = (m) => (m < 1000 ? Math.max(5, Math.round(m / 5) * 5) + " m" : (m / 1000).toFixed(1).replace(".", ",") + " km");
   const brgOf = (a, b) => (Math.atan2(b[0] - a[0], a[1] - b[1]) / RAD + 360) % 360;
   // Bir bacağı hesap için hazırlar: metre cinsinden noktalar, birikimli uzunluk ve her dönüşün çizgi üzerindeki yeri.
@@ -2839,6 +2851,7 @@ globalThis.ZR_HESAP = (() => {
     N.lyr = L.layerGroup().addTo(map);
     N.yolK = L.polyline([], { color: "#0E1B2E", weight: 11, opacity: 0.85, lineCap: "round", lineJoin: "round", interactive: false }).addTo(N.lyr);
     N.yol = L.polyline([], { color: "#F5C451", weight: 6, opacity: 1, lineCap: "round", lineJoin: "round", interactive: false }).addTo(N.lyr);
+    N.akis = L.polyline([], { className: "rt-akis nav", interactive: false }).addTo(N.lyr);
     N.pk = L.marker([N.pos.lat, N.pos.lng], { icon: L.divIcon({ className: "lmk", html: '<div class="npuck"><span></span></div>', iconSize: [0, 0] }), interactive: false, keyboard: false, zIndexOffset: 3000 }).addTo(N.lyr);
   }
   function navHedef() {
@@ -2850,7 +2863,7 @@ globalThis.ZR_HESAP = (() => {
   function navDraw() {
     if (!N.on || !N.lyr) return;
     const Lg = N.leg, a = navAt(Lg, N.along), q = unproj(a[0], a[1]), cizgi = N.vardi ? [] : [[q.lat, q.lng], ...Lg.ll.slice(a[2])];
-    N.yolK.setLatLngs(cizgi); N.yol.setLatLngs(cizgi);
+    N.yolK.setLatLngs(cizgi); N.yol.setLatLngs(cizgi); N.akis.setLatLngs(cizgi);
   }
   // Harita konumu izler; konum noktası üstteki tarif şeridiyle alttaki kartın arasında, ortada durur.
   function navCam(jump) {
@@ -2949,7 +2962,7 @@ globalThis.ZR_HESAP = (() => {
     N.on = false; N.seq++; N.busy = false;
     if (N.watch != null) { try { navigator.geolocation.clearWatch(N.watch); } catch (e) {} N.watch = null; }
     if (N.wake) { try { N.wake.release(); } catch (e) {} N.wake = null; }
-    if (N.lyr) { N.lyr.remove(); N.lyr = N.yolK = N.yol = N.hedef = N.pk = null; }
+    if (N.lyr) { N.lyr.remove(); N.lyr = N.yolK = N.yol = N.akis = N.hedef = N.pk = null; }
     navEl.hidden = true; app.classList.remove("navda"); navMsg("");
     if (meMk) meMk.setOpacity(1);
     const p = N.pos; if (N.real && p) setMe(p.lat, p.lng, "gps", "Konumun", false);

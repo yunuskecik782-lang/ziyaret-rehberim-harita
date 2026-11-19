@@ -92,13 +92,12 @@ const ROTALAR = D.ROUTES.map((r, i) => {
 const TOPLAM = ROTALAR.reduce((n, r) => n + r.duraklar.length, 0);
 const yol = { ana: KOK, olustur: KOK + "rota-olustur/", guz: KOK + "guzergahlar/", ulasim: KOK + "ulasim/", ucret: KOK + "ucretler-ve-saatler/", adab: KOK + "ziyaret-adabi/", hesap: KOK + "hesabim/", rotalarim: KOK + "rotalarim/" };
 
-/* ——— Zemin: tarihî yarımadanın (Fatih) yumuşak çizgilerle soluk bir haritası ———
-   Kıyı ve sur çizgisi, yedi tepeyi anlatan eşyükselti halkaları, ana caddeler boyunca akan noktalar ve gidip gelen küçük oklar.
-   Hepsi elle seçilmiş yaklaşık noktalardan yumuşatılarak çizilir; ölçekli bir harita değil, bir desendir. */
-const zx = (lng) => 500 + (lng - 28.9525) * 0.7547 * 111.32 * 98, zy = (lat) => 500 - (lat - 41.0155) * 111.05 * 98;
-const zp = (l) => l.map((p) => [zx(p[1]), zy(p[0])]);
+/* ——— Zemin ———
+   Bilerek sade: beyaza yakın sıcak zemin, yavaşça yer değiştiren iki yumuşak ışık (altın ve mavi) ve köşelerde çok yavaş dönen
+   iki ince geometrik gül (sekiz köşeli yıldız). Başka bileşen yok. Hareket yalnızca transform ile yapılır; işi ekran kartı yapar,
+   sayfa açılırken ve kaydırılırken takılmaz. Gül tek bir küçük resim olarak CSS içinde durur; tarayıcı onu bir kez çizer. */
 const f1 = (v) => v.toFixed(1);
-// Catmull-Rom noktalarından kübik Bézier yolu: köşesiz, organik çizgi
+// Catmull-Rom noktalarından kübik Bézier yolu: köşesiz, organik çizgi (açılır listedeki küçük rota çizimleri kullanır)
 const yumusak = (P, kapali) => {
   const n = P.length, g = (i) => (kapali ? P[(i + n) % n] : P[Math.max(0, Math.min(n - 1, i))]);
   let d = `M${f1(P[0][0])} ${f1(P[0][1])}`;
@@ -108,75 +107,17 @@ const yumusak = (P, kapali) => {
   }
   return d + (kapali ? "Z" : "");
 };
-const Z_HALIC = [[41.0405, 28.9415], [41.0345, 28.949], [41.0305, 28.954], [41.025, 28.96], [41.0205, 28.964], [41.0177, 28.9712], [41.0165, 28.979], [41.0155, 28.986]];
-const Z_MARMARA = [[41.0045, 28.984], [41.002, 28.973], [41.001, 28.964], [41.0015, 28.952], [41.0, 28.944], [40.9985, 28.934], [40.995, 28.927], [40.9905, 28.9215]];
-const Z_SUR = [[40.9935, 28.9225], [41.001, 28.9205], [41.0055, 28.9215], [41.0105, 28.921], [41.0175, 28.9225], [41.03, 28.935], [41.037, 28.9395], [41.0405, 28.9415]];
-const Z_YARIMADA = zp([...Z_HALIC, ...Z_MARMARA, ...Z_SUR.slice(0, -1)]);
-const zOrta = Z_YARIMADA.reduce((a, p) => [a[0] + p[0] / Z_YARIMADA.length, a[1] + p[1] / Z_YARIMADA.length], [0, 0]);
-const zBuyut = (k) => Z_YARIMADA.map((p) => [zOrta[0] + (p[0] - zOrta[0]) * k, zOrta[1] + (p[1] - zOrta[1]) * k]);
-const Z_KARSI = [
-  [[41.052, 28.938], [41.046, 28.9455], [41.04, 28.9525], [41.031, 28.964], [41.0245, 28.9692], [41.0215, 28.9765], [41.0265, 28.983], [41.0335, 28.9925], [41.041, 29.005], [41.047, 29.02]],
-  [[41.034, 29.018], [41.0275, 29.014], [41.019, 29.008], [41.009, 29.01], [40.998, 29.018], [40.984, 29.024]],
-];
-const Z_CADDE = [
-  [[41.0082, 28.977], [41.0085, 28.9712], [41.0102, 28.9645], [41.01, 28.953], [41.0128, 28.94], [41.0175, 28.9225]],
-  [[41.0102, 28.9645], [41.0145, 28.957], [41.0196, 28.9498], [41.025, 28.942], [41.03, 28.9355]],
-  [[41.0205, 28.964], [41.015, 28.9555], [41.01, 28.953], [41.003, 28.952]],
-  [[41.0177, 28.9712], [41.0205, 28.964], [41.0245, 28.9592], [41.0298, 28.9532], [41.0338, 28.9482], [41.0392, 28.9418]],
-  [[41.0125, 28.9842], [41.0052, 28.9822], [41.0028, 28.9728], [41.002, 28.964], [41.0026, 28.952], [41.001, 28.9435], [40.9996, 28.934], [40.9952, 28.9248]],
-  [[41.01, 28.953], [41.0165, 28.941], [41.0235, 28.9305]],
-  [[41.004, 28.933], [41.0075, 28.9405], [41.01, 28.953]],
-];
-const Z_TEPE = [[41.01, 28.982], [41.0095, 28.971], [41.0152, 28.964], [41.0196, 28.9498], [41.0265, 28.9515], [41.029, 28.9372], [41.004, 28.933]];
-const Z_DUGUM = [[41.0082, 28.977], [41.0102, 28.9645], [41.0162, 28.964], [41.0196, 28.9498], [41.03, 28.9355], [41.0177, 28.9712], [41.01, 28.953], [40.9935, 28.9225], [41.0392, 28.9418], [41.0338, 28.9482], [41.003, 28.952], [41.0175, 28.9225]];
-// Eşyükselti halkası: yarıçapı açıya göre hafifçe dalgalanan kapalı eğri (her tepe için aynı sonuç)
-const zHalka = (c, r, tohum) => { const P = []; for (let k = 0; k < 9; k++) { const a = (k / 9) * Math.PI * 2, w = 1 + 0.16 * Math.sin(a * 2 + tohum) + 0.09 * Math.cos(a * 3 + tohum * 1.7); P.push([zx(c[1]) + Math.cos(a) * r * w * 1.12, zy(c[0]) + Math.sin(a) * r * w * 0.86]); } return yumusak(P, true); };
-/* Hareket yalnızca ekran kartının taşıdığı iki özellikle yapılır: konum/dönüş/ölçek (transform) ve saydamlık (opacity).
-   Böylece arka plan her karede yeniden çizilmez; sayfa kaydırılırken ve açılırken takılmaz. Değişmeyen çizim (kıyı, sur, tepeler, caddeler)
-   CSS içinde tek bir resim olarak durur; tarayıcı onu bir kez çizer. Oklar ve ışıklar caddeler boyunca hesaplanmış duraklarla ilerler. */
 const svgUrl = (s) => `url("data:image/svg+xml,${s.replace(/\s+/g, " ").replace(/"/g, "'").replace(/%/g, "%25").replace(/#/g, "%23").replace(/</g, "%3C").replace(/>/g, "%3E")}")`;
-const Z_CIZIM = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><style>path{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}.k{stroke:rgba(20,40,75,.09);stroke-width:1.1}.y{fill:rgba(201,151,58,.035);stroke:rgba(20,40,75,.16);stroke-width:1.3}.s{stroke:rgba(169,119,58,.42);stroke-width:2.2;stroke-dasharray:1.5 6}.t{stroke:rgba(20,40,75,.07);stroke-width:1}.c{stroke:rgba(20,40,75,.11);stroke-width:1.2}</style>
-${Z_KARSI.map((l) => `<path class="k" d="${yumusak(zp(l))}"/>`).join("")}<path class="y" d="${yumusak(Z_YARIMADA, true)}"/><path class="s" d="${yumusak(zp(Z_SUR))}"/>
-${Z_TEPE.map((c, i) => [15, 29, 44].map((r, j) => `<path class="t" style="opacity:${(1 - j * 0.28).toFixed(2)}" d="${zHalka(c, r, i * 1.9 + j * 0.6)}"/>`).join("")).join("")}
-${Z_CADDE.map((l) => `<path class="c" d="${yumusak(zp(l))}"/>`).join("")}</svg>`;
-// Büyük, yavaş dönen geometrik gül (sekiz köşeli yıldız ve halkalar). Merkez 0,0; çap 1000.
+// Sekiz köşeli yıldız: çember üzerindeki sekiz noktayı "adim" atlayarak birleştirir. Merkez 0,0.
 const yildizYol = (r, adim) => { let d = ""; for (let k = 0; k < 8; k++) { const a = (k * adim * Math.PI) / 4 - Math.PI / 2; d += `${k ? "L" : "M"}${f1(Math.cos(a) * r)} ${f1(Math.sin(a) * r)}`; } return d + "Z"; };
-const Z_GUL = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-500 -500 1000 1000"><style>*{fill:none;vector-effect:non-scaling-stroke;stroke:rgba(169,119,58,.5);stroke-width:1}.i{stroke:rgba(46,90,172,.32)}</style>
-<circle r="488"/><circle r="452" class="i"/>${Array.from({ length: 32 }, (_, k) => { const a = (k * Math.PI) / 16; return `<path d="M${f1(Math.cos(a) * 452)} ${f1(Math.sin(a) * 452)}L${f1(Math.cos(a) * (k % 2 ? 470 : 488))} ${f1(Math.sin(a) * (k % 2 ? 470 : 488))}"/>`; }).join("")}
-<path d="${yildizYol(440, 1)}"/><path d="${yildizYol(440, 3)}" class="i"/><rect x="-311" y="-311" width="622" height="622"/><rect x="-311" y="-311" width="622" height="622" transform="rotate(45)"/>
-<circle r="300" class="i"/><path d="${yildizYol(296, 3)}"/><circle r="168"/><path d="${yildizYol(164, 3)}" class="i"/><circle r="64"/></svg>`;
-// Catmull-Rom eğrisi üzerinde eşit aralıklı noktalar ve gidiş yönü (derece). Dönüş açıları sıçramasın diye birbirine eklenerek tutulur.
-const zOrnek = (P, adet) => {
-  const n = P.length, g = (i) => P[Math.max(0, Math.min(n - 1, i))], ince = [];
-  for (let i = 0; i < n - 1; i++) {
-    const p0 = g(i - 1), p1 = g(i), p2 = g(i + 1), p3 = g(i + 2), t = 1 / 6;
-    const c1 = [p1[0] + (p2[0] - p0[0]) * t, p1[1] + (p2[1] - p0[1]) * t], c2 = [p2[0] - (p3[0] - p1[0]) * t, p2[1] - (p3[1] - p1[1]) * t];
-    for (let k = i ? 1 : 0; k <= 24; k++) { const u = k / 24, v = 1 - u, b = [v * v * v, 3 * v * v * u, 3 * v * u * u, u * u * u]; ince.push([0, 1].map((e) => b[0] * p1[e] + b[1] * c1[e] + b[2] * c2[e] + b[3] * p2[e])); }
-  }
-  const cum = [0]; for (let i = 1; i < ince.length; i++) cum.push(cum[i - 1] + Math.hypot(ince[i][0] - ince[i - 1][0], ince[i][1] - ince[i - 1][1]));
-  const L = cum[cum.length - 1], at = (s) => { let j = 1; while (j < cum.length - 1 && cum[j] < s) j++; const u = (s - cum[j - 1]) / (cum[j] - cum[j - 1] || 1); return [ince[j - 1][0] + (ince[j][0] - ince[j - 1][0]) * u, ince[j - 1][1] + (ince[j][1] - ince[j - 1][1]) * u]; };
-  const out = []; let onceki = null;
-  for (let k = 0; k <= adet; k++) {
-    const s = (L * k) / adet, a = at(Math.max(0, s - 2)), b = at(Math.min(L, s + 2)), p = at(s);
-    let ac = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
-    if (onceki != null) { while (ac - onceki > 180) ac -= 360; while (ac - onceki < -180) ac += 360; }
-    onceki = ac; out.push([p[0], p[1], ac]);
-  }
-  return { out, L };
-};
-const zYuzde = (v) => (v / 1000).toFixed(4);
-const Z_YOLLAR = Z_CADDE.map((l) => zOrnek(zp(l), 28));
-const ZEMIN_CSS = `/* ——— Zemin (site/build.js üretir): değişmeyen çizim, dönen gül, cadde boyunca giden oklar ve ışıklar ——— */
-.z-cizim { background-image: ${svgUrl(Z_CIZIM)}; }
+const Z_KARE = f1(486 / Math.SQRT2);
+const Z_GUL = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-500 -500 1000 1000"><style>*{fill:none;vector-effect:non-scaling-stroke;stroke:rgba(169,119,58,.6);stroke-width:1}</style>
+<circle r="486"/><path d="${yildizYol(486, 3)}"/><rect x="-${Z_KARE}" y="-${Z_KARE}" width="${f1(Z_KARE * 2)}" height="${f1(Z_KARE * 2)}"/><rect x="-${Z_KARE}" y="-${Z_KARE}" width="${f1(Z_KARE * 2)}" height="${f1(Z_KARE * 2)}" transform="rotate(45)"/>
+<circle r="263"/><path d="${yildizYol(263, 3)}"/><circle r="100"/></svg>`;
+const ZEMIN_CSS = `/* ——— Zemin (site/build.js üretir): köşelerde dönen ince geometrik gül ——— */
 .z-gul { background-image: ${svgUrl(Z_GUL)}; }
-.z-dalga { transform-origin: ${(zOrta[0] / 10).toFixed(2)}% ${(zOrta[1] / 10).toFixed(2)}%; }
-${Z_YOLLAR.map((y, i) => `@keyframes zy${i} {${y.out.map((p, k) => `${((k / (y.out.length - 1)) * 100).toFixed(2)}%{transform:translate(calc(${zYuzde(p[0])} * var(--zb)),calc(${zYuzde(p[1])} * var(--zb))) rotate(${p[2].toFixed(1)}deg)}`).join("")}}`).join("\n")}
 `;
-const ZEMIN = `<div class="zemin" aria-hidden="true"><i class="isik i1"></i><i class="isik i2"></i><i class="isik i3"></i><i class="z-gul g1"></i><i class="z-gul g2"></i>
-<div class="z-kay"><i class="z-cizim"></i><div class="z-duz">${[0, 1, 2].map((i) => `<svg class="z-dalga" style="--d:${-i * 5}s" viewBox="0 0 1000 1000"><path d="${yumusak(zBuyut(1.06), true)}"/></svg>`).join("")}
-${Z_DUGUM.map((p, i) => `<i class="z-hale" style="left:${(zx(p[1]) / 10).toFixed(2)}%;top:${(zy(p[0]) / 10).toFixed(2)}%;--d:${(-i * 0.74).toFixed(2)}s"></i>`).join("")}
-${Z_YOLLAR.map((y, i) => { const s = Math.round(y.L / 9); return `<i class="z-ok" style="--a:zy${i};--s:${s}s;--d:${-(i * 3.7).toFixed(1)}s"></i><i class="z-ok ters" style="--a:zy${i};--s:${s}s;--d:${-(i * 3.7 + 11).toFixed(1)}s"></i><i class="z-akis" style="--a:zy${i};--s:${Math.round(s * 0.62)}s;--d:${-(i * 5.3 + 4).toFixed(1)}s"></i>`; }).join("")}
-</div></div></div>`;
+const ZEMIN = `<div class="zemin" aria-hidden="true"><i class="isik i1"></i><i class="isik i2"></i><i class="z-gul g1"></i><i class="z-gul g2"></i></div>`;
 
 /* ——— Ortak parçalar ——— */
 const marka = `<a class="marka" href="${KOK}" aria-label="Ziyaret Rehberim ana sayfa"><img src="${GORSEL}zr-logo.jpg" alt="" width="46" height="46"><span class="marka-y">Ziyaret<b>Rehberim</b></span></a>`;

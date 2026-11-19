@@ -251,9 +251,9 @@ a.brand:hover { text-decoration: underline; text-underline-offset: 5px; text-dec
 @media (hover: hover) { .btn:hover { transform: translateY(-2px); border-color: var(--accent); } .btn.gold:hover::after { transform: translateX(130%); } }
 
 /* Rotam */
-.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.stat { display: grid; gap: 3px; padding: 12px 10px; border-radius: 16px; background: var(--glass-strong); border: 1px solid var(--line); text-align: center; }
-.stat b { font: 800 22px/1 var(--f-display); letter-spacing: -.02em; color: var(--heading); font-variant-numeric: tabular-nums; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.stat { display: flex; align-items: baseline; justify-content: center; gap: 5px; padding: 9px 6px; border-radius: 13px; background: var(--glass-strong); border: 1px solid var(--line); white-space: nowrap; }
+.stat b { font: 800 17px/1 var(--f-display); letter-spacing: -.02em; color: var(--heading); font-variant-numeric: tabular-nums; }
 .stat span { font-size: 11.5px; color: var(--muted); }
 .rlist { list-style: none; margin: 0; padding: 0; display: grid; }
 .rstart, .ri { position: relative; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; column-gap: 11px; padding-block: 7px; }
@@ -354,13 +354,19 @@ a.btn { text-decoration: none; }
 #lmap { position: absolute; inset: 0; z-index: 0; isolation: isolate; background: var(--map-land); font: inherit; outline-offset: -2px; }
 #map.real.is-sat #lmap { background: #2C3530; } /* uydu görüntüsü gelene kadar açık renk parlamasın */
 #map.real { cursor: auto; touch-action: auto; --r1: #2E5AAC; --r2: #B8862F; --r3: #B04A62; --r4: #2F8A73; --r5: #5B6FB8; --r6: #A9773A; --mk-ring: #FFFFFF; --mk-fg: #FFFFFF; --me: #2F6FED; --route: #0E1B2E; --route-casing: #FFFFFF; }
-#map.real.is-sat { --route: #FFE08A; --route-casing: #0E1B2E; }
+#map.real.is-sat { --route: #FFE08A; --route-casing: #0E1B2E; --route-flow: #0E1B2E; }
 #map.real.z-lo { --fr: 6px; } #map.real.z-mid { --fr: 10px; } #map.real.z-hi { --fr: 16px; }
 .lmk { background: none; border: 0; }
 .lmk .mk { transform: translate(calc(var(--fx, 0) * var(--fr, 10px)), calc(var(--fy, 0) * var(--fr, 10px))); will-change: auto; }
 .rt-case, .rt-main { fill: none; stroke-linecap: round; stroke-linejoin: round; }
 .rt-case { stroke: var(--route-casing); stroke-opacity: .9; stroke-width: 8px; }
 .rt-main { stroke: var(--route); stroke-opacity: 1; stroke-width: 3.4px; stroke-dasharray: 9 7; }
+/* Rota çizgisinin üstünde gidiş yönüne doğru akan küçük noktalar. Yalnızca rota varken çalışır; “hareketi azalt” seçiliyse durur. */
+.rt-akis { fill: none; stroke: var(--route-flow, #F5C451); stroke-width: 2.2px; stroke-linecap: round; stroke-dasharray: .1 20; animation: akis 1.25s linear infinite; }
+.rt-akis.nav { stroke: #fff; stroke-width: 3px; stroke-dasharray: .1 26; animation-duration: 1.4s; --akis: 26.1; }
+@keyframes akis { from { stroke-dashoffset: var(--akis, 20.1); } to { stroke-dashoffset: 0; } }
+.navda .rt-akis:not(.nav) { display: none; }
+@media (prefers-reduced-motion: reduce) { .rt-akis { animation: none; display: none; } }
 #map.picking .leaflet-grab, #map.picking .leaflet-interactive, #map.picking .mk { cursor: crosshair; }
 #map.real ~ .cap { pointer-events: auto; background: var(--glass-strong); color: var(--fg); box-shadow: 0 6px 16px -10px rgba(14,27,46,.5); }
 .cap a { color: inherit; }
@@ -413,56 +419,59 @@ a.btn { text-decoration: none; }
 }
 
 /* ——— Keşfet: uyarı, rota özeti, başlangıç satırı, kategori listesi ——— */
-.uyari { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px 12px; align-items: start; padding: 13px 12px 13px 14px; border-radius: 18px; background: color-mix(in srgb, var(--accent) 16%, var(--glass-strong)); border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); animation: rise .45s var(--ease) both; }
-.uyari-ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: var(--accent); color: var(--on-gold); font-size: 16px; }
-.uyari-tx { display: grid; gap: 3px; min-width: 0; }
-.uyari-tx b { font: 800 14.5px/1.25 var(--f-display); color: var(--heading); }
-.uyari-tx span { font-size: 12.5px; line-height: 1.45; color: var(--fg); }
-.uyari-x { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; color: var(--muted); font-size: 12px; }
+.uyari { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 6px 9px; align-items: center; padding: 8px 6px 9px 9px; border-radius: 16px; background: color-mix(in srgb, var(--accent) 16%, var(--glass-strong)); border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); animation: rise .45s var(--ease) both; }
+.uyari-ic { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; background: var(--accent); color: var(--on-gold); font-size: 13px; }
+.uyari > b { font: 800 13.5px/1.25 var(--f-display); color: var(--heading); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.uyari .btn.sm { min-height: 32px; padding: 0 11px; font-size: 12.5px; gap: 6px; }
+.uyari-x { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; color: var(--muted); font-size: 11px; }
 .uyari-x:hover { background: var(--seg); color: var(--heading); }
-.uyari .row { grid-column: 1 / -1; }
-.ozet { gap: 10px; padding: 12px; background: var(--glass-strong); border-color: color-mix(in srgb, var(--accent) 45%, var(--edge)); box-shadow: 0 14px 26px -22px rgba(14,27,46,.7); }
-.ozet.bos { background: var(--glass-soft); border-style: dashed; border-color: var(--line); box-shadow: none; }
-.ozet-bas { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 11px; }
-.ozet-ic { width: 40px; height: 40px; border-radius: 13px; display: grid; place-items: center; background: var(--heading); color: var(--gold-1); font-size: 16px; }
-.ozet.bos .ozet-ic { background: var(--seg); color: var(--muted); }
-.ozet-tx { display: grid; gap: 2px; min-width: 0; }
-.ozet-tx b { font: 800 15px/1.25 var(--f-display); color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ozet-tx span { font-size: 12.5px; line-height: 1.4; color: var(--muted); font-variant-numeric: tabular-nums; }
-.ozet-tx span .ic { width: 13px; height: 13px; vertical-align: -2px; }
-.ozet .pill { height: 32px; padding: 0 8px 0 12px; }
-.ozet .pill .ic { width: 14px; height: 14px; }
-.ozet .btn { justify-self: start; }
-.ozet-liste { list-style: none; margin: 0 -12px; padding: 0 12px 2px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
-.ozet-liste::-webkit-scrollbar { display: none; }
-.ozet-liste li { flex: none; }
-.ozet-liste button { display: inline-flex; align-items: center; gap: 7px; height: 34px; max-width: 190px; padding: 0 12px 0 4px; border-radius: 999px; background: var(--seg); font: 650 12.5px/1 var(--f-display); color: var(--heading); transition: background-color .25s, transform .4s var(--spring); }
-.ozet-liste button:active { transform: scale(.95); }
-.ozet-liste button > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ozet-liste .bdg { width: 26px; height: 26px; border-radius: 50%; font-size: 11.5px; box-shadow: none; }
-.bas { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 7px 8px 7px 10px; border-radius: 16px; background: var(--glass-soft); border: 1px solid var(--edge); }
-.bas-ic { width: 32px; height: 32px; border-radius: 11px; display: grid; place-items: center; background: var(--seg); color: var(--muted); font-size: 14px; }
-.bas-ic.gps { background: color-mix(in srgb, var(--me) 16%, transparent); color: var(--me); }
-.bas-tx { display: grid; gap: 1px; min-width: 0; }
-.bas-tx small { font: 700 10.5px/1.2 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-.bas-tx b { font: 750 14px/1.25 var(--f-display); color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bas .pill { height: 32px; }
+.uyari-tx { grid-column: 1 / -1; padding: 0 4px 0 1px; font-size: 11.5px; line-height: 1.4; color: var(--fg); }
+/* Keşfet'in başı: rota özeti ve başlangıç noktası tek kutuda, birer satır. Altında kategori düğmeleri iki satıra sığar; listeye yer kalır. */
+.kutu { display: grid; border-radius: 18px; background: var(--glass-soft); border: 1px solid var(--edge); overflow: hidden; }
+.oz, .bas { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 7px 8px 7px 10px; }
+.oz { background: var(--glass-strong); }
+.oz.bos { background: none; }
+.oz-ic { width: 32px; height: 32px; border-radius: 11px; display: grid; place-items: center; background: var(--heading); color: var(--gold-1); font-size: 14px; }
+.oz.bos .oz-ic { background: var(--seg); color: var(--muted); }
+.oz-tx { display: grid; gap: 1px; min-width: 0; }
+.oz-tx b { font: 800 14px/1.25 var(--f-display); color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.oz-tx small { font-size: 12px; line-height: 1.3; color: var(--muted); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.oz-tx small .ic { width: 12px; height: 12px; vertical-align: -2px; }
+.oz .btn.sm { min-height: 34px; padding: 0 9px 0 12px; gap: 4px; }
+.oz .btn.sm.gold { padding: 0 12px 0 10px; gap: 6px; }
+.oz .btn .ic { width: 14px; height: 14px; }
+.bas { border-top: 1px solid var(--line); }
+.bas-ic { width: 32px; height: 28px; display: grid; place-items: center; color: var(--muted); font-size: 14px; }
+.bas-ic.gps { color: var(--me); }
+.bas-tx { display: flex; align-items: baseline; gap: 7px; min-width: 0; }
+.bas-tx small { flex: none; font: 700 10.5px/1.2 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.bas-tx b { font: 750 13.5px/1.25 var(--f-display); color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bas .pill { height: 30px; padding: 0 11px; font-size: 12.5px; }
 .bas .row { grid-column: 1 / -1; margin-inline: -8px; padding-inline: 8px; padding-block: 2px 4px; animation: rise .4s var(--ease) both; }
-.kl-grup { display: grid; gap: 4px; padding: 6px; border-radius: 18px; background: var(--glass-soft); border: 1px solid var(--edge); }
-.kl { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 11px; min-height: 40px; padding: 4px 12px 4px 8px; border-radius: 13px; text-align: left; --c: var(--heading); transition: background-color .25s; }
-.kl:hover { background: var(--seg); }
-.kl[aria-pressed="true"] { background: var(--glass-strong); box-shadow: 0 6px 14px -12px rgba(14,27,46,.7); }
-.tik { width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; border: 2px solid color-mix(in srgb, var(--c) 55%, transparent); color: transparent; font-size: 11px; transition: background-color .25s, border-color .25s, transform .4s var(--spring); }
-.tik .ic { stroke-width: 3; }
-.kl[aria-pressed="true"] .tik { background: var(--c); border-color: var(--c); color: var(--mk-fg); transform: scale(1.06); }
-.kl-ad { font: 700 14px/1.2 var(--f-display); color: var(--heading); }
-.kl small { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.kl.soon { opacity: .6; }
-.kl.soon .tik { border-style: dashed; }
-.kl.soon small { font: 700 10.5px/1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); }
+.kl-grup { display: flex; flex-wrap: wrap; gap: 6px; }
+.kl { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 11px 0 6px; border-radius: 999px; background: var(--glass-soft); border: 1px solid var(--edge); font: 700 12.5px/1 var(--f-display); color: var(--heading); white-space: nowrap; --c: var(--heading); transition: background-color .25s, border-color .25s, transform .4s var(--spring); }
+.kl:active { transform: scale(.95); }
+@media (hover: hover) { .kl:hover { background: var(--seg); } }
+.kl[aria-pressed="true"] { background: var(--glass-strong); border-color: color-mix(in srgb, var(--c) 60%, transparent); }
+.tik { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; border: 1.6px solid color-mix(in srgb, var(--c) 55%, transparent); color: transparent; font-size: 9.5px; transition: background-color .25s, border-color .25s; }
+.tik .ic { stroke-width: 3.2; }
+.kl[aria-pressed="true"] .tik { background: var(--c); border-color: var(--c); color: var(--mk-fg); }
 
 /* ——— Hazır rotalar ——— */
-.rc.hz { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+/* Hazır rotalar: her rota tek satırlık kart (numara, ad, kısa bilgi, “Aç”). Altısı birden kaydırmadan görünsün diye sıkı tutulur. */
+.hz-liste { display: grid; gap: 6px; }
+.hz { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; border-radius: 16px; background: var(--glass-soft); border: 1px solid var(--edge); transition: background-color .3s, border-color .3s, transform .45s var(--ease); animation: rise .5s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 40ms); }
+@media (hover: hover) { .hz:hover { background: var(--glass-strong); border-color: color-mix(in srgb, var(--c) 40%, var(--edge)); transform: translateX(3px); } }
+.hz-main { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 11px; padding: 9px 4px 9px 10px; text-align: left; min-width: 0; border-radius: 16px 0 0 16px; }
+.hz .bdg { width: 34px; height: 34px; border-radius: 11px; font-size: 12.5px; box-shadow: none; }
+.hz-tx { display: grid; gap: 2px; min-width: 0; }
+.hz-tx b { font: 750 14.5px/1.25 var(--f-display); color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hz-tx small { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hz-ac { display: inline-flex; align-items: center; gap: 2px; height: 32px; padding: 0 7px 0 12px; border-radius: 11px; background: var(--heading); color: var(--bg); font: 700 12.5px/1 var(--f-display); }
+.hz-ac .ic { width: 14px; height: 14px; }
+.hz-main:active .hz-ac { transform: scale(.94); }
+.hz-link { display: grid; place-items: center; width: 40px; margin: 6px 6px 6px 2px; border-radius: 11px; color: var(--muted); font-size: 14px; transition: background-color .25s, color .25s; }
+@media (hover: hover) { .hz-link:hover { background: var(--seg); color: var(--heading); } }
 .rc-acts { display: flex; align-items: center; gap: 14px; }
 .rc-link { font: 700 13px/1 var(--f-display); color: var(--accent-ink); text-underline-offset: 3px; }
 

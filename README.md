@@ -47,13 +47,16 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
   "Güzergâhlar" açılır listesi altı rotayı küçük rota çizimleriyle gösterir (`miniRota`).
   Sayfa geçişinde bilerek efekt yoktur: tarayıcı eski sayfayı yeni sayfa çizilene kadar tutar, tek karede değiştirir (titreme olmasın diye).
   Aşağıdaki bölümler kaydırınca belirir; açılışta ekranda olan içerik hiç gizlenmez.
-  Arka plan (`.zemin`, `ZEMIN` ve `ZEMIN_CSS`, `site/build.js`) yalnızca `transform` ve `opacity` ile hareket eder; böylece işi ekran kartı
-  yapar, sayfa yavaşlamaz. Bütün hareketler sayfanın başındaki ortak saate (`--zt`) bağlıdır, sayfa değişince kaldığı yerden sürer.
-  "Hareketi azalt" seçili cihazlarda durur.
+  Arka plan (`.zemin`; `ZEMIN` ve `ZEMIN_CSS`, `site/build.js`) bilerek sadedir: beyaza yakın zemin, yavaşça yer değiştiren iki yumuşak ışık
+  ve köşelerde çok yavaş dönen iki ince geometrik gül. Yalnızca `transform` ile hareket eder; işi ekran kartı yapar, sayfa yavaşlamaz.
+  Hareketler sayfanın başındaki ortak saate (`--zt`) bağlıdır, sayfa değişince kaldığı yerden sürer. "Hareketi azalt" seçili cihazlarda durur.
 - `kaynak/data.js`: rotalar, duraklar, koordinatlar, hazır başlangıç noktaları. Her durağın son alanı kalıcı anahtarıdır
   (`r1-4` gibi); sıra ya da rota değişse de aynı kalır, ziyaretçilerin kayıtlı rotaları bozulmaz. Elle durak eklerken yeni,
   benzersiz bir anahtar verilir ve var olan anahtarlar değiştirilmez.
 - `kaynak/app.css`, `kaynak/body.html`, `kaynak/app.js`: harita uygulamasının arayüzü, rota hesabı, kaydetme ve dışa aktarma.
+  Panelde üç sekme vardır: Hazır rotalar (her rota tek satırlık kart), Keşfet (üstte tek satırlık rota özeti ve başlangıç noktası,
+  iki satıra sığan kategori düğmeleri, sonra yakından uzağa durak listesi) ve Rotam. "Rotayı başlat" çubuğu yalnızca Rotam sekmesinde
+  görünür (`syncGo`); Keşfet'teki "Rotama git" oraya götürür. Rota çizgisinin üstünde gidiş yönüne doğru küçük noktalar akar (`.rt-akis`).
 - `kaynak/build.js`: harita uygulamasının parçalarını birleştirir. Sitenin bu alan adındaki yolu `SITE_YOL` sabitindedir.
 - `kaynak/yol.js`: sokakları izleyen yürüyüş yolu ve dönüş tarifi. Hesap, OpenStreetMap verisiyle çalışan açık yol tarifi sunucusunda
   (FOSSGIS · routing.openstreetmap.de) yapılır; sunucuya yalnızca noktaların enlem ve boylamı gider. Ziyaretçinin kendi konumu,

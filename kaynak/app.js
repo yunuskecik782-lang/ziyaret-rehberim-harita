@@ -123,7 +123,7 @@
   const W = { durum: "yok", izin: null, anim: false, t: 0, q: 0, seq: 0, soruldu: false };
   try { W.izin = localStorage.getItem("zr.yol.izin"); } catch (e) {}
   let C = {}, zcls = "", curPanel = "", raf = 0, flyRaf = 0, rtRaf = 0, toastT = 0, fanR = 10;
-  let map = null, lyStreet = null, lySat = null, lySatLbl = null, plCase = null, plMain = null, meMk = null, tipMk = null, tileFails = 0;
+  let map = null, lyStreet = null, lySat = null, lySatLbl = null, plCase = null, plMain = null, plAkis = null, meMk = null, tipMk = null, tileFails = 0;
 
   const active = () => (S.concepts.size ? STOPS.filter((s) => S.concepts.has(s.r.concept)) : STOPS);
   const conceptLabel = () => (S.concepts.size ? D.CONCEPTS.filter((c) => S.concepts.has(c.id)).map((c) => c.label).join(" + ") : "Tüm duraklar");
@@ -242,7 +242,7 @@
         out.push(g(a[0] + (p[0] - a[0]) * t, a[1] + (p[1] - a[1]) * t)); break;
       }
     }
-    plCase.setLatLngs(out); plMain.setLatLngs(out);
+    plCase.setLatLngs(out); plMain.setLatLngs(out); plAkis.setLatLngs(out);
     mapEl.classList.toggle("sokak", !RT.duz);
   }
   function zoomState() {
@@ -284,6 +284,8 @@
     map.fitBounds(L.latLngBounds(STOPS.map((s) => [s.lat, s.lng])), { animate: false });
     plCase = L.polyline([], { className: "rt-case", interactive: false }).addTo(map);
     plMain = L.polyline([], { className: "rt-main", interactive: false }).addTo(map);
+    // Çizginin üstünde gidiş yönüne doğru akan küçük noktalar (yalnızca görsel; app.css içindeki "akis" hareketi)
+    plAkis = L.polyline([], { className: "rt-akis", interactive: false }).addTo(map);
     const icon = (el) => L.divIcon({ className: "lmk", html: el, iconSize: [0, 0] });
     meMk = L.marker([LAT0, LNG0], { icon: icon(meEl), interactive: false, keyboard: false, zIndexOffset: 2000 }).addTo(map);
     tipMk = L.marker([LAT0, LNG0], { icon: icon(tipEl), interactive: false, keyboard: false, zIndexOffset: 5000 }).addTo(map);
@@ -449,7 +451,7 @@
     if (curPanel === name) { bodyEl.scrollTop = 0; return; }
     for (const k in P) if (k !== name) { P[k].classList.remove("is-on"); P[k].hidden = true; }
     const el = P[name]; el.hidden = false; el.style.setProperty("--dir", dir); void el.offsetWidth; el.classList.add("is-on");
-    curPanel = name; bodyEl.scrollTop = 0;
+    curPanel = name; bodyEl.scrollTop = 0; syncGo();
   }
   const SEKME = ["hazir", "kesfet", "rota"];
   const sekmeIsaret = (tab) => { app.dataset.tab = tab; for (const k of SEKME) $("#tab-" + k).setAttribute("aria-selected", tab === k); };
@@ -755,17 +757,12 @@
   /* ——— Keşfet ——— */
   const nameHtml = (s) => esc(s.name) + (s.hon ? `<em>${esc(s.hon)}</em>` : "");
   const basAd = (me) => (me.src === "gps" ? "Konumun" : me.src === "ornek" ? me.label + " (örnek)" : me.label);
-  const KATAD = { sahabe: "Sahâbe-i Kirâm", cami: "Tarihî camiler", sur: "Suriçi ve surlar" };
-  // Rota özeti: Keşfet'in en üstünde durur; seçilen durakları, toplam yolu ve süreyi gösterir.
+  // Rota özeti: Keşfet'in en üstünde tek satır. Durak sayısı, yol ve süre; “Rotama git” Rotam sekmesini açar (“Rotayı başlat” oradadır).
   function ozetHtml() {
     const ids = S.route;
-    if (!ids.length) return `
-        <div class="ozet-bas"><span class="ozet-ic">${ic("rota")}</span><div class="ozet-tx"><b>Rotan henüz boş</b><span>Durakları ${ic("plus")} ile ekle ya da tek dokunuşla en yakın rotayı kur.</span></div></div>
-        <button class="btn sm gold" type="button" data-act="build">${ic("spark")}En yakın rotayı oluştur</button>`;
-    const L = routeLen(), not = YOL && REAL && W.durum === "bekle" ? "yol hesaplanıyor…" : RT.duz ? "tahmini" : "sokaklardan";
-    return `
-        <div class="ozet-bas"><span class="ozet-ic">${ic("rota")}</span><div class="ozet-tx"><b>${esc(S.name || "Rotam")}</b><span>${ids.length} durak · ${fmtD(L)} · ≈ ${fmtT(L)} · ${not}</span></div><button class="pill" type="button" data-act="rotam">Ayrıntı${ic("fwd")}</button></div>
-        <ol class="ozet-liste">${ids.map((id, i) => { const t = STOPS[id]; return `<li class="c-${t.r.id}"><button type="button" data-stop="${t.id}" data-from="list"><span class="bdg">${i + 1}</span><span>${esc(t.name)}</span></button></li>`; }).join("")}</ol>`;
+    if (!ids.length) return `<span class="oz-ic">${ic("rota")}</span><span class="oz-tx"><b>Rotan henüz boş</b><small>Durakları ${ic("plus")} ile ekle</small></span><button class="btn sm gold" type="button" data-act="build">${ic("spark")}En yakın rota</button>`;
+    const L = routeLen(), not = YOL && REAL && W.durum === "bekle" ? " · yol hesaplanıyor…" : RT.duz ? " · tahmini" : "";
+    return `<span class="oz-ic">${ic("rota")}</span><span class="oz-tx"><b>${esc(S.name || "Rotam")}</b><small>${ids.length} durak · ${fmtD(L)} · ≈ ${fmtT(L)}${not}</small></span><button class="btn sm dark" type="button" data-act="rotam">Rotama git${ic("fwd")}</button>`;
   }
   function syncOzet() { const el = $("#k-ozet"); if (el) { el.classList.toggle("bos", !S.route.length); el.innerHTML = ozetHtml(); } }
   function renderKesfet() {
@@ -774,11 +771,13 @@
     P.kesfet.innerHTML = `
       ${w ? `<div class="uyari" role="status">
         <span class="uyari-ic">${ic("loc")}</span>
-        <div class="uyari-tx"><b>${esc(w.b)}</b><span>${esc(w.t)}</span></div>
+        <b>${esc(w.b)}</b>
+        ${w.kod === "disarida" || w.kod === "yok" || w.kod === "https" ? `<button class="btn sm dark" type="button" data-act="pick">${ic("hand")}Haritadan seç</button>` : `<button class="btn sm dark" type="button" data-act="locate">${ic("loc")}Konumu aç</button>`}
         <button class="uyari-x" type="button" data-act="warn-x" aria-label="Uyarıyı kapat">${ic("x")}</button>
-        <div class="row">${w.kod === "disarida" || w.kod === "yok" || w.kod === "https" ? "" : `<button class="btn sm dark" type="button" data-act="locate">${ic("loc")}Konumu aç</button>`}<button class="btn sm" type="button" data-act="pick">${ic("hand")}Haritadan seç</button></div>
+        <span class="uyari-tx">${esc(w.t)}</span>
       </div>` : ""}
-      <div class="card ozet${S.route.length ? "" : " bos"}" id="k-ozet">${ozetHtml()}</div>
+      <div class="kutu">
+      <div class="oz${S.route.length ? "" : " bos"}" id="k-ozet">${ozetHtml()}</div>
       <div class="bas${S.startOpen ? " acik" : ""}">
         <span class="bas-ic ${me.src}">${ic(me.src === "gps" ? "loc" : "pin")}</span>
         <span class="bas-tx"><small>Başlangıç</small><b>${esc(basAd(me))}</b></span>
@@ -790,12 +789,11 @@
           ${D.PRESETS.map((p, i) => `<button class="pill" type="button" data-preset="${i}" aria-pressed="${me.src !== "gps" && me.label === p.label}">${esc(p.label)}</button>`).join("")}
         </div>` : ""}
       </div>
+      </div>
       <div class="sec-head"><h2 class="h2">En yakın duraklar</h2><small>${list.length} durak · yakından uzağa</small></div>
       <div class="kl-grup" role="group" aria-label="Kategoriler">
-        <button class="kl" type="button" data-kat="" aria-pressed="${!S.concepts.size}"><span class="tik">${ic("check")}</span><span class="kl-ad">Tümü</span><small>${STOPS.length} durak</small></button>
-        ${D.CONCEPTS.map((c) => c.soon
-          ? `<button class="kl soon" type="button" data-soon="1" aria-disabled="true"><span class="tik"></span><span class="kl-ad">${esc(c.label)}</span><small>yakında</small></button>`
-          : `<button class="kl c-${c.routes[0]}" type="button" data-kat="${c.id}" aria-pressed="${S.concepts.has(c.id)}"><span class="tik">${ic("check")}</span><span class="kl-ad">${esc(KATAD[c.id] || c.label)}</span><small>${say(c)} durak</small></button>`).join("")}
+        <button class="kl" type="button" data-kat="" aria-pressed="${!S.concepts.size}"><span class="tik">${ic("check")}</span>Tümü</button>
+        ${D.CONCEPTS.filter((c) => !c.soon).map((c) => `<button class="kl c-${c.routes[0]}" type="button" data-kat="${c.id}" aria-pressed="${S.concepts.has(c.id)}" title="${say(c)} durak"><span class="tik">${ic("check")}</span>${esc(c.label)}</button>`).join("")}
       </div>
       <ul class="list">${list.map((t, i) => { const d = dist(me, t) * WALK, on = S.route.includes(t.id); return `
         <li class="it c-${t.r.id}" style="--i:${Math.min(i, 14)}">
@@ -813,13 +811,17 @@
   function renderHazir() {
     const me = S.me, near = D.ROUTES.map((r) => ({ r, d: Math.min(...STOPS.filter((t) => t.r === r).map((t) => dist(me, t))) })).sort((a, b) => a.d - b.d);
     P.hazir.innerHTML = `
-      <div class="sec-head"><h2 class="h2">Hazır rotalar</h2><small>yakından uzağa</small></div>
-      ${near.map(({ r, d }, i) => `
-      <div class="rc hz c-${r.id}" style="--i:${i}">
-        <div class="rc-tx"><i>Rota ${r.no} · ${esc(r.kicker)}</i><b>${esc(r.name)}${i ? "" : '<span class="near">En yakın</span>'}</b><span>${esc(r.lede)}</span><small>${STOPS.filter((t) => t.r === r).length} durak · ${r.km} · ${r.sure} · en yakın durağı ${fmtD(d * WALK)}</small></div>
-        <span class="rc-acts"><button class="btn sm dark" type="button" data-load="${r.id}">Rotayı aç</button><a class="rc-link" href="${r.url}" target="${EMBED ? "_top" : "_blank"}" rel="noopener">Sayfasını oku</a></span>
-      </div>`).join("")}
-      <p class="fine">Hazır rota kendi sırasıyla açılır. “Rotam”da durak ekleyip çıkarabilir, sırayı değiştirebilirsin.</p>`;
+      <div class="sec-head"><h2 class="h2">Hazır rotalar</h2><small>yakından uzağa · dokun, aç</small></div>
+      <div class="hz-liste">${near.map(({ r, d }, i) => `
+      <div class="hz c-${r.id}" style="--i:${i}">
+        <button class="hz-main" type="button" data-load="${r.id}" aria-label="${esc(r.name)} rotasını aç" title="En yakın durağı ${fmtD(d * WALK)} uzakta">
+          <span class="bdg">${r.no}</span>
+          <span class="hz-tx"><b>${esc(r.name)}${i ? "" : '<span class="near">En yakın</span>'}</b><small>${STOPS.filter((t) => t.r === r).length} durak · ${r.km} · ${r.sure}</small></span>
+          <span class="hz-ac">Aç${ic("fwd")}</span>
+        </button>
+        <a class="hz-link" href="${r.url}" target="${EMBED ? "_top" : "_blank"}" rel="noopener" aria-label="${esc(r.name)} sayfasını oku" title="Sayfasını oku">${ic("ext")}</a>
+      </div>`).join("")}</div>
+      <p class="fine">Hazır rota kendi sırasıyla “Rotam”da açılır; orada durak ekleyip çıkarabilir, sırayı değiştirebilir ve rotayı başlatabilirsin.</p>`;
   }
 
   /* ——— Durak ayrıntısı ——— */
@@ -1075,7 +1077,8 @@
 
   /* ——— Alt çubuk: "Rotayı başlat" ve haritalara aktarma ——— */
   function syncGo() {
-    const on = S.route.length > 0 && !N.on, once = !goEl.hidden;
+    // “Rotayı başlat” çubuğu yalnızca Rotam sekmesinde görünür; Keşfet ve Hazır rotalar listelerine yer kalsın.
+    const on = S.route.length > 0 && !N.on && curPanel === "rota", once = !goEl.hidden;
     goEl.hidden = !on; app.classList.toggle("has-go", on);
     if (on && S.me) { const parts = gparts(), g = $("#go-g"); g.href = parts[0].url; g.dataset.cok = parts.length > 1 ? "1" : ""; $("#go-a").href = apple(xpts().map((x) => x.p)); }
     if (on !== once) setSheet(S.sheet);
@@ -1116,7 +1119,7 @@
      Tarif, zaten açık olan düz haritada (kuzey yukarıda) sürer: ek bir harita yüklenmez, düğmeye basınca hemen başlar.
      Konum noktası gidiş yönünü gösterir; hedef durağa giden yol altın renkli çizgiyle çizilir, harita konumu izler.
      Konum alınamıyorsa ya da rota çok uzaktaysa aynı ekran önizleme olarak çalışır: "Sonraki durak" ile duraktan durağa ilerlenir. */
-  const N = { on: false, watch: null, pos: null, real: false, i: 0, leg: null, legOk: false, along: 0, offN: 0, tRe: 0, busy: false, follow: true, wake: null, vardi: false, brg: 0, zoom: 0, seq: 0, oto: false, lyr: null, yolK: null, yol: null, hedef: null, pk: null, msgT: 0 };
+  const N = { on: false, watch: null, pos: null, real: false, i: 0, leg: null, legOk: false, along: 0, offN: 0, tRe: 0, busy: false, follow: true, wake: null, vardi: false, brg: 0, zoom: 0, seq: 0, oto: false, lyr: null, yolK: null, yol: null, akis: null, hedef: null, pk: null, msgT: 0 };
   const fmtN = (m) => (m < 1000 ? Math.max(5, Math.round(m / 5) * 5) + " m" : (m / 1000).toFixed(1).replace(".", ",") + " km");
   const brgOf = (a, b) => (Math.atan2(b[0] - a[0], a[1] - b[1]) / RAD + 360) % 360;
   // Bir bacağı hesap için hazırlar: metre cinsinden noktalar, birikimli uzunluk ve her dönüşün çizgi üzerindeki yeri.
@@ -1161,6 +1164,7 @@
     N.lyr = L.layerGroup().addTo(map);
     N.yolK = L.polyline([], { color: "#0E1B2E", weight: 11, opacity: 0.85, lineCap: "round", lineJoin: "round", interactive: false }).addTo(N.lyr);
     N.yol = L.polyline([], { color: "#F5C451", weight: 6, opacity: 1, lineCap: "round", lineJoin: "round", interactive: false }).addTo(N.lyr);
+    N.akis = L.polyline([], { className: "rt-akis nav", interactive: false }).addTo(N.lyr);
     N.pk = L.marker([N.pos.lat, N.pos.lng], { icon: L.divIcon({ className: "lmk", html: '<div class="npuck"><span></span></div>', iconSize: [0, 0] }), interactive: false, keyboard: false, zIndexOffset: 3000 }).addTo(N.lyr);
   }
   function navHedef() {
@@ -1172,7 +1176,7 @@
   function navDraw() {
     if (!N.on || !N.lyr) return;
     const Lg = N.leg, a = navAt(Lg, N.along), q = unproj(a[0], a[1]), cizgi = N.vardi ? [] : [[q.lat, q.lng], ...Lg.ll.slice(a[2])];
-    N.yolK.setLatLngs(cizgi); N.yol.setLatLngs(cizgi);
+    N.yolK.setLatLngs(cizgi); N.yol.setLatLngs(cizgi); N.akis.setLatLngs(cizgi);
   }
   // Harita konumu izler; konum noktası üstteki tarif şeridiyle alttaki kartın arasında, ortada durur.
   function navCam(jump) {
@@ -1271,7 +1275,7 @@
     N.on = false; N.seq++; N.busy = false;
     if (N.watch != null) { try { navigator.geolocation.clearWatch(N.watch); } catch (e) {} N.watch = null; }
     if (N.wake) { try { N.wake.release(); } catch (e) {} N.wake = null; }
-    if (N.lyr) { N.lyr.remove(); N.lyr = N.yolK = N.yol = N.hedef = N.pk = null; }
+    if (N.lyr) { N.lyr.remove(); N.lyr = N.yolK = N.yol = N.akis = N.hedef = N.pk = null; }
     navEl.hidden = true; app.classList.remove("navda"); navMsg("");
     if (meMk) meMk.setOpacity(1);
     const p = N.pos; if (N.real && p) setMe(p.lat, p.lng, "gps", "Konumun", false);
