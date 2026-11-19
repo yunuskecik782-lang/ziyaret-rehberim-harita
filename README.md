@@ -80,6 +80,16 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
   Sayfa, seçimi `<html>` üzerine `data-rozet`, `data-desen`, `data-cizgi`, `data-stil`, `data-isaret`, `data-hareket` olarak yazar;
   renkler ve biçimler bu niteliklere bağlı CSS ile değişir. Sayfa başındaki küçük betik bunu ilk çizimden önce uygular.
   Yeni bir seçenek eklemek için: `G_SEC`'e değer, `site/site.js` içindeki `G_AD`'a ad, CSS'e o değerin kuralı eklenir.
+- WordPress.com hesabıyla giriş (`kaynak/hesap.js`, "WP" bölümü): `WP_ISTEMCI` sabitine developer.wordpress.com/apps üzerinde açılan
+  uygulamanın "Client ID" sayısı yazılınca açılır; boşken Hesabım sayfası eski hâliyle (kullanıcı adı ve şifre) çalışır. "Client Secret"
+  kullanılmaz ve depoya yazılmaz. Uygulamanın "Redirect URLs" alanı `https://ziyaretrehberim.com/hesabim/`, "Javascript Origins" alanı
+  `https://ziyaretrehberim.com` olmalıdır; adres değişirse ikisi de orada güncellenir. Akış: ziyaretçi WordPress.com'un ekranına gider
+  (hesabı yoksa orada e-postasıyla açar, şifresini orada yeniler), onay verince `/hesabim/` adresine kısa ömürlü bir jetonla döner.
+  Jeton adres çubuğundan hemen silinir, hiç saklanmaz; onunla yalnızca kimlik sorulur (kapsam `auth`) ve ad ile kullanıcı adı alınır,
+  e-posta adresi alınmaz. Hesap o cihazda `wp:<WordPress.com kullanıcı numarası>` kimliğiyle tutulur. Kayıtlı rotalar ve görünüm ayarları
+  bu yolda da yalnızca o cihazda durur; üye listesi tutulmaz. Giriş açıkken yeni "cihaz" hesabı açılmaz; cihazdaki eski hesapla giriş ve
+  eski hesabın rotalarını taşıma (eski şifre sorulur) yerinde kalır. WordPress.com bu tarayıcı akışını "eski" (legacy) diye anar; kaldırırsa
+  giriş için küçük bir sunucu gerekir.
 - Rota sayfalarının düzeni (`rotaSayfa`, `site/build.js`): başlık ve bilgi hapları, altında sayfa içi kısa yollar (`.atla`: Nasıl gidilir,
   Duraklar, Yürüyüş tarifi, Ziyaret âdâbı), harita, sonra "yola çıkmadan" notları (`.once`: rotanın ipuçları durak listesinden önce durur),
   duraklar, Güzergâh hakkında, Nasıl gidilir, Duraklar arası yürüyüş ve en altta önceki ile sonraki rotaya geçiş (`komsu`, `.rota-gec`).

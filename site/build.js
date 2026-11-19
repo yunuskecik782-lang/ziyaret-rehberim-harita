@@ -422,8 +422,8 @@ ${A.gruplar.map((gr, gi) => { const bas = say; say += gr.maddeler.length; return
 }
 
 /* ——— Hesabım ve Rotalarım (içerik tarayıcıda, cihazdaki kayıtlardan çizilir) ——— */
-const hesapSayfa = () => sayfa({ gizli: true, dosya: "hesabim/index.html", s: "hesap", id: "hesabim", baslik: "Hesabım", ozet: "Kullanıcı adı ve şifreyle giriş yap, kaydettiğin rotaları gör.",
-  govde: `<div class="kap"><header class="sayfa-bas dar"><span class="goz">Hesap</span><h1>Hesabım</h1><p class="ozet">Kullanıcı adı ve şifreyle giriş yap; kaydettiğin rotalar burada seni beklesin.</p></header>
+const hesapSayfa = () => sayfa({ gizli: true, dosya: "hesabim/index.html", s: "hesap", id: "hesabim", baslik: "Hesabım", ozet: "Giriş yap, kaydettiğin rotaları gör.",
+  govde: `<div class="kap"><header class="sayfa-bas dar"><span class="goz">Hesap</span><h1>Hesabım</h1><p class="ozet">Giriş yap; kaydettiğin rotalar burada seni beklesin.</p></header>
 <section class="bolum" style="padding-top:clamp(18px,2.6vw,28px)"><div id="hesap" class="dar"><noscript><p class="kart">Hesap sayfası için tarayıcında JavaScript açık olmalı.</p></noscript></div>
 <div id="hesap-rotalar" class="orta" style="margin-top:clamp(22px,3vw,34px)" hidden><div class="bolum-bas"><span class="kicker">Kayıtlı</span><h2>Rotalarım</h2></div><div id="kayitlar"></div></div></section></div>` });
 const rotalarimSayfa = () => sayfa({ gizli: true, dosya: "rotalarim/index.html", s: "rotalarim", id: "rotalarim", baslik: "Rotalarım", ozet: "Haritada kurup kaydettiğin ziyaret rotaları.",

@@ -488,9 +488,24 @@ ${Object.keys(G_AD).map((g) => `<fieldset class="g-grup"><legend>${G_AD[g][0]}</
   /* ——— Hesabım ——— */
   function hesabim() {
     const kok = $("#hesap"), rot = $("#hesap-rotalar"); let sek = location.hash === "#kayit" ? "kayit" : "giris", mesaj = "", liste = false;
+    // WordPress.com ile giriş (hesap.js, WP bölümü): açıksa asıl giriş yolu odur; bu cihazda eski hesap varsa onun girişi katlanmış olarak kalır.
+    const WPG = HESAP.wp && HESAP.wp.acik() ? HESAP.wp : null; let wpBekle = !!(WPG && WPG.bekliyor()), wpHata = "", silOnay = 0;
     function ciz() {
       const a = HESAP.aktif(), mis = HESAP.misafirRotalari().length;
       rot.hidden = !a;
+      if (!a && WPG) {
+        kok.innerHTML = `<div class="kart"><h2>Giriş yap</h2>
+<p class="giris-y">WordPress.com hesabınla giriş yaparsın. Hesabın yoksa aynı ekranda e-posta adresinle ücretsiz açarsın; şifreni unutursan orada e-postayla yenilersin.</p>
+${wpBekle ? '<p class="tamam" role="status">Girişin tamamlanıyor…</p>' : `${wpHata ? `<div class="hata" role="alert" style="margin-bottom:14px">${esc(wpHata)}</div>` : ""}<div class="dugmeler"><button class="btn koyu" type="button" data-is="wp">${ic("user")}WordPress.com ile giriş yap</button></div>`}
+<p class="ince" style="margin-top:14px">Giriş için WordPress.com’a gidip geri dönersin. Sitemiz yalnızca adını ve kullanıcı adını alır; şifren ve e-posta adresin bize gelmez. Kayıtlı rotaların bu cihazda durur.</p>
+${mis ? `<p class="ince" style="margin-top:8px">Giriş yapmadan kaydedilmiş ${mis} rotan var. Giriş yapınca hesabına taşıyabilirsin.</p>` : ""}
+${HESAP.cihazHesabiVar() ? `<details class="katla"><summary>${ic("fwd")}Bu cihazdaki eski hesabımla gir</summary><form class="form" data-form="giris" novalidate>
+<div class="alan"><label for="h-ad">Kullanıcı adı</label><input id="h-ad" name="ad" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="24" required></div>
+<div class="alan"><label for="h-sifre">Şifre</label><input id="h-sifre" name="sifre" type="password" autocomplete="current-password" required></div>
+<div class="hata" role="alert" hidden></div>
+<button class="btn" type="submit">Giriş yap</button></form></details>` : ""}</div>`;
+        return;
+      }
       if (!a) {
         const k = sek === "kayit";
         kok.innerHTML = `<div class="kart"><div class="sekmeler" data-s="${sek}" role="tablist"><button type="button" role="tab" aria-selected="${!k}" data-sek="giris">Giriş yap</button><button type="button" role="tab" aria-selected="${k}" data-sek="kayit">Hesap oluştur</button></div>
@@ -503,13 +518,16 @@ ${k ? '<div class="alan"><label for="h-sifre2">Şifre (tekrar)</label><input id=
 ${mis ? `<p class="ince" style="margin-top:14px">Giriş yapmadan kaydedilmiş ${mis} rotan var. ${k ? "Hesabını oluşturunca" : "Giriş yapınca"} hesabına taşıyabilirsin.</p>` : ""}</div>`;
         return;
       }
-      const n = HESAP.rotalar().length;
+      const n = HESAP.rotalar().length, wpH = a.tur === "wp";
+      const hesapIsleri = wpH ? `<details class="katla"><summary>${ic("fwd")}Şifre ve e-posta</summary><div class="form"><p class="ince">Şifreni ve e-posta adresini WordPress.com’da değiştirirsin. Şifreni unutursan WordPress.com’un giriş ekranındaki şifre yenileme bağlantısı e-postana bir bağlantı yollar.</p><div class="dugmeler"><a class="btn" href="https://wordpress.com/me/security" target="_blank" rel="noopener">WordPress.com hesap ayarları</a></div></div></details>
+${HESAP.cihazHesabiVar() ? `<details class="katla"><summary>${ic("fwd")}Eski hesabımdaki rotaları taşı</summary><form class="form" data-form="eski" novalidate><p class="ince">Bu cihazda daha önce kullanıcı adı ve şifreyle açtığın hesabın rotalarını bu hesaba taşır. Eski hesap silinmez.</p><div class="alan"><label for="e-ad">Eski kullanıcı adı</label><input id="e-ad" name="ad" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="24" required></div><div class="alan"><label for="e-sifre">Eski şifre</label><input id="e-sifre" name="sifre" type="password" autocomplete="off" required></div><div class="hata" role="alert" hidden></div><button class="btn koyu" type="submit">Rotaları taşı</button></form></details>` : ""}
+<details class="katla"${silOnay ? " open" : ""}><summary>${ic("fwd")}Bu cihazdaki kayıtlarımı sil</summary><div class="form"><p class="ince">Bu hesabın bu cihazda duran rotaları ve görünüm ayarları silinir. Geri alınamaz. WordPress.com hesabın silinmez.</p><div class="dugmeler"><button class="btn" type="button" data-is="wp-sil">${silOnay ? "Emin misin? Silmek için yeniden dokun" : "Bu cihazdaki kayıtlarımı sil"}</button></div></div></details>` : "";
       kok.innerHTML = `<div class="kart">${mesaj ? `<p class="tamam" style="margin-bottom:16px">${esc(mesaj)}</p>` : ""}
-<div class="profil"><span class="harf">${esc(a.ad.charAt(0).toLocaleUpperCase("tr"))}</span><div><h2>${esc(a.ad)}</h2><p class="ince">${n ? n + " kayıtlı rota" : "Henüz kayıtlı rota yok"}</p></div></div>
+<div class="profil"><span class="harf">${esc(a.ad.charAt(0).toLocaleUpperCase("tr"))}</span><div><h2>${esc(a.ad)}</h2><p class="ince">${wpH ? "WordPress.com hesabı" + (a.kullanici ? " · @" + esc(a.kullanici) : "") + " · " : ""}${n ? n + " kayıtlı rota" : "Henüz kayıtlı rota yok"}</p></div></div>
 ${mis ? `<div class="uyari-serit" style="margin:16px 0 0"><span>Giriş yapmadan kaydettiğin ${mis} rota var.</span><button class="btn kucuk koyu" type="button" data-is="tasi">Hesabıma taşı</button></div>` : ""}
 <div class="dugmeler" style="margin-top:18px"><a class="btn altin" href="${ZR_YER.olustur}">${ic("rota")}Rota oluştur</a><a class="btn" href="${ZR_YER.rotalarim}">${ic("mark")}Rotalarım</a><button class="btn" type="button" data-is="cikis">Çıkış yap</button></div>
-<details class="katla"><summary>${ic("fwd")}Şifre değiştir</summary><form class="form" data-form="sifre" novalidate><div class="alan"><label for="s-eski">Şimdiki şifre</label><input id="s-eski" name="eski" type="password" autocomplete="current-password" required></div><div class="alan"><label for="s-yeni">Yeni şifre</label><input id="s-yeni" name="yeni" type="password" autocomplete="new-password" required><small>En az 6 karakter.</small></div><div class="hata" role="alert" hidden></div><button class="btn koyu" type="submit">Şifreyi değiştir</button></form></details>
-<details class="katla"><summary>${ic("fwd")}Hesabı sil</summary><form class="form" data-form="sil" novalidate><p class="ince">Hesap ve bu hesaba kayıtlı rotalar silinir. Geri alınamaz.</p><div class="alan"><label for="x-sifre">Şifre</label><input id="x-sifre" name="sifre" type="password" autocomplete="current-password" required></div><div class="hata" role="alert" hidden></div><button class="btn" type="submit">Hesabımı sil</button></form></details></div>${gorunumHtml()}`;
+${wpH ? hesapIsleri : `<details class="katla"><summary>${ic("fwd")}Şifre değiştir</summary><form class="form" data-form="sifre" novalidate><div class="alan"><label for="s-eski">Şimdiki şifre</label><input id="s-eski" name="eski" type="password" autocomplete="current-password" required></div><div class="alan"><label for="s-yeni">Yeni şifre</label><input id="s-yeni" name="yeni" type="password" autocomplete="new-password" required><small>En az 6 karakter.</small></div><div class="hata" role="alert" hidden></div><button class="btn koyu" type="submit">Şifreyi değiştir</button></form></details>
+<details class="katla"><summary>${ic("fwd")}Hesabı sil</summary><form class="form" data-form="sil" novalidate><p class="ince">Hesap ve bu hesaba kayıtlı rotalar silinir. Geri alınamaz.</p><div class="alan"><label for="x-sifre">Şifre</label><input id="x-sifre" name="sifre" type="password" autocomplete="current-password" required></div><div class="hata" role="alert" hidden></div><button class="btn" type="submit">Hesabımı sil</button></form></details>`}</div>${gorunumHtml()}`;
       if (!liste) { liste = true; kayitListesi($("#kayitlar")); }
     }
     kok.addEventListener("click", (e) => {
@@ -517,7 +535,13 @@ ${mis ? `<div class="uyari-serit" style="margin:16px 0 0"><span>Giriş yapmadan 
       const g = e.target.closest(".g-s"); if (g) { HESAP.gorunumYaz({ [g.dataset.g]: g.dataset.v }); const y = $(`.g-s[data-g="${g.dataset.g}"][data-v="${g.dataset.v}"]`, kok); if (y) y.focus({ preventScroll: true }); return; }
       const b = e.target.closest("[data-is]"); if (!b) return;
       if (b.dataset.is === "g-sifirla") { HESAP.gorunumYaz(Object.fromEntries(Object.keys(HESAP.G_SEC).map((k) => [k, HESAP.G_SEC[k][0]]))); bildir("Varsayılan görünüme dönüldü."); return; }
-      if (b.dataset.is === "cikis") { mesaj = ""; HESAP.cikis(); bildir("Çıkış yapıldı."); ciz(); }
+      if (b.dataset.is === "cikis") { mesaj = ""; silOnay = 0; HESAP.cikis(); bildir("Çıkış yapıldı."); ciz(); }
+      if (b.dataset.is === "wp") { wpHata = ""; b.disabled = true; const s = WPG.basla(); if (!s.ok) { wpHata = s.hata; ciz(); } return; }
+      // İki adımlı silme: ilk dokunuş sorar, 8 saniye içindeki ikinci dokunuş siler.
+      if (b.dataset.is === "wp-sil") {
+        if (Date.now() - silOnay > 8000) { silOnay = Date.now(); ciz(); const y = $('[data-is="wp-sil"]', kok); if (y) y.focus({ preventScroll: true }); return; }
+        silOnay = 0; mesaj = ""; HESAP.hesabiSil("").then((s) => { bildir(s.ok ? "Bu cihazdaki kayıtların silindi." : s.hata); ciz(); scrollTo({ top: 0, behavior: "smooth" }); });
+      }
       if (b.dataset.is === "tasi") { const k = HESAP.misafiriTasi(); bildir(k ? k + " rota hesabına taşındı." : "Rotalar zaten hesabında."); ciz(); }
     });
     kok.addEventListener("submit", async (e) => {
@@ -528,6 +552,7 @@ ${mis ? `<div class="uyari-serit" style="margin:16px 0 0"><span>Giriş yapmadan 
         if (f.dataset.form === "kayit") s = v.sifre !== v.sifre2 ? { ok: false, hata: "Şifreler aynı değil." } : await HESAP.kayit(v.ad, v.sifre);
         else if (f.dataset.form === "giris") s = await HESAP.giris(v.ad, v.sifre);
         else if (f.dataset.form === "sifre") s = await HESAP.sifreDegis(v.eski, v.yeni);
+        else if (f.dataset.form === "eski") s = await HESAP.eskidenTasi(v.ad, v.sifre);
         else s = await HESAP.hesabiSil(v.sifre);
       } catch (err) { s = { ok: false, hata: "Bir şey ters gitti. Sayfayı yenileyip yeniden dene." }; }
       btn.disabled = false;
@@ -535,11 +560,14 @@ ${mis ? `<div class="uyari-serit" style="margin:16px 0 0"><span>Giriş yapmadan 
       if (f.dataset.form === "kayit") mesaj = "Hesabın oluşturuldu. Hoş geldin!";
       else if (f.dataset.form === "giris") mesaj = "Giriş yapıldı. Hoş geldin!";
       else if (f.dataset.form === "sifre") { mesaj = "Şifren değiştirildi."; }
+      else if (f.dataset.form === "eski") { mesaj = s.n ? s.n + " rota bu hesaba taşındı." : "Taşınacak yeni rota yoktu; eski hesaptaki rotalar zaten burada."; }
       else { mesaj = ""; bildir("Hesabın silindi."); }
       ciz(); scrollTo({ top: 0, behavior: "smooth" });
     });
     HESAP.dinle(() => { if (!document.activeElement || !kok.contains(document.activeElement) || document.activeElement.tagName !== "INPUT") ciz(); });
     ciz();
+    // WordPress.com'dan dönüş: jeton hesap.js yüklenirken adres çubuğundan alınıp silindi; burada kimlik sorulur ve oturum açılır.
+    if (wpBekle) WPG.tamamla().then((s) => { wpBekle = false; if (s && s.ok) mesaj = s.ilk ? "Giriş yapıldı. Hoş geldin!" : "Yeniden hoş geldin!"; else if (s) wpHata = s.hata; ciz(); }, () => { wpBekle = false; wpHata = "WordPress.com girişi tamamlanamadı. Yeniden dene."; ciz(); });
   }
 
   /* ——— Rotalarım ——— */
