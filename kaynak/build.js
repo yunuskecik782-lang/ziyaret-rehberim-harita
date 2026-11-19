@@ -14,9 +14,9 @@ const fonts = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fa
 const SITE = "https://ziyaretrehberim.com/";
 // Sitenin (site/ klasöründen üretilir) bu alan adındaki yolu. Hesap, "Rotalarım" ve rota sayfası bağlantıları buraya gider.
 const SITE_YOL = "/";
-// "Rotayı başlat" ekranındaki eğik harita MapLibre GL ile çizilir. Dosyalar kaynak/vendor/maplibre içinde durur, site/build.js onları /a/ altına kopyalar;
-// sayfa bu dosyaları yalnızca rota başlatılınca yükler.
-const GL_SURUM = "4.7.1";
+// Yayın sürümünde yazı tipleri sitenin kendi adresinden gelir (site/build.js kaynak/vendor/yazi/ içindekileri /a/ altına kopyalar).
+const YAZI = '<link rel="preload" href="' + SITE_YOL + 'a/inter.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="' + SITE_YOL + 'a/plus-jakarta-sans.woff2" as="font" type="font/woff2" crossorigin>'
+  + '<style>@font-face{font-family:"Inter";font-style:normal;font-weight:100 900;font-display:optional;src:url("' + SITE_YOL + 'a/inter.woff2") format("woff2")}@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:200 800;font-display:optional;src:url("' + SITE_YOL + 'a/plus-jakarta-sans.woff2") format("woff2")}</style>';
 // web sürümünde site bağlantıları aynı alan adına görelidir ve gömülü görünümde üst pencerede açılır.
 const realBody = (h, web) => h
   .replace('<span class="brand">Ziyaret Rehberim</span>', `<a class="brand" href="${web ? SITE_YOL : SITE}"${web ? ' target="_top"' : ""} title="Ziyaret Rehberim sitesine dön">Ziyaret Rehberim</a>`)
@@ -34,7 +34,7 @@ ${real ? "/* Leaflet 1.9.4 · BSD-2-Clause · (c) Volodymyr Agafonkin */\n" + io
 ${real ? realBody(rd("body.html"), web) : rd("body.html")}
 ${real ? "<script>\n/* Leaflet 1.9.4 · BSD-2-Clause · (c) Volodymyr Agafonkin */\n" + io.oku(LF + "leaflet.js").replace(/\/\/# sourceMappingURL=.*$/m, "") + "</script>\n" : ""}<script>
 ${rd("data.js")}</script>
-${real ? "<script>\n" + (web ? 'globalThis.ZR_SITE = location.origin + "' + SITE_YOL + '";\nglobalThis.ZR_GL = { js: "' + SITE_YOL + 'a/maplibre-gl.js?v=' + GL_SURUM + '", css: "' + SITE_YOL + 'a/maplibre-gl.css?v=' + GL_SURUM + '" };\n' : "") + rd("yol.js") + rd("hesap.js") + "</script>\n" : ""}<script>
+${real ? "<script>\n" + (web ? 'globalThis.ZR_SITE = location.origin + "' + SITE_YOL + '";\n' : "") + rd("yol.js") + rd("hesap.js") + "</script>\n" : ""}<script>
 ${rd("app.js")}</script>
 `;
 const reset = ":root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}";
@@ -51,9 +51,7 @@ const web = () => `<!doctype html>
 <meta name="description" content="İstanbul'da manevî ve tarihî ziyaret durakları gerçek harita ve uydu görüntüsü üzerinde: konumuna en yakın rotayı kur, kaydet, Google ya da Apple Haritalar'da aç.">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0E1B2E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-${fonts}
+${YAZI}
 <style>${reset}</style>
 </head>
 <body>

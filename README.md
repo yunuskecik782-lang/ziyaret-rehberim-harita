@@ -39,9 +39,17 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
 - `site/icerik.js`: Ulaşım, Ücretler ve Saatler, Ziyaret Âdâbı metinleri. Bir maddeyi değiştirmek ya da eklemek için yalnızca bu dosya düzenlenir.
 - `site/rota-metin.json`: rota sayfalarındaki açıklamalar ("Güzergâh hakkında", "Nasıl gidilir?", ipucu).
 - `site/site.css`, `site/site.js`: görünüm ve davranış (harita, sokak tarifi, ulaşım önerisi, hesap).
-  Masaüstünde (900 pikselden geniş) sayfa pencereyi doldurur: logo en solda, "Giriş yap" en sağda. Logonun yanındaki "Menü" düğmesi
-  sol sütunu açar: filtreler, güzergâhlar, o sayfanın bölümleri, pratik bilgi (`yanCubuk` işlevi, `site/build.js`). Sütun 1480 pikselden
-  geniş ekranda sabit durur; kapatılırsa tercih o tarayıcıda saklanır (`zr.yan`). Telefonda sütun yoktur, tam ekran menü vardır.
+  Masaüstünde (900 pikselden geniş) sayfa pencereyi doldurur: logo en solda, "Giriş yap" en sağda; üst şeritte menü düğmesi yoktur.
+  Sol kenarda hep görünen 60 piksellik ince bir şerit vardır: en üstte menü düğmesi, altında bölüm kısayolları. Menü düğmesi sol sütunu
+  açar: filtreler, güzergâhlar, o sayfanın bölümleri, pratik bilgi (`yanCubuk` işlevi, `site/build.js`). Sütunun başındaki koyu "Menü"
+  çubuğu onu kapatır. Sütun 1480 pikselden geniş ekranda sabit durur; kapatılırsa tercih o tarayıcıda saklanır (`zr.yan`), daha dar
+  ekranda sayfanın üstüne açılır. Telefonda sütun ve ince şerit yoktur, tam ekran menü vardır.
+  "Güzergâhlar" açılır listesi altı rotayı küçük rota çizimleriyle gösterir (`miniRota`).
+  Sayfa geçişinde bilerek efekt yoktur: tarayıcı eski sayfayı yeni sayfa çizilene kadar tutar, tek karede değiştirir (titreme olmasın diye).
+  Aşağıdaki bölümler kaydırınca belirir; açılışta ekranda olan içerik hiç gizlenmez.
+  Arka plan (`.zemin`, `ZEMIN` ve `ZEMIN_CSS`, `site/build.js`) yalnızca `transform` ve `opacity` ile hareket eder; böylece işi ekran kartı
+  yapar, sayfa yavaşlamaz. Bütün hareketler sayfanın başındaki ortak saate (`--zt`) bağlıdır, sayfa değişince kaldığı yerden sürer.
+  "Hareketi azalt" seçili cihazlarda durur.
 - `kaynak/data.js`: rotalar, duraklar, koordinatlar, hazır başlangıç noktaları. Her durağın son alanı kalıcı anahtarıdır
   (`r1-4` gibi); sıra ya da rota değişse de aynı kalır, ziyaretçilerin kayıtlı rotaları bozulmaz. Elle durak eklerken yeni,
   benzersiz bir anahtar verilir ve var olan anahtarlar değiştirilmez.
@@ -53,9 +61,11 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
 - `kaynak/hesap.js`: kullanıcı adı ve şifreyle hesap. Sunucu yoktur: hesap ve kayıtlı rotalar yalnızca o cihazda, o tarayıcıda durur;
   şifrenin kendisi saklanmaz (rastgele tuzla PBKDF2-SHA-256 özeti tutulur). Şifre sıfırlanamaz. Rota kaydetmek için giriş gerekir.
 - `kaynak/vendor/leaflet/`: Leaflet 1.9.4 (BSD-2-Clause, lisansı klasörün içinde).
-- `kaynak/vendor/maplibre/`: MapLibre GL JS 4.7.1 (BSD-3-Clause, lisansı klasörün içinde). Yalnızca "Rotayı başlat" denince yüklenir
-  (`a/maplibre-gl.js`, `a/maplibre-gl.css`): uydu görüntüsünü eğik gösterir ve haritayı gidiş yönüne çevirir. Bina modeli yoktur.
-  Cihaz açamazsa tarif düz haritada sürer.
+- `kaynak/vendor/yazi/`: sitenin ve harita uygulamasının iki yazı tipi, Inter ve Plus Jakarta Sans (SIL Open Font License 1.1,
+  lisansları ve kaynak notu klasörün içinde). Yalnızca sitede geçen harflerle küçültülmüş tek dosyalardır; site kendi sunucusundan
+  verir (`a/`); site sayfaları ve harita uygulaması Google'a yazı tipi isteği göndermez (yalnızca yönetim paneli hâlâ Google Fonts kullanır). `font-display: optional`: yazı tipi hemen hazır değilse sayfa yedek yazı tipiyle açılır ve
+  sonradan değişip kaymaz.
+- "Rotayı başlat" (adım adım tarif) aynı düz (2B) Leaflet haritasında çalışır; ek kütüphane yüklenmez, dokununca hemen açılır.
 - `onizleme/`: sitede kullanılan görseller. `ana-kapak.jpg` (ve küçük hâli `ana-kapak-k.jpg`) site sahibinin gönderdiği fotoğraftır;
   kaynağı ve lisansı henüz yazılmadı. `ana-harita.jpg` ve `rota-r1…r6.jpg` OpenStreetMap haritası üzerinde üretilmiştir
   (© OpenStreetMap katkıda bulunanlar). `zr-simgeler.png` simge şerididir: Lucide (ISC) ve Tabler Icons (MIT) simgelerinden derlenmiştir.

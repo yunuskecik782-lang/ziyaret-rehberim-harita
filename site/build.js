@@ -72,7 +72,8 @@ const JS_SIMGE = ["fwd", "down", "x", "ext", "trash", "rota", "mark", "user", "l
 ICON.check = '<path d="M5 12.5l4.5 4.5L19 7.5"/>';
 ICON.menu = '<path d="M4 6.5h16M4 12h16M4 17.5h10"/>';
 ICON.filtre = '<path d="M4 6.5h16M7 12h10M10 17.5h4"/>';
-ICON.liste = '<path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.8" cy="6.5" r=".9"/><circle cx="4.8" cy="12" r=".9"/><circle cx="4.8" cy="17.5" r=".9"/>';
+ICON.once = '<path d="M14.5 6l-6 6 6 6"/>';
+ICON.liste ='<path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.8" cy="6.5" r=".9"/><circle cx="4.8" cy="12" r=".9"/><circle cx="4.8" cy="17.5" r=".9"/>';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const R6 = 6371000, RAD = Math.PI / 180;
@@ -130,16 +131,52 @@ const Z_TEPE = [[41.01, 28.982], [41.0095, 28.971], [41.0152, 28.964], [41.0196,
 const Z_DUGUM = [[41.0082, 28.977], [41.0102, 28.9645], [41.0162, 28.964], [41.0196, 28.9498], [41.03, 28.9355], [41.0177, 28.9712], [41.01, 28.953], [40.9935, 28.9225], [41.0392, 28.9418], [41.0338, 28.9482], [41.003, 28.952], [41.0175, 28.9225]];
 // Eşyükselti halkası: yarıçapı açıya göre hafifçe dalgalanan kapalı eğri (her tepe için aynı sonuç)
 const zHalka = (c, r, tohum) => { const P = []; for (let k = 0; k < 9; k++) { const a = (k / 9) * Math.PI * 2, w = 1 + 0.16 * Math.sin(a * 2 + tohum) + 0.09 * Math.cos(a * 3 + tohum * 1.7); P.push([zx(c[1]) + Math.cos(a) * r * w * 1.12, zy(c[0]) + Math.sin(a) * r * w * 0.86]); } return yumusak(P, true); };
-const ZEMIN = `<div class="zemin" aria-hidden="true"><svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
-${[1.4, 1.29, 1.19, 1.1].map((k, i) => `<path class="dalga" style="--i:${3 - i}" d="${yumusak(zBuyut(k), true)}"/>`).join("")}
-${Z_KARSI.map((l) => `<path class="karsi" d="${yumusak(zp(l))}"/>`).join("")}
-<path class="kara" d="${yumusak(Z_YARIMADA, true)}"/>
-<path class="sur" d="${yumusak(zp(Z_SUR))}"/>
-${Z_TEPE.map((c, i) => [15, 29, 44].map((r, j) => `<path class="tepe" style="--j:${j}" d="${zHalka(c, r, i * 1.9 + j * 0.6)}"/>`).join("")).join("")}
-${Z_CADDE.map((l, i) => { const d = yumusak(zp(l)), dt = yumusak(zp(l.slice().reverse())); return `<path class="cadde" id="zc${i}" d="${d}"/><path id="zt${i}" d="${dt}" fill="none"/><path class="akis" style="--i:${i}" d="${d}"/>`; }).join("")}
-${Z_DUGUM.map((p, i) => `<g class="dugum" style="--i:${i}" transform="translate(${f1(zx(p[1]))} ${f1(zy(p[0]))})"><circle class="hale" r="9"/><circle r="2.6"/></g>`).join("")}
-${Z_CADDE.map((l, i) => [0, 1].map((ters) => `<path class="ok${ters ? " ters" : ""}" d="M-4.5-3.4 1.8 0-4.5 3.4"><animateMotion dur="${26 + i * 5}s" begin="${-(i * 3.7 + ters * 11).toFixed(1)}s" repeatCount="indefinite" rotate="auto"><mpath href="#${ters ? "zt" : "zc"}${i}"/></animateMotion></path>`).join("")).join("")}
-</svg></div>`;
+/* Hareket yalnızca ekran kartının taşıdığı iki özellikle yapılır: konum/dönüş/ölçek (transform) ve saydamlık (opacity).
+   Böylece arka plan her karede yeniden çizilmez; sayfa kaydırılırken ve açılırken takılmaz. Değişmeyen çizim (kıyı, sur, tepeler, caddeler)
+   CSS içinde tek bir resim olarak durur; tarayıcı onu bir kez çizer. Oklar ve ışıklar caddeler boyunca hesaplanmış duraklarla ilerler. */
+const svgUrl = (s) => `url("data:image/svg+xml,${s.replace(/\s+/g, " ").replace(/"/g, "'").replace(/%/g, "%25").replace(/#/g, "%23").replace(/</g, "%3C").replace(/>/g, "%3E")}")`;
+const Z_CIZIM = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><style>path{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}.k{stroke:rgba(20,40,75,.09);stroke-width:1.1}.y{fill:rgba(201,151,58,.035);stroke:rgba(20,40,75,.16);stroke-width:1.3}.s{stroke:rgba(169,119,58,.42);stroke-width:2.2;stroke-dasharray:1.5 6}.t{stroke:rgba(20,40,75,.07);stroke-width:1}.c{stroke:rgba(20,40,75,.11);stroke-width:1.2}</style>
+${Z_KARSI.map((l) => `<path class="k" d="${yumusak(zp(l))}"/>`).join("")}<path class="y" d="${yumusak(Z_YARIMADA, true)}"/><path class="s" d="${yumusak(zp(Z_SUR))}"/>
+${Z_TEPE.map((c, i) => [15, 29, 44].map((r, j) => `<path class="t" style="opacity:${(1 - j * 0.28).toFixed(2)}" d="${zHalka(c, r, i * 1.9 + j * 0.6)}"/>`).join("")).join("")}
+${Z_CADDE.map((l) => `<path class="c" d="${yumusak(zp(l))}"/>`).join("")}</svg>`;
+// Büyük, yavaş dönen geometrik gül (sekiz köşeli yıldız ve halkalar). Merkez 0,0; çap 1000.
+const yildizYol = (r, adim) => { let d = ""; for (let k = 0; k < 8; k++) { const a = (k * adim * Math.PI) / 4 - Math.PI / 2; d += `${k ? "L" : "M"}${f1(Math.cos(a) * r)} ${f1(Math.sin(a) * r)}`; } return d + "Z"; };
+const Z_GUL = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-500 -500 1000 1000"><style>*{fill:none;vector-effect:non-scaling-stroke;stroke:rgba(169,119,58,.5);stroke-width:1}.i{stroke:rgba(46,90,172,.32)}</style>
+<circle r="488"/><circle r="452" class="i"/>${Array.from({ length: 32 }, (_, k) => { const a = (k * Math.PI) / 16; return `<path d="M${f1(Math.cos(a) * 452)} ${f1(Math.sin(a) * 452)}L${f1(Math.cos(a) * (k % 2 ? 470 : 488))} ${f1(Math.sin(a) * (k % 2 ? 470 : 488))}"/>`; }).join("")}
+<path d="${yildizYol(440, 1)}"/><path d="${yildizYol(440, 3)}" class="i"/><rect x="-311" y="-311" width="622" height="622"/><rect x="-311" y="-311" width="622" height="622" transform="rotate(45)"/>
+<circle r="300" class="i"/><path d="${yildizYol(296, 3)}"/><circle r="168"/><path d="${yildizYol(164, 3)}" class="i"/><circle r="64"/></svg>`;
+// Catmull-Rom eğrisi üzerinde eşit aralıklı noktalar ve gidiş yönü (derece). Dönüş açıları sıçramasın diye birbirine eklenerek tutulur.
+const zOrnek = (P, adet) => {
+  const n = P.length, g = (i) => P[Math.max(0, Math.min(n - 1, i))], ince = [];
+  for (let i = 0; i < n - 1; i++) {
+    const p0 = g(i - 1), p1 = g(i), p2 = g(i + 1), p3 = g(i + 2), t = 1 / 6;
+    const c1 = [p1[0] + (p2[0] - p0[0]) * t, p1[1] + (p2[1] - p0[1]) * t], c2 = [p2[0] - (p3[0] - p1[0]) * t, p2[1] - (p3[1] - p1[1]) * t];
+    for (let k = i ? 1 : 0; k <= 24; k++) { const u = k / 24, v = 1 - u, b = [v * v * v, 3 * v * v * u, 3 * v * u * u, u * u * u]; ince.push([0, 1].map((e) => b[0] * p1[e] + b[1] * c1[e] + b[2] * c2[e] + b[3] * p2[e])); }
+  }
+  const cum = [0]; for (let i = 1; i < ince.length; i++) cum.push(cum[i - 1] + Math.hypot(ince[i][0] - ince[i - 1][0], ince[i][1] - ince[i - 1][1]));
+  const L = cum[cum.length - 1], at = (s) => { let j = 1; while (j < cum.length - 1 && cum[j] < s) j++; const u = (s - cum[j - 1]) / (cum[j] - cum[j - 1] || 1); return [ince[j - 1][0] + (ince[j][0] - ince[j - 1][0]) * u, ince[j - 1][1] + (ince[j][1] - ince[j - 1][1]) * u]; };
+  const out = []; let onceki = null;
+  for (let k = 0; k <= adet; k++) {
+    const s = (L * k) / adet, a = at(Math.max(0, s - 2)), b = at(Math.min(L, s + 2)), p = at(s);
+    let ac = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
+    if (onceki != null) { while (ac - onceki > 180) ac -= 360; while (ac - onceki < -180) ac += 360; }
+    onceki = ac; out.push([p[0], p[1], ac]);
+  }
+  return { out, L };
+};
+const zYuzde = (v) => (v / 1000).toFixed(4);
+const Z_YOLLAR = Z_CADDE.map((l) => zOrnek(zp(l), 28));
+const ZEMIN_CSS = `/* ——— Zemin (site/build.js üretir): değişmeyen çizim, dönen gül, cadde boyunca giden oklar ve ışıklar ——— */
+.z-cizim { background-image: ${svgUrl(Z_CIZIM)}; }
+.z-gul { background-image: ${svgUrl(Z_GUL)}; }
+.z-dalga { transform-origin: ${(zOrta[0] / 10).toFixed(2)}% ${(zOrta[1] / 10).toFixed(2)}%; }
+${Z_YOLLAR.map((y, i) => `@keyframes zy${i} {${y.out.map((p, k) => `${((k / (y.out.length - 1)) * 100).toFixed(2)}%{transform:translate(calc(${zYuzde(p[0])} * var(--zb)),calc(${zYuzde(p[1])} * var(--zb))) rotate(${p[2].toFixed(1)}deg)}`).join("")}}`).join("\n")}
+`;
+const ZEMIN = `<div class="zemin" aria-hidden="true"><i class="isik i1"></i><i class="isik i2"></i><i class="isik i3"></i><i class="z-gul g1"></i><i class="z-gul g2"></i>
+<div class="z-kay"><i class="z-cizim"></i><div class="z-duz">${[0, 1, 2].map((i) => `<svg class="z-dalga" style="--d:${-i * 5}s" viewBox="0 0 1000 1000"><path d="${yumusak(zBuyut(1.06), true)}"/></svg>`).join("")}
+${Z_DUGUM.map((p, i) => `<i class="z-hale" style="left:${(zx(p[1]) / 10).toFixed(2)}%;top:${(zy(p[0]) / 10).toFixed(2)}%;--d:${(-i * 0.74).toFixed(2)}s"></i>`).join("")}
+${Z_YOLLAR.map((y, i) => { const s = Math.round(y.L / 9); return `<i class="z-ok" style="--a:zy${i};--s:${s}s;--d:${-(i * 3.7).toFixed(1)}s"></i><i class="z-ok ters" style="--a:zy${i};--s:${s}s;--d:${-(i * 3.7 + 11).toFixed(1)}s"></i><i class="z-akis" style="--a:zy${i};--s:${Math.round(s * 0.62)}s;--d:${-(i * 5.3 + 4).toFixed(1)}s"></i>`; }).join("")}
+</div></div></div>`;
 
 /* ——— Ortak parçalar ——— */
 const marka = `<a class="marka" href="${KOK}" aria-label="Ziyaret Rehberim ana sayfa"><img src="${GORSEL}zr-logo.jpg" alt="" width="46" height="46"><span class="marka-y">Ziyaret<b>Rehberim</b></span></a>`;
@@ -152,10 +189,20 @@ const MENU = [
   ["adab", yol.adab, "Ziyaret Âdâbı", "kalp", "Ziyaretin incelikleri"],
 ];
 const cur = (a, b) => (a === b ? ' aria-current="page"' : "");
+// Rotanın küçük çizimi: durakların gerçek konumlarından, kuzey yukarıda, 72×46 kutuya sığdırılmış yumuşak çizgi
+const miniRota = (r) => {
+  const P = r.duraklar.map((d) => [d.lng * Math.cos(41 * RAD), -d.lat]), xs = P.map((p) => p[0]), ys = P.map((p) => p[1]);
+  const x0 = Math.min(...xs), y0 = Math.min(...ys), k = Math.min(60 / (Math.max(...xs) - x0 || 1), 34 / (Math.max(...ys) - y0 || 1));
+  const ox = (72 - (Math.max(...xs) - x0) * k) / 2, oy = (46 - (Math.max(...ys) - y0) * k) / 2, Q = P.map((p) => [ox + (p[0] - x0) * k, oy + (p[1] - y0) * k]);
+  return `<svg viewBox="0 0 72 46" aria-hidden="true"><path pathLength="100" d="${yumusak(Q)}"/>${Q.map((q, i) => `<circle cx="${f1(q[0])}" cy="${f1(q[1])}" r="${i === 0 || i === Q.length - 1 ? 2.8 : 1.5}"${i === 0 || i === Q.length - 1 ? ' class="uc"' : ""}/>`).join("")}</svg>`;
+};
 function ust(s) {
-  return `<header class="ust"><div class="ust-ic"><div class="ust-sol">${marka}<button class="yan-btn" type="button" aria-controls="yan" aria-expanded="false" title="Listeyi aç ya da kapat">${ic("menu")}<span>Menü</span>${ic("down")}</button></div>
+  return `<header class="ust"><div class="ust-ic">${marka}
 <nav class="gezin" aria-label="Ana menü"><a href="${yol.ana}"${cur(s, "ana")}>Ana Sayfa</a>
-<div class="acilir${s === "guz" ? " secili" : ""}"><button type="button" aria-haspopup="true">Güzergâhlar${ic("down")}</button><div class="acilir-kutu">${ROTALAR.map((r) => `<a class="${r.id}" href="${r.yol}"><span class="no">${r.no}</span><span>${esc(r.name)}<small>${r.duraklar.length} durak · ${r.sure}</small></span></a>`).join("")}<a href="${yol.guz}"><span class="no">${ic("fwd")}</span><span>Tüm güzergâhlar<small>Altı rotayı yan yana gör</small></span></a></div></div>
+<div class="acilir${s === "guz" ? " secili" : ""}"><button type="button" aria-haspopup="true" aria-expanded="false">Güzergâhlar${ic("down")}</button><div class="acilir-kutu">
+<div class="guz-bas"><span><b>Hazır güzergâhlar</b><small>${ROTALAR.length} rota · ${TOPLAM} durak · yürüyerek</small></span><a href="${yol.guz}">Hepsini gör${ic("fwd")}</a></div>
+<div class="guz-izgara">${ROTALAR.map((r) => `<a class="guz-k ${r.id}" href="${r.yol}"><span class="guz-cizim">${miniRota(r)}</span><span class="guz-y"><small>Rota ${r.no}</small><b>${esc(r.name)}</b><em>${r.duraklar.length} durak · ${r.km} · ${r.sure.replace("≈ ", "")}</em></span></a>`).join("")}</div>
+<a class="guz-alt" href="${yol.olustur}">${ic("rota")}<span><b>Kendi rotanı oluştur</b><small>Durakları seç, konumuna göre sırala</small></span>${ic("fwd")}</a></div></div>
 <a href="${yol.ulasim}"${cur(s, "ulasim")}>Ulaşım</a><a href="${yol.ucret}"${cur(s, "ucret")}>Ücretler ve Saatler</a><a href="${yol.adab}"${cur(s, "adab")}>Ziyaret Âdâbı</a></nav>
 <a class="giris" href="${yol.hesap}">${ic("user")}<span data-hesap-ad="Giriş yap">Giriş yap</span></a>
 <button class="menu-btn" type="button" aria-label="Menü" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
@@ -172,20 +219,25 @@ ${MENU.slice(3).map((m, i) => `<a class="m" style="--i:${6 + i}" href="${m[1]}"$
 }
 /* ——— Geniş ekranda sol sütun: açılır listeler (bu sayfanın bölümleri, filtreler, güzergâhlar, pratik bilgi) ve kısa bilgi metni.
    1480 pikselden geniş ekranda sabit durur, daha dar masaüstünde "Menü" düğmesiyle açılır; telefonda yoktur (orada tam ekran menü var). ——— */
-const yanGrup = (ad, simge, icerik, acik) => `<details class="yan-grup"${acik ? " open" : ""}><summary>${ic(simge)}<span>${ad}</span>${ic("down")}</summary><div class="yan-ic">${icerik}</div></details>`;
+/* "Menü" düğmesi üst şeritte değil, sütunun en başındadır. Sütun kapalıyken solda ince bir şerit kalır: en üstte menüyü açan düğme,
+   altında gruplara giden kısayollar. Telefonda ikisi de yoktur (orada üstteki düğmeyle açılan tam ekran menü var). */
+const yanGrup = (id, ad, simge, icerik, acik, sinif) => `<details class="yan-grup${sinif ? " " + sinif : ""}" id="${id}"${acik ? " open" : ""}><summary>${ic(simge)}<span>${ad}</span>${ic("down")}</summary><div class="yan-ic">${icerik}</div></details>`;
 function yanCubuk(s, bu, rid) {
   const filtre = KAT.map((k) => `<a class="${k[1]}" href="${yol.olustur}#kategori=${k[0]}" data-hash="kategori=${k[0]}"><span class="yan-sim">${ic(k[2])}</span><span>${k[3]}</span><em>${k[4]}</em></a>`).join("");
-  const rotalar = ROTALAR.map((r) => `<a class="${r.id}" href="${r.yol}"${r.id === rid ? ' aria-current="page"' : ""}><span class="no">${r.no}</span><span>${esc(r.name)}<small>${r.duraklar.length} durak · ${r.sure}</small></span></a>`).join("")
-    + `<a href="${yol.guz}"${s === "guz" && !rid ? ' aria-current="page"' : ""}><span class="yan-sim sade">${ic("fwd")}</span><span>Tüm güzergâhlar</span></a>`;
+  const rotalar = ROTALAR.map((r) => `<a class="${r.id}" href="${r.yol}"${r.id === rid ? ' aria-current="page"' : ""}><span class="sira">${r.no}</span><span>${esc(r.name)}<small>${r.duraklar.length} durak · ${r.sure}</small></span></a>`).join("")
+    + `<a href="${yol.guz}"${s === "guz" && !rid ? ' aria-current="page"' : ""}><span class="sira sade">${ic("fwd")}</span><span>Tüm güzergâhlar</span></a>`;
   const bilgi = [...MENU.slice(3), ["rotalarim", yol.rotalarim, "Rotalarım", "mark", "Kaydettiğin rotalar"]].map((m) => `<a href="${m[1]}"${cur(s, m[0])}><span class="yan-sim sade">${ic(m[3])}</span><span>${m[2]}<small>${m[4]}</small></span></a>`).join("");
-  const buSayfa = bu ? yanGrup(bu.ad, bu.simge || "liste", bu.ogeler.map((o) => `<a href="${o[0]}">${o[3] ? `<span class="no">${o[3]}</span>` : '<span class="yan-nokta"></span>'}<span>${esc(o[1])}${o[4] ? ` <i>${esc(o[4])}</i>` : ""}${o[2] ? `<small>${esc(o[2])}</small>` : ""}</span></a>`).join(""), true) : "";
-  return `<aside class="yan" id="yan" aria-label="Yan menü"><div class="yan-kay">
-${s === "olustur" ? "" : `<a class="btn altin yan-ana" href="${yol.olustur}">${ic("rota")}Rotanı oluştur</a>`}
+  const buSayfa = bu ? yanGrup("yg-bu", bu.ad, bu.simge || "liste", bu.ogeler.map((o) => `<a href="${o[0]}">${o[3] ? `<span class="sira">${o[3]}</span>` : '<span class="yan-nokta"></span>'}<span>${esc(o[1])}${o[4] ? ` <i>${esc(o[4])}</i>` : ""}${o[2] ? `<small>${esc(o[2])}</small>` : ""}</span></a>`).join(""), true, rid) : "";
+  const kisa = [...(bu && s !== "ana" ? [["yg-bu", bu.ad, bu.simge || "liste"]] : []), ["yg-filtre", "Ne görmek istersin?", "filtre"], ["yg-guz", "Güzergâhlar", "pin"], ...(bu && s === "ana" ? [["yg-bu", bu.ad, bu.simge || "liste"]] : []), ["yg-bilgi", "Pratik bilgi", "bilgi"]];
+  return `<nav class="yan-ray" aria-label="Menü kısayolları"><button class="yan-ac" type="button" aria-controls="yan" aria-expanded="false" title="Menüyü aç">${ic("menu")}<span class="gizli">Menüyü aç</span></button><span class="yan-ray-c"></span>
+${kisa.map((k) => `<button type="button" data-grup="${k[0]}" aria-controls="yan" title="${esc(k[1])}">${ic(k[2])}<span class="gizli">${esc(k[1])}</span></button>`).join("")}</nav>
+<aside class="yan" id="yan" aria-label="Menü"><div class="yan-kay">
+<div class="yan-bas"><button class="yan-kapa" type="button" aria-controls="yan" aria-expanded="true" title="Menüyü kapat">${ic("menu")}<span>Menü</span>${ic("once")}</button></div>
 ${s === "ana" ? "" : buSayfa}
-${yanGrup("Ne görmek istersin?", "filtre", filtre, s === "ana" || !bu)}
-${yanGrup("Güzergâhlar", "pin", rotalar, true)}
+${yanGrup("yg-filtre", "Ne görmek istersin?", "filtre", filtre, s === "ana" || !bu)}
+${yanGrup("yg-guz", "Güzergâhlar", "pin", rotalar, true)}
 ${s === "ana" ? buSayfa : ""}
-${yanGrup("Pratik bilgi", "bilgi", bilgi, true)}
+${yanGrup("yg-bilgi", "Pratik bilgi", "bilgi", bilgi, true)}
 <div class="yan-not">${ic("ampul")}<p><b>Yola çıkmadan önce</b>İstanbulkart tam biniş ${IC.ucret.kart[0][1]} (${IC.ucret.tarih}). Bazı türbeler ve müzeler pazartesi kapalıdır; rotandaki durakların saatine bak.</p></div>
 <p class="yan-ince">Konumun yalnızca iznin olursa kullanılır ve hiçbir yere kaydedilmez.</p>
 </div></aside><div class="yan-perde"></div>`;
@@ -198,7 +250,11 @@ const alt = `<footer class="alt"><div class="kap alt-ic">${marka}
 </div></footer>`;
 
 let SURUM = "0";
-const FONT = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Plus+Jakarta+Sans:wght@500..800&display=swap">';
+/* Yazı tipleri sitenin kendi adresinden gelir (Inter ve Plus Jakarta Sans; Türkçe harfleri de içeren tek parça, değişken kalınlık).
+   Sayfanın en başında önceden istenir; site.css içindeki @font-face "optional" kullanır: yazı tipi hazırsa ilk çizimde kullanılır,
+   değilse o sayfa sistem yazısıyla açılır ve sonradan yazı değişip sayfa kaymaz. Sonraki sayfalar önbellekten gelir. */
+const YAZI = ["inter.woff2", "plus-jakarta-sans.woff2"];
+const FONT = YAZI.map((f) => `<link rel="preload" href="${KOK}a/${f}" as="font" type="font/woff2" crossorigin>`).join("");
 const HARITA_SAYFALARI = []; // sitemap.xml için: arama motorlarına açık sayfaların adresleri
 /* http ile gelen ziyaretçi, https adresi çalışıyorsa oraya alınır (konum yalnızca https adreste sorulabilir).
    Önce https adresi denenir: güvenlik sertifikası henüz hazır değilse ziyaretçi hata sayfasına itilmez, http'de kalır. */
@@ -213,16 +269,16 @@ function sayfa({ dosya, s, id, baslik, ozet, govde, sinif = "", veri, harita, yo
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<script>${onBetik}${HTTPS}(function(){var d=document.documentElement;d.className="js";try{if(localStorage.getItem("zr.yan")==="0")d.className+=" yan-kapali"}catch(e){}setTimeout(function(){if(!window.ZR_HAZIR)d.classList.remove("js")},3500)})();</script>
+${FONT}
+<script>${onBetik}${HTTPS}(function(){var d=document.documentElement;d.className="js";d.style.setProperty("--zt",-(Date.now()%3600000)/1000+"s");try{if(localStorage.getItem("zr.yan")==="0")d.className+=" yan-kapali";if(localStorage.getItem("zr.katman.2")==="sokak")d.className+=" h-sokak"}catch(e){}try{if(!sessionStorage.getItem("zr.ilk")){d.className+=" ilk";sessionStorage.setItem("zr.ilk","1")}}catch(e){}setTimeout(function(){if(!window.ZR_HAZIR)d.classList.remove("js")},3500)})();</script>
 <title>${tamBaslik}</title>
 <meta name="description" content="${esc(ozet)}">
 ${kapali ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${adres}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Ziyaret Rehberim"><meta property="og:locale" content="tr_TR">
 <meta property="og:title" content="${tamBaslik}"><meta property="og:description" content="${esc(ozet)}"><meta property="og:url" content="${adres}">
 <meta property="og:image" content="${TAM}${GORSEL}${gorsel}"><meta name="twitter:card" content="summary_large_image">`}
-<meta name="theme-color" content="#FBF7EF">
+<meta name="theme-color" content="#FEFCF8">
 <link rel="icon" href="${GORSEL}zr-logo.jpg"><link rel="apple-touch-icon" href="${GORSEL}zr-logo.jpg">
-${FONT}
 ${harita ? `<link rel="stylesheet" href="${a("leaflet.css")}">\n` : ""}<link rel="stylesheet" href="${a("site.css")}">
 ${harita ? `<script defer src="${a("leaflet.js")}"></script>\n` : ""}${yolJs ? `<script defer src="${a("yol.js")}"></script>\n` : ""}<script defer src="${a("hesap.js")}"></script>
 <script defer src="${a("site.js")}"></script>
@@ -427,7 +483,7 @@ const yokSayfa = () => sayfa({ gizli: true, dosya: "404.html", s: "", id: "yok",
 for (const k of KLASOR) io.sil(k);
 const LF = "kaynak/vendor/leaflet/";
 const dosyalar = {
-  "site.css": oku("site/site.css"),
+  "site.css": oku("site/site.css") + "\n" + ZEMIN_CSS,
   "site.js": `/* Ziyaret Rehberim · sayfa betiği. site/site.js dosyasından üretilir. */\nconst ZR_YER = ${JSON.stringify({ kok: KOK, harita: HARITA, ...yol })};\nconst ZR_IC = ${JSON.stringify(Object.fromEntries(JS_SIMGE.map((k) => [k, ICON[k]])))};\n` + oku("site/site.js"),
   "yol.js": oku("kaynak/yol.js"),
   "hesap.js": oku("kaynak/hesap.js"),
@@ -436,8 +492,8 @@ const dosyalar = {
 };
 SURUM = ozet8(Object.values(dosyalar).join("\n"));
 for (const [ad, ic2] of Object.entries(dosyalar)) io.yaz("a/" + ad, ic2);
-// "Rotayı başlat" ekranının eğik haritası (MapLibre GL 4.7.1 · BSD-3-Clause). Harita uygulaması bu iki dosyayı yalnızca rota başlatılınca yükler.
-for (const ad of ["maplibre-gl.js", "maplibre-gl.css"]) io.kopya("kaynak/vendor/maplibre/" + ad, "a/" + ad);
+// Yazı tipleri (SIL Open Font License 1.1; lisans metinleri kaynak/vendor/yazi/ içinde). Site ve harita uygulaması aynı iki dosyayı kullanır.
+for (const ad of YAZI) io.kopya("kaynak/vendor/yazi/" + ad, "a/" + ad);
 /* Yönetim paneli (/yonetim/). Tek başına bir araç sayfasıdır, arama motorlarına kapalıdır; kendi dosyaları site sürüm damgasına katılmaz.
    İçerik güvenlik kuralı sayfanın yalnızca bu siteye ve api.github.com adresine bağlanmasına izin verir (GitHub anahtarı başka yere gidemez).
    'unsafe-eval' gerekir: panel, yayınlarken site/build.js ve kaynak/build.js betiklerini tarayıcıda çalıştırır. */

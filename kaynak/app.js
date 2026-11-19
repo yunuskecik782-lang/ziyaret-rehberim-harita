@@ -6,7 +6,7 @@
   const app = $("#app"), mapEl = $("#map"), cv = $("#base"), ctx = cv.getContext("2d"), mkEl = $("#mk"), meEl = $("#me"), tipEl = $("#tip");
   const sheet = $("#sheet"), head = $("#sheet-head"), bodyEl = $("#body"), toastEl = $("#toast"), pickEl = $("#pick"), infoEl = $("#info"), scaleEl = $("#scale");
   const P = { hazir: $("#p-hazir"), kesfet: $("#p-kesfet"), detail: $("#p-detail"), rota: $("#p-rota") };
-  const goEl = $("#go"), navEl = $("#nav"), sorEl = $("#sor"), GLC = globalThis.ZR_GL || null;
+  const goEl = $("#go"), navEl = $("#nav"), sorEl = $("#sor");
   const RM = matchMedia("(prefers-reduced-motion: reduce)"), DESK = matchMedia("(min-width: 900px)");
   const HOSTED = !!(window.claude && typeof window.claude.use === "function");
   const REAL = typeof window.L !== "undefined"; // Leaflet sayfaya eklendiyse gerçek harita, yoksa şematik çizim
@@ -1113,17 +1113,17 @@
   }
 
   /* ——— Rotayı başlat: uygulama içinde adım adım yol tarifi ———
-     Harita gidiş yönüne döner ve eğik (üç boyut hissi veren) bir görünümle konumu izler. Bu görünüm MapLibre GL ile çizilir ve
-     yalnızca "Rotayı başlat"a basılınca yüklenir; yüklenemezse aynı tarif düz haritada (kuzey yukarıda) sürer.
+     Tarif, zaten açık olan düz haritada (kuzey yukarıda) sürer: ek bir harita yüklenmez, düğmeye basınca hemen başlar.
+     Konum noktası gidiş yönünü gösterir; hedef durağa giden yol altın renkli çizgiyle çizilir, harita konumu izler.
      Konum alınamıyorsa ya da rota çok uzaktaysa aynı ekran önizleme olarak çalışır: "Sonraki durak" ile duraktan durağa ilerlenir. */
-  const N = { on: false, gl: null, glP: null, hazir: false, lf: false, watch: null, pos: null, real: false, i: 0, leg: null, legOk: false, along: 0, offN: 0, tRe: 0, busy: false, follow: true, v3: true, wake: null, vardi: false, brg: 0, zoom: 0, seq: 0, mk: [], puck: null, msgT: 0 };
+  const N = { on: false, watch: null, pos: null, real: false, i: 0, leg: null, legOk: false, along: 0, offN: 0, tRe: 0, busy: false, follow: true, wake: null, vardi: false, brg: 0, zoom: 0, seq: 0, oto: false, lyr: null, yolK: null, yol: null, hedef: null, pk: null, msgT: 0 };
   const fmtN = (m) => (m < 1000 ? Math.max(5, Math.round(m / 5) * 5) + " m" : (m / 1000).toFixed(1).replace(".", ",") + " km");
   const brgOf = (a, b) => (Math.atan2(b[0] - a[0], a[1] - b[1]) / RAD + 360) % 360;
   // Bir bacağı hesap için hazırlar: metre cinsinden noktalar, birikimli uzunluk ve her dönüşün çizgi üzerindeki yeri.
   function navLeg(lg) {
     const pts = lg.pts.length > 1 ? lg.pts : [lg.pts[0], lg.pts[0]], Pm = pts.map((c) => proj(c[0], c[1])), cum = [0];
     for (let j = 1; j < Pm.length; j++) cum.push(cum[j - 1] + Math.hypot(Pm[j][0] - Pm[j - 1][0], Pm[j][1] - Pm[j - 1][1]));
-    return { P: Pm, cum, len: cum[cum.length - 1] || 0, ll: pts.map((c) => [c[1], c[0]]), steps: (lg.adim || []).filter((a) => a.i != null).map((a) => ({ ...a, at: cum[Math.min(a.i, cum.length - 1)] })) };
+    return { P: Pm, cum, len: cum[cum.length - 1] || 0, ll: pts.map((c) => [c[0], c[1]]), steps: (lg.adim || []).filter((a) => a.i != null).map((a) => ({ ...a, at: cum[Math.min(a.i, cum.length - 1)] })) };
   }
   // Konumu yol çizgisine oturtur: çizgi boyunca kaç metre gidildi (along) ve çizgiden ne kadar uzakta (ham).
   function navSnap(Lg, x, y) {
@@ -1147,82 +1147,43 @@
     if (!t) { el.hidden = true; return; }
     el.textContent = t; el.hidden = false; if (!kal) N.msgT = setTimeout(() => { el.hidden = true; }, 6500);
   }
-  // Hedef duraktan sonra kalan yol: [boylam, enlem] noktaları.
-  function navRest() {
-    const out = [];
-    if (!RT.duz && RT.at[N.i] != null) { for (let k = 0; k < RT.pts.length; k++) if (RT.cum[k] >= RT.at[N.i] - 0.5) { const q = unproj(RT.pts[k][0], RT.pts[k][1]); out.push([q.lng, q.lat]); } }
-    else for (let k = N.i; k < S.route.length; k++) { const t = STOPS[S.route[k]]; out.push([t.lng, t.lat]); }
-    return out;
-  }
+  function navCap() { $("#nav-cap").innerHTML = (S.sat ? "Uydu: Esri, Maxar, Earthstar Geographics" : "© OpenStreetMap katkıda bulunanlar") + (YOL ? " · Yol: © OpenStreetMap" : ""); }
 
-  // Eğik harita (MapLibre GL): yalnızca gerektiğinde yüklenir.
-  function glLoad() {
-    if (N.glP) return N.glP;
-    N.glP = new Promise((res) => {
-      if (!GLC || !window.WebGLRenderingContext) return res(false);
-      const l = document.createElement("link"); l.rel = "stylesheet"; l.href = GLC.css; document.head.append(l);
-      const sc = document.createElement("script"); sc.src = GLC.js; sc.async = true; sc.onload = () => res(!!window.maplibregl); sc.onerror = () => res(false); document.head.append(sc);
-      setTimeout(() => res(false), 20000);
-    });
-    return N.glP;
+  // Haritadaki tarif katmanı: hedefe giden yol (altın), hedef durak etiketi ve yön gösteren konum noktası.
+  function navKatman() {
+    if (N.lyr) return;
+    if (!N.dinle) { // elle kaydırınca harita konumu izlemeyi bırakır ("Konumuma ortala" düğmesi çıkar); elle yakınlaştırma korunur
+      N.dinle = true;
+      map.on("moveend", () => { N.oto = false; });
+      map.on("dragstart", () => { if (N.on) navFollow(false); });
+      map.on("zoomend", () => { if (N.on && !N.oto) N.zoom = map.getZoom(); });
+    }
+    N.lyr = L.layerGroup().addTo(map);
+    N.yolK = L.polyline([], { color: "#0E1B2E", weight: 11, opacity: 0.85, lineCap: "round", lineJoin: "round", interactive: false }).addTo(N.lyr);
+    N.yol = L.polyline([], { color: "#F5C451", weight: 6, opacity: 1, lineCap: "round", lineJoin: "round", interactive: false }).addTo(N.lyr);
+    N.pk = L.marker([N.pos.lat, N.pos.lng], { icon: L.divIcon({ className: "lmk", html: '<div class="npuck"><span></span></div>', iconSize: [0, 0] }), interactive: false, keyboard: false, zIndexOffset: 3000 }).addTo(N.lyr);
   }
-  const gj = (c) => ({ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: c.length > 1 ? c : [] } });
-  function glInit() {
-    const ras = (u) => ({ type: "raster", tiles: [u], tileSize: 256, maxzoom: 19 }), gor = (on) => ({ visibility: on ? "visible" : "none" });
-    const cizgi = { "line-cap": "round", "line-join": "round" }, ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/";
-    const gl = new maplibregl.Map({
-      container: "nmap", attributionControl: false, center: [N.pos.lng, N.pos.lat], zoom: 17.4, pitch: 58, bearing: N.brg, maxPitch: 60, minZoom: 11, maxZoom: 19.4, maxBounds: [[28.6, 40.85], [29.35, 41.25]], fadeDuration: 120,
-      style: { version: 8,
-        sources: { uydu: ras(ESRI + "World_Imagery/MapServer/tile/{z}/{y}/{x}"), ad: ras(ESRI + "Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"), sokak: ras("https://tile.openstreetmap.org/{z}/{x}/{y}.png"), kalan: { type: "geojson", data: gj([]) }, yol: { type: "geojson", data: gj([]) } },
-        layers: [
-          { id: "zemin", type: "background", paint: { "background-color": "#16202F" } },
-          { id: "uydu", type: "raster", source: "uydu", layout: gor(S.sat) }, { id: "ad", type: "raster", source: "ad", layout: gor(S.sat) }, { id: "sokak", type: "raster", source: "sokak", layout: gor(!S.sat) },
-          { id: "kalan-k", type: "line", source: "kalan", layout: cizgi, paint: { "line-color": "#0E1B2E", "line-width": 9, "line-opacity": 0.55 } },
-          { id: "kalan", type: "line", source: "kalan", layout: cizgi, paint: { "line-color": "#FFFFFF", "line-width": 4.5, "line-opacity": 0.92 } },
-          { id: "yol-k", type: "line", source: "yol", layout: cizgi, paint: { "line-color": "#0E1B2E", "line-width": 13 } },
-          { id: "yol", type: "line", source: "yol", layout: cizgi, paint: { "line-color": "#F5C451", "line-width": 7.5 } },
-        ] },
-    });
-    const elle = (e) => !!(e && e.originalEvent);
-    gl.on("load", () => { N.hazir = true; glKatman(); navDraw(); navCam(true); });
-    for (const olay of ["dragstart", "rotatestart", "pitchstart"]) gl.on(olay, (e) => { if (elle(e)) navFollow(false); });
-    gl.on("zoomend", (e) => { if (elle(e)) N.zoom = gl.getZoom(); });
-    gl.on("error", () => {});
-    N.gl = gl;
-    const pk = document.createElement("div"); pk.className = "npuck"; pk.innerHTML = "<span></span>";
-    N.puck = new maplibregl.Marker({ element: pk, rotationAlignment: "map", pitchAlignment: "map" }).setLngLat([N.pos.lng, N.pos.lat]).addTo(gl);
-  }
-  function glKatman() {
-    $("#nav-cap").innerHTML = (S.sat ? "Uydu: Esri, Maxar, Earthstar Geographics" : "© OpenStreetMap katkıda bulunanlar") + (YOL ? " · Yol: © OpenStreetMap" : "");
-    if (!N.gl || !N.hazir) return;
-    const v = (id, on) => N.gl.setLayoutProperty(id, "visibility", on ? "visible" : "none");
-    v("uydu", S.sat); v("ad", S.sat); v("sokak", !S.sat);
-  }
-  function navMarkers() {
-    if (!N.gl) return;
-    N.mk.forEach((m) => m.remove()); N.mk = [];
-    S.route.forEach((id, k) => {
-      const t = STOPS[id], el = document.createElement("div");
-      el.className = `nmk c-${t.r.id}${k === N.i ? " hedef" : k < N.i ? " gecti" : ""}`;
-      el.innerHTML = `<i><s>${k + 1}</s></i>${k === N.i ? `<b>${esc(t.name)}</b>` : ""}`;
-      N.mk.push(new maplibregl.Marker({ element: el, anchor: "bottom" }).setLngLat([t.lng, t.lat]).addTo(N.gl));
-    });
+  function navHedef() {
+    if (N.hedef) { N.hedef.remove(); N.hedef = null; }
+    const t = STOPS[S.route[N.i]]; if (!t) return;
+    const el = `<div class="nmk hedef c-${t.r.id}"><b>${esc(t.name)}</b><i><s>${N.i + 1}</s></i></div>`;
+    N.hedef = L.marker([t.lat, t.lng], { icon: L.divIcon({ className: "lmk nmk-k", html: el, iconSize: [0, 0] }), interactive: false, keyboard: false, zIndexOffset: 2500 }).addTo(N.lyr);
   }
   function navDraw() {
-    if (!N.on || !N.gl || !N.hazir) return;
-    const Lg = N.leg, a = navAt(Lg, N.along), q = unproj(a[0], a[1]);
-    N.gl.getSource("yol").setData(gj(N.vardi ? [] : [[q.lng, q.lat], ...Lg.ll.slice(a[2])]));
-    N.gl.getSource("kalan").setData(gj(navRest()));
+    if (!N.on || !N.lyr) return;
+    const Lg = N.leg, a = navAt(Lg, N.along), q = unproj(a[0], a[1]), cizgi = N.vardi ? [] : [[q.lat, q.lng], ...Lg.ll.slice(a[2])];
+    N.yolK.setLatLngs(cizgi); N.yol.setLatLngs(cizgi);
   }
+  // Harita konumu izler; konum noktası üstteki tarif şeridiyle alttaki kartın arasında, ortada durur.
   function navCam(jump) {
-    const p = N.pos; if (!p) return;
-    if (N.lf) { meMk.setLatLng([p.lat, p.lng]); if (N.follow) map.setView([p.lat, p.lng], Math.max(map.getZoom(), 17), { animate: !jump && !RM.matches }); return; }
-    if (!N.gl) return;
-    N.puck.setLngLat([p.lng, p.lat]).setRotation(p.head != null ? p.head : N.brg);
+    const p = N.pos; if (!p || !N.pk) return;
+    N.pk.setLatLng([p.lat, p.lng]);
+    const ok = N.pk.getElement() && N.pk.getElement().querySelector(".npuck span"); if (ok) ok.style.transform = `rotate(${Math.round(p.head != null ? p.head : N.brg)}deg)`;
     if (!N.follow) return;
-    const h = navEl.clientHeight || 600;
-    const o = { center: [p.lng, p.lat], bearing: N.v3 ? N.brg : 0, pitch: N.v3 ? 58 : 0, zoom: N.zoom || (N.v3 ? 17.6 : 16.6), padding: { top: N.v3 ? Math.round(h * 0.3) : 96, bottom: 180, left: 0, right: 0 } };
-    if (jump || RM.matches) N.gl.jumpTo(o); else N.gl.easeTo({ ...o, duration: 950, easing: (t) => t * (2 - t), essential: true });
+    const z = N.zoom || 17.5, ust = $(".nav-top").offsetHeight + 10, alt = DESK.matches ? 0 : $(".nav-bot").offsetHeight + 10;
+    const c = map.unproject(map.project([p.lat, p.lng], z).add([0, (alt - ust) / 2]), z);
+    N.oto = true; map.setView(c, z, { animate: !jump && !RM.matches, duration: 0.8 });
+    if (jump || RM.matches) N.oto = false;
   }
   function navFollow(on) { N.follow = on; $("#nav-c").hidden = on; if (on) { N.zoom = 0; navCam(); } }
 
@@ -1268,7 +1229,7 @@
     N.along = N.real ? sn.along : 0;
     const dH = Math.hypot(p.x - hedef.x, p.y - hedef.y);
     if (N.real && !N.vardi && (dH < 28 || (N.legOk && Lg.len - N.along < 12 && sn.ham < 30))) {
-      N.vardi = true; navMsg(`${N.i + 1}. durağa vardın: ${hedef.name}`); navMarkers();
+      N.vardi = true; navMsg(`${N.i + 1}. durağa vardın: ${hedef.name}`);
       try { if (navigator.vibrate) navigator.vibrate(120); } catch (e) {}
     }
     // Rotadan 45 metreden fazla uzaklaşılırsa yol bulunulan yerden yeniden hesaplanır (en sık 20 saniyede bir).
@@ -1303,14 +1264,16 @@
     if (!N.real) N.pos = { lat: t.lat, lng: t.lng, x: t.x, y: t.y, acc: 0, head: null }; // önizlemede duraktan durağa ilerlenir
     N.i++; N.vardi = false; navMsg(N.real ? "" : $("#nav-msg").textContent, true); if (N.real) navMsg("");
     const h = STOPS[S.route[N.i]]; if (Math.hypot(h.x - N.pos.x, h.y - N.pos.y) > 2) N.brg = brgOf([N.pos.x, N.pos.y], [h.x, h.y]);
-    navLoadLeg(); navMarkers(); navTick(true);
+    navHedef(); navLoadLeg(); navTick(true);
   }
   function navStop(bitti) {
     if (!N.on) return;
     N.on = false; N.seq++; N.busy = false;
     if (N.watch != null) { try { navigator.geolocation.clearWatch(N.watch); } catch (e) {} N.watch = null; }
     if (N.wake) { try { N.wake.release(); } catch (e) {} N.wake = null; }
-    navEl.hidden = true; app.classList.remove("navda", "nav-lf"); navMsg("");
+    if (N.lyr) { N.lyr.remove(); N.lyr = N.yolK = N.yol = N.hedef = N.pk = null; }
+    navEl.hidden = true; app.classList.remove("navda"); navMsg("");
+    if (meMk) meMk.setOpacity(1);
     const p = N.pos; if (N.real && p) setMe(p.lat, p.lng, "gps", "Konumun", false);
     syncGo();
     if (REAL) { map.invalidateSize({ animate: false }); if (S.route.length) fit([S.me, ...S.route.map((id) => STOPS[id])], 600, 0.26); }
@@ -1324,28 +1287,19 @@
       if (!ok) return;
       W.soruldu = true; yolIzni(true);
     }
-    Object.assign(N, { on: true, i: 0, vardi: false, real: false, follow: true, zoom: 0, along: 0, offN: 0, v3: true });
+    Object.assign(N, { on: true, i: 0, vardi: false, real: false, follow: true, zoom: 0, along: 0, offN: 0 });
     N.pos = { lat: S.me.lat, lng: S.me.lng, x: S.me.x, y: S.me.y, acc: 0, head: null };
     const t0 = STOPS[S.route[0]]; N.brg = Math.hypot(t0.x - S.me.x, t0.y - S.me.y) > 2 ? brgOf([S.me.x, S.me.y], [t0.x, t0.y]) : 0;
     if (S.picking) stopPick();
-    navEl.hidden = false; app.classList.add("navda"); syncGo(); $("#nav-c").hidden = true; $("#nav-v").setAttribute("aria-pressed", true); $("#nav-v").firstElementChild.textContent = "3B";
-    glKatman(); navLoadLeg();
-    const ok = await glLoad();
-    if (!N.on) return;
-    if (ok && !N.gl) { try { glInit(); } catch (e) { N.gl = null; N.puck = null; } }
-    if (N.gl) { N.lf = false; N.gl.resize(); glKatman(); navMarkers(); navDraw(); navCam(true); }
-    else { N.lf = true; app.classList.add("nav-lf"); navMsg("Eğik görünüm bu cihazda açılamadı; tarif düz haritada sürüyor."); navCam(true); }
+    if (S.sel != null) closeDetail();
+    navEl.hidden = false; app.classList.add("navda"); syncGo(); $("#nav-c").hidden = true;
+    if (meMk) meMk.setOpacity(0);
+    map.stop(); navCap(); navKatman(); navHedef(); navLoadLeg(); navCam(true);
     navWatch(); navWake();
   }
   $("#nav-x").addEventListener("click", () => navStop());
   $("#nav-s").addEventListener("click", navNext);
   $("#nav-c").addEventListener("click", () => navFollow(true));
-  $("#nav-v").addEventListener("click", (e) => {
-    N.v3 = !N.v3; N.zoom = 0; const b = e.currentTarget;
-    b.setAttribute("aria-pressed", N.v3); b.firstElementChild.textContent = N.v3 ? "3B" : "2B"; b.setAttribute("aria-label", N.v3 ? "Üstten görünüme geç" : "Eğik görünüme geç");
-    N.follow = true; $("#nav-c").hidden = true; navCam();
-  });
-  new ResizeObserver(() => { if (N.on && N.gl) N.gl.resize(); }).observe(navEl);
 
   /* ——— Bilgi kutusu ——— */
   const infoBtn = $("#info-btn");

@@ -63,12 +63,12 @@ svg.ic { width: 1.25em; height: 1.25em; flex: none; fill: none; stroke: currentC
 .app { position: relative; height: 100%; overflow: hidden; overflow: clip; isolation: isolate; --sheet-vis: 0px; }
 
 /* ——— Harita ——— */
-#map { position: absolute; inset: 0; overflow: hidden; overflow: clip; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; animation: map-in 1.1s var(--ease) both; }
+#map { position: absolute; inset: 0; overflow: hidden; overflow: clip; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; animation: map-in .45s ease-out both; }
 #map.drag { cursor: grabbing; }
 #map.picking { cursor: crosshair; }
 #base { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 #mk { position: absolute; inset: 0; pointer-events: none; }
-@keyframes map-in { from { opacity: 0; filter: blur(10px); transform: scale(1.03); } to { opacity: 1; filter: none; transform: none; } }
+@keyframes map-in { from { opacity: 0; } to { opacity: 1; } }
 
 .mk { position: absolute; left: 0; top: 0; width: 32px; height: 32px; margin: -16px 0 0 -16px; display: grid; place-items: center; pointer-events: auto; border-radius: 50%; will-change: transform; }
 .mk i { --ms: 13px; display: grid; place-items: center; width: var(--ms); height: var(--ms); border-radius: 50%; background: var(--c); color: var(--mk-fg);
@@ -352,6 +352,7 @@ a.btn { text-decoration: none; }
 
 /* ——— Gerçek harita (Leaflet) ——— */
 #lmap { position: absolute; inset: 0; z-index: 0; isolation: isolate; background: var(--map-land); font: inherit; outline-offset: -2px; }
+#map.real.is-sat #lmap { background: #2C3530; } /* uydu görüntüsü gelene kadar açık renk parlamasın */
 #map.real { cursor: auto; touch-action: auto; --r1: #2E5AAC; --r2: #B8862F; --r3: #B04A62; --r4: #2F8A73; --r5: #5B6FB8; --r6: #A9773A; --mk-ring: #FFFFFF; --mk-fg: #FFFFFF; --me: #2F6FED; --route: #0E1B2E; --route-casing: #FFFFFF; }
 #map.real.is-sat { --route: #FFE08A; --route-casing: #0E1B2E; }
 #map.real.z-lo { --fr: 6px; } #map.real.z-mid { --fr: 10px; } #map.real.z-hi { --fr: 16px; }
@@ -491,14 +492,11 @@ a.btn { text-decoration: none; }
 @media (min-width: 900px) { .sor { left: calc(50% + 210px); } .app.navda .sor { left: 50%; } }
 
 /* ——— Rotayı başlat: yol tarifi ekranı ——— */
-.nav { position: absolute; inset: 0; z-index: 80; background: #16202F; color: #fff; overflow: hidden; animation: nav-in .45s var(--ease) both; }
-@keyframes nav-in { from { opacity: 0; } }
-#nmap { position: absolute; inset: 0; }
-.app.nav-lf .nav { background: none; pointer-events: none; animation: none; }
-.app.nav-lf .nav > * { pointer-events: auto; }
-.app.nav-lf #nmap { display: none; }
-.app.nav-lf #nav-v { display: none; }
-.app.nav-lf .sheet, .app.nav-lf .chips, .app.nav-lf .fabs, .app.nav-lf .cap, .app.nav-lf .scale, .app.nav-lf .top, .app.nav-lf .pick { display: none; }
+/* Tarif ekranı, açık olan düz haritanın üstünde durur (ek harita yüklenmez): üstte tarif şeridi, altta durak kartı, sağda "Konumuma ortala". */
+.nav { position: absolute; inset: 0; z-index: 80; color: #fff; overflow: hidden; pointer-events: none; }
+.nav > * { pointer-events: auto; animation: nav-in .3s var(--ease) both; }
+@keyframes nav-in { from { opacity: 0; transform: translateY(6px); } }
+.app.navda .sheet, .app.navda .chips, .app.navda .fabs, .app.navda .cap, .app.navda .scale, .app.navda .top, .app.navda .pick, .app.navda .go { display: none; }
 .nav-top { position: absolute; z-index: 3; left: max(10px, env(safe-area-inset-left, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); top: calc(10px + env(safe-area-inset-top, 0px)); display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 14px; padding: 12px 16px 12px 12px; border-radius: 22px; background: rgba(14,27,46,.94); border: 1px solid rgba(255,255,255,.14); box-shadow: 0 24px 44px -22px rgba(0,0,0,.8); }
 .nav-ic { width: 58px; height: 58px; border-radius: 17px; display: grid; place-items: center; background: linear-gradient(135deg, var(--gold-1), var(--gold-2) 45%, var(--gold-3)); color: #1A2B48; font-size: 26px; }
 .nav-ic .ic { stroke-width: 2.4; }
@@ -529,8 +527,10 @@ a.btn { text-decoration: none; }
   .nav-side { right: 16px; bottom: 24px; }
   .nav-cap { left: 412px; bottom: 16px; }
 }
-/* Yol tarifi haritasındaki işaretler */
-.npuck { width: 34px; height: 34px; }
+/* Yol tarifi haritasındaki işaretler: yön gösteren konum noktası ve hedef durağın etiketi */
+.npuck { position: absolute; left: -17px; top: -17px; width: 34px; height: 34px; }
+.npuck span { transition: transform .5s var(--ease); }
+.nmk-k .nmk { position: absolute; left: 0; bottom: 0; transform: translateX(-50%); }
 .npuck span { position: absolute; inset: 0; border-radius: 50%; background: #2F6FED; box-shadow: 0 0 0 4px #fff, 0 0 0 14px rgba(47,111,237,.26), 0 10px 18px -4px rgba(0,0,0,.6); }
 .npuck span::after { content: ""; position: absolute; left: 50%; top: 50%; width: 0; height: 0; margin: -11px 0 0 -8px; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 18px solid #fff; }
 .nmk { display: grid; justify-items: center; gap: 0; --c: #0E1B2E; cursor: default; }
@@ -540,8 +540,7 @@ a.btn { text-decoration: none; }
 .nmk.hedef i { width: 38px; height: 38px; font-size: 15px; box-shadow: 0 0 0 3px #fff, 0 0 0 8px color-mix(in srgb, var(--c) 40%, transparent), 0 10px 16px -4px rgba(0,0,0,.65); }
 .nmk.gecti { opacity: .55; }
 .nmk.gecti i { background: #5A6578; }
-.nav .c-r1 { --c: #2E5AAC; } .nav .c-r2 { --c: #B8862F; } .nav .c-r3 { --c: #B04A62; } .nav .c-r4 { --c: #2F8A73; } .nav .c-r5 { --c: #5B6FB8; } .nav .c-r6 { --c: #A9773A; }
-.nav .maplibregl-canvas { outline: none; }
+.nmk.c-r1 { --c: #2E5AAC; } .nmk.c-r2 { --c: #B8862F; } .nmk.c-r3 { --c: #B04A62; } .nmk.c-r4 { --c: #2F8A73; } .nmk.c-r5 { --c: #5B6FB8; } .nmk.c-r6 { --c: #A9773A; }
 
 /* Uydu görüntüsü koyu olduğu için panel ve çipler onun üstünde daha dolu durur. */
 #map.real.is-sat ~ .sheet { background: color-mix(in srgb, var(--glass-strong) 93%, transparent); }

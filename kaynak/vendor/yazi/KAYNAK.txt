@@ -1,0 +1,8 @@
+Sitenin yazı tipleri (site ve harita uygulaması aynı iki dosyayı kullanır; site/build.js bunları a/ klasörüne kopyalar).
+
+inter.woff2              Inter 4.001, değişken kalınlık (wght 100–900). Lisans: SIL Open Font License 1.1 (OFL-Inter.txt).
+plus-jakarta-sans.woff2  Plus Jakarta Sans 2.071, değişken kalınlık (wght 200–800). Lisans: SIL Open Font License 1.1 (OFL-PlusJakartaSans.txt).
+
+İkisi de 19 Kasım 2026'da Google Fonts'tan, yalnızca sitede gereken harflerle (Latin, Latin-1, Latin Genişletilmiş-A: Türkçe ğ ı İ ş Ş dahil,
+tire, tırnak, üç nokta, ok, €, ₺ gibi işaretler) tek dosya olarak alındı. Lisans metinleri @fontsource-variable paketlerinden (5.3.0) kopyalandı.
+Yazı tiplerinde "Reserved Font Name" yoktur.

@@ -31,34 +31,49 @@
   addEventListener("keydown", (e) => { if (e.key === "Escape") menuAc(false); });
   genis.addEventListener("change", () => menuAc(false));
   addEventListener("pageshow", (e) => { if (e.persisted) menuAc(false); });
-  $$(".acilir > button").forEach((b) => b.addEventListener("click", () => b.focus()));
 
-  /* ——— Geniş ekran: sol sütun. 1480 pikselden geniş ekranda sabit durur (kapatılırsa tercih saklanır),
-     daha dar masaüstünde "Menü" düğmesiyle sayfanın üstüne açılır. Tam ekran harita sayfasında hep üstüne açılır. ——— */
-  const yan = $("#yan"), yb = $(".yan-btn"), kok = document.documentElement;
-  if (yan && yb) {
+  /* ——— Geniş ekran: sol sütun. "Menü" düğmesi sütunun en başındadır; sütun kapalıyken soldaki ince şeritteki düğme açar.
+     1480 pikselden geniş ekranda sütun sabit durur (kapatılırsa tercih saklanır), daha dar masaüstünde sayfanın üstüne açılır.
+     Tam ekran harita sayfasında hep üstüne açılır. ——— */
+  const yan = $("#yan"), ac = $(".yan-ac"), kapa = $(".yan-kapa"), kok = document.documentElement;
+  if (yan && ac && kapa) {
     const sabit = matchMedia("(min-width: 1480px)"), sabitMi = () => sabit.matches && sayfa !== "rota-olustur";
     const acikMi = () => (sabitMi() ? !kok.classList.contains("yan-kapali") : kok.classList.contains("yan-acik"));
-    const yaz = () => { const a = acikMi(); yb.setAttribute("aria-expanded", a); yan.inert = !a; };
-    const ayarla = (a) => {
+    const kay = $(".yan-kay");
+    const yaz = () => { const a = acikMi(); ac.setAttribute("aria-expanded", a); kapa.setAttribute("aria-expanded", a); yan.inert = !a; };
+    const ayarla = (a, odak) => {
       if (sabitMi()) {
         kok.classList.toggle("yan-kapali", !a); try { localStorage.setItem("zr.yan", a ? "1" : "0"); } catch (e) {}
       } else kok.classList.toggle("yan-acik", a);
       yaz();
+      if (odak) (a ? kapa : ac).focus({ preventScroll: true });
     };
-    yb.addEventListener("click", () => ayarla(!acikMi()));
+    ac.addEventListener("click", () => ayarla(true, true));
+    kapa.addEventListener("click", () => ayarla(false, true));
+    // Şeritteki kısayol: sütunu açar, o grubu açıp başa getirir
+    $$(".yan-ray [data-grup]").forEach((b) => b.addEventListener("click", () => {
+      const g = document.getElementById(b.dataset.grup); ayarla(true);
+      if (g) { g.open = true; kay.scrollTo({ top: Math.max(0, g.offsetTop - 64), behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
+    }));
     $(".yan-perde").addEventListener("click", () => ayarla(false));
-    addEventListener("keydown", (e) => { if (e.key === "Escape" && !sabitMi() && acikMi()) { ayarla(false); yb.focus(); } });
+    addEventListener("keydown", (e) => { if (e.key === "Escape" && !sabitMi() && acikMi()) ayarla(false, true); });
     yan.addEventListener("click", (e) => { if (e.target.closest("a") && !sabitMi()) ayarla(false); });
     const dar = () => { kok.classList.remove("yan-acik"); yaz(); };
     sabit.addEventListener("change", dar); genis.addEventListener("change", dar);
     addEventListener("pageshow", (e) => { if (e.persisted) dar(); });
     // Sayfa değişince sütun kaldığı yerden devam etsin
-    const kay = $(".yan-kay");
     try { const y = +sessionStorage.getItem("zr.yan.y"); if (y) kay.scrollTop = y; } catch (e) {}
     addEventListener("pagehide", () => { try { sessionStorage.setItem("zr.yan.y", kay.scrollTop); } catch (e) {} });
     yaz();
   }
+  // Üst şeritteki "Güzergâhlar" listesi: fareyle üstüne gelince açılır; dokunmatik ekranda ve klavyede düğmeyle açılıp kapanır
+  $$(".acilir").forEach((d) => {
+    const b = $("button", d), yaz = (a) => { d.classList.toggle("acik", a); b.setAttribute("aria-expanded", a); };
+    b.addEventListener("click", (e) => { e.preventDefault(); yaz(!d.classList.contains("acik")); });
+    d.addEventListener("mouseleave", () => yaz(false));
+    d.addEventListener("focusout", (e) => { if (!d.contains(e.relatedTarget)) yaz(false); });
+    addEventListener("keydown", (e) => { if (e.key === "Escape" && d.classList.contains("acik")) { yaz(false); b.focus(); } });
+  });
 
   /* ——— Hesap durumu: "Giriş yap" yerine kullanıcı adı ——— */
   function hesapYaz() {
@@ -67,12 +82,20 @@
   }
   hesapYaz(); if (HESAP) HESAP.dinle(hesapYaz);
 
-  /* ——— Görünür oldukça açılan kartlar ——— */
+  /* ——— Aşağı indikçe beliren kartlar ———
+     Sayfa açıldığında ekranda olan her şey olduğu gibi görünür (ikinci bir belirme, titreme olmaz). Yalnızca ekranın altında kalan kartlar
+     gizlenir; ziyaretçi oraya inince yumuşakça yükselip belirir. Gizleme ekran dışında yapıldığı için göze görünmez. */
   const gz = $$("[data-g]");
-  if ("IntersectionObserver" in window) {
-    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("gor"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -6% 0px", threshold: 0.06 });
-    gz.forEach((el) => io.observe(el));
-  } else gz.forEach((el) => el.classList.add("gor"));
+  if ("IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      const el = e.target; io.unobserve(el);
+      el.classList.add("acil"); el.classList.remove("bekle");
+      setTimeout(() => el.classList.remove("acil"), 1400);
+    }), { rootMargin: "0px 0px -4% 0px", threshold: 0.04 });
+    const alt = innerHeight * 0.98;
+    gz.forEach((el) => { if (el.getBoundingClientRect().top > alt) { el.classList.add("bekle"); io.observe(el); } });
+  }
 
   /* ——— Sayfa içi bağlantı şeridi (Ücretler ve Saatler) ——— */
   const capa = $(".capa");
@@ -253,7 +276,7 @@
       const a = e.target.closest('.leaflet-popup a[href^="#durak-"]');
       if (a) {
         if (kart.classList.contains("buyuk")) buyut(false);
-        const h = $(a.getAttribute("href")); if (h) { $$(".durak.vurgu").forEach((x) => x.classList.remove("vurgu")); h.classList.add("vurgu", "gor"); }
+        const h = $(a.getAttribute("href")); if (h) { $$(".durak.vurgu").forEach((x) => x.classList.remove("vurgu")); h.classList.add("vurgu"); h.classList.remove("bekle"); }
       }
     });
   }
