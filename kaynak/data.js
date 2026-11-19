@@ -3,12 +3,12 @@ globalThis.ZR_DATA = (() => {
   const BASE = "https://ziyaretrehberim.com/guzergahlar/";
   /* PANEL:BAS · Buradan PANEL:SON satırına kadar olan bölümü yönetici paneli de yazar (/yonetim/). Elle düzenlerken biçimi koru. */
   const ROUTES = [
-    {"id":"r1","no":"01","name":"Sahâbe-i Kirâm — 1","kicker":"Ashâb-ı kirâm","concept":"sahabe","slug":"sahabe-1","km":"3,8 km","sure":"≈ 3 saat","lede":"Eyüp Sultan’dan Ayvansaray surlarına ve Eğrikapı’ya, ashâbın izinde."},
+    {"id":"r1","no":"01","name":"Sahâbe-i Kirâm — 1","kicker":"Ashâb-ı kirâm","concept":"sahabe","slug":"sahabe-1","km":"5,3 km","sure":"≈ 3 saat","lede":"Eyüp Sultan’dan Ayvansaray surlarına ve Eğrikapı’ya, ashâbın izinde."},
     {"id":"r2","no":"02","name":"Sahâbe-i Kirâm — 2","kicker":"Ashâb-ı kirâm","concept":"sahabe","slug":"sahabe-2","km":"2,9 km","sure":"≈ 4 saat","lede":"Surlardan Balat’a, Eminönü ve Karaköy’den Sultanahmet ile Koca Mustafa Paşa’ya."},
-    {"id":"r3","no":"03","name":"Padişah Ziyaretleri","kicker":"Türbeler","concept":"padisah","slug":"padisah-ziyaretleri","km":"6,3 km","sure":"≈ 4,5 saat","lede":"Eyüp’ten tarihî yarımadaya, Osmanlı sultanları ve hânedânının türbeleri."},
-    {"id":"r4","no":"04","name":"Tarihî Camiler","kicker":"Selâtin camileri","concept":"cami","slug":"tarihi-camiler","km":"9,2 km","sure":"≈ 7 saat","lede":"Mimar Sinan’dan baroka, Eyüp’ten Marmara kıyısına şâheser camiler."},
-    {"id":"r5","no":"05","name":"Tarihî Mekânlar ve Gezi","kicker":"Klasik gezi","concept":"mekan","slug":"tarihi-mekanlar-gezi","km":"5,1 km","sure":"≈ 9 saat","lede":"Saraylar, sarnıçlar, çarşılar ve kulelerle klasik İstanbul rotası."},
-    {"id":"r6","no":"06","name":"Suriçi Ziyaretleri","kicker":"Kara surları","concept":"sur","slug":"surici-ziyaretleri","km":"5,7 km","sure":"≈ 3,5 saat","lede":"Theodosius surları boyunca, Marmara’dan Haliç’e bir yürüyüş."},
+    {"id":"r3","no":"03","name":"Padişah Ziyaretleri","kicker":"Türbeler","concept":"padisah","slug":"padisah-ziyaretleri","km":"6,9 km","sure":"≈ 4,5 saat","lede":"Eyüp’ten tarihî yarımadaya, Osmanlı sultanları ve hânedânının türbeleri."},
+    {"id":"r4","no":"04","name":"Tarihî Camiler","kicker":"Selâtin camileri","concept":"cami","slug":"tarihi-camiler","km":"10,1 km","sure":"≈ 7 saat","lede":"Mimar Sinan’dan baroka, Eyüp’ten Marmara kıyısına şâheser camiler."},
+    {"id":"r5","no":"05","name":"Tarihî Mekânlar ve Gezi","kicker":"Klasik gezi","concept":"mekan","slug":"tarihi-mekanlar-gezi","km":"6,5 km","sure":"≈ 9 saat","lede":"Saraylar, sarnıçlar, çarşılar ve kulelerle klasik İstanbul rotası."},
+    {"id":"r6","no":"06","name":"Suriçi Ziyaretleri","kicker":"Kara surları","concept":"sur","slug":"surici-ziyaretleri","km":"6,5 km","sure":"≈ 3,5 saat","lede":"Theodosius surları boyunca, Marmara’dan Haliç’e bir yürüyüş."},
   ];
   ROUTES.forEach((r) => (r.url = BASE + r.slug + "/"));
 

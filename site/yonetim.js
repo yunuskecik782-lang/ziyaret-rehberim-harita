@@ -285,8 +285,8 @@ ${alan("yer", "Yer", d.yer, { not: "yapı, mahalle" })}${alan("acik", "Açıklam
     const r = M.rotalar[S.rota], m = M.metin[r.id];
     $("#form").innerHTML = `<header><h2>Rota ${esc(r.no)}</h2><button class="btn kucuk" type="button" data-kapat>Kapat</button></header>
 ${alan("R.name", "Rota adı", r.name)}${alan("R.kicker", "Üst başlık", r.kicker)}${alan("R.lede", "Kısa tanıtım", r.lede, { cok: 2 })}
-<div class="iki">${alan("R.km", "Yürüyüş", r.km, { not: "ör. 3,8 km" })}${alan("R.sure", "Süre", r.sure, { not: "ör. ≈ 3 saat" })}</div>
-<h3>Rota sayfası</h3>${alan("M.h1", "Sayfa başlığı", m.h1)}${alan("M.pills", "Üstteki kısa bilgiler", m.pills.join("\n"), { cok: 4, not: "her satır bir bilgi; durak sayısı kendiliğinden güncellenir" })}
+<div class="iki">${alan("R.km", "Yürüyüş", r.km, { not: "ör. 5,3 km; sokaktan ölçülen toplam" })}${alan("R.sure", "Süre", r.sure, { not: "ör. ≈ 3 saat" })}</div>
+<h3>Rota sayfası</h3>${alan("M.h1", "Sayfa başlığı", m.h1)}${alan("M.pills", "Üstteki kısa bilgiler", m.pills.join("\n"), { cok: 4, not: "her satır bir bilgi; durak sayısı ve yürüyüş mesafesi kendiliğinden güncellenir" })}
 ${alan("M.about", "Güzergâh hakkında", blok(m.about), { cok: 7, not: "paragraflar arasında boş satır bırak" })}
 ${alan("M.how.start", "Nasıl gidilir: başlangıç", m.how.start, { cok: 3 })}${alan("M.how.along", "Nasıl gidilir: rota boyunca", m.how.along, { cok: 3 })}${alan("M.how.back", "Nasıl gidilir: dönüş", m.how.back, { cok: 3 })}
 ${alan("M.tip", "İpuçları", blok(m.tip), { cok: 4, not: "her ipucu ayrı paragraf" })}

@@ -238,10 +238,14 @@ const ZR_IC = {"fwd":"<path d=\"M9.5 6l6 6-6 6\"/>","down":"<path d=\"M6 9.5l6 6
     ciz();
 
     const durum = $("#tarif-durum"), tarif = $("#tarif"), hYol = $("#h-yol");
+    // Yürüyüş mesafesi sayfada tek sayıdır: başlıktaki bilgi satırı ile haritanın altındaki satır aynı sayıyı gösterir.
+    // Sokak yolu ölçülünce ikisi de ölçülen sayıyı yazar; ölçülemezse ikisi de sayfadaki kayıtlı sayıyı (R.km) gösterir.
+    const hapKm = $(".rota-bas .hap[data-yuru]"), hapYazi = hapKm && [...hapKm.childNodes].find((x) => x.nodeType === 3);
     function tarifYaz() {
       const yuru = ara.filter((a) => !a.tasit), sokakli = yuru.length && yuru.every((a) => a.pts);
-      const top = yuru.reduce((s, a) => s + (a.pts ? a.d : a.d * 1.3), 0);
-      hYol.textContent = (sokakli ? "Yürüyüş yolu sokaklardan · " : "Yürüyüş yaklaşık · ") + fmtD(top) + (tasit.size ? " + " + tasit.size + " taşıt geçişi" : "");
+      const top = yuru.reduce((s, a) => s + (a.pts ? a.d : a.d * 1.3), 0), km = sokakli || !R.km ? fmtD(top) : R.km;
+      hYol.textContent = (sokakli ? "Yürüyüş yolu sokaklardan · " : "Yürüyüş yaklaşık · ") + km + (tasit.size ? " + " + tasit.size + " taşıt geçişi" : "");
+      if (sokakli && hapYazi) hapYazi.nodeValue = km + " yürüyüş";
       tarif.innerHTML = ara.map((a, k) => {
         const b = DU[k + 1], bas2 = `<span class="ar"><span class="no">${DU[k].n}</span>${ic("fwd")}<span class="no">${b.n}</span></span><span class="ad">${esc(b.ad)}</span>`;
         if (a.tasit) return `<details><summary>${bas2}<small>taşıtla · ${fmtD(a.d)}</small>${ic("down")}</summary><ol><li>${ic("tram")}<span>Bu iki durak arası uzun; tramvay, metro ya da vapurla geçilir. Hangi hattı kullanacağını <a href="${R.ulasim}">Ulaşım</a> sayfası gösterir.</span></li></ol></details>`;
@@ -251,7 +255,9 @@ const ZR_IC = {"fwd":"<path d=\"M9.5 6l6 6-6 6\"/>","down":"<path d=\"M6 9.5l6 6
     }
     // Sokak yolu: aynı rota için 30 gün bu cihazda saklanır; yol tarifi sunucusuna her açılışta yeniden sorulmaz.
     const ozet = (s) => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0; return h.toString(36); };
-    const CK = "zr.yolc.1." + R.id + ".";
+    // Anahtardaki sayı, yol hesabının kuralı değişince artırılır (2: aynı avludaki duraklar doğrudan bağlanır); eski kayıtlar silinir.
+    const CK = "zr.yolc.2." + R.id + ".";
+    try { for (let i = localStorage.length - 1; i >= 0; i--) { const k = localStorage.key(i); if (k && k.startsWith("zr.yolc.1.")) localStorage.removeItem(k); } } catch (e) {}
     const saklaAl = (k) => { try { const v = JSON.parse(localStorage.getItem(CK + k) || "null"); if (v && Date.now() - v.t < 30 * 864e5) return v.l; } catch (e) {} return null; };
     const saklaYaz = (k, l) => { try { localStorage.setItem(CK + k, JSON.stringify({ t: Date.now(), l: l.map((x) => ({ d: Math.round(x.d), pts: x.pts.map((p) => [+p[0].toFixed(5), +p[1].toFixed(5)]), adim: x.adim })) })); } catch (e) {} };
     async function yolGetir() {

@@ -60,7 +60,9 @@ globalThis.ZR_YOL = (() => {
         // Durak yoldan içerideyse (avlu, hazire) çizgi durağın kendisine kadar uzatılır.
         const a = pts[i], b = pts[i + 1];
         if (!hat.length) hat.push([+a[0], +a[1]], [+b[0], +b[1]]);
-        const bas = olc(a, hat[0]), son = olc(hat[hat.length - 1], b);
+        const bas = olc(a, hat[0]), son = olc(hat[hat.length - 1], b), duz = olc(a, b);
+        // İki durak birbirine, bağlandıkları sokaklardan daha yakınsa (aynı avlu, aynı hazire, aynı yapı) sokağa çıkıp geri dönülmez; doğrudan bağlanır.
+        if (duz < bas + son) return { d: duz, pts: [[+a[0], +a[1]], [+b[0], +b[1]]], adim: [] };
         if (bas > 4) { hat.unshift([+a[0], +a[1]]); for (const ad of ham) ad.i++; }
         if (son > 4) hat.push([+b[0], +b[1]]);
         return { d: (lg.distance || 0) + (bas > 4 ? bas : 0) + (son > 4 ? son : 0), pts: hat, adim: sadelestir(ham) };

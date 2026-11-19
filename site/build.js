@@ -94,12 +94,15 @@ const R6 = 6371000, RAD = Math.PI / 180;
 const olc = (a, b) => { const x = (b[1] - a[1]) * RAD * Math.cos(((a[0] + b[0]) / 2) * RAD), y = (b[0] - a[0]) * RAD; return Math.hypot(x, y) * R6; };
 
 /* ——— Veri ——— */
+// Yürüyüş mesafesi tek yerden gelir: rotanın "km" alanı (sokaktan ölçülen toplam). Rota sayfasındaki bilgi satırı da onu yazar;
+// sayfa açılınca harita yolu yeniden ölçer ve satırı ölçtüğü sayıyla eşitler (site.js, tarifYaz).
+const KM_HAP = /km yürüyüş$/;
 const ROTALAR = D.ROUTES.map((r, i) => {
   const duraklar = D.RAW.filter((a) => a[0] === i).sort((a, b) => a[1] - b[1]).map((a) => ({ n: a[1], ad: a[2], hon: a[3], tur: a[4], yer: a[5], acik: a[6], saat: a[7], yak: !!a[8], lat: a[9], lng: a[10] }));
   // Uzun etaplar taşıtla geçilir (rota sayfalarındaki "taşıt geçişi" sayılarıyla aynı): kuş uçuşu 1,5 km'yi aşan aralar. Sur yürüyüşü (r6) baştan sona yürünür.
   const tasit = [];
   duraklar.forEach((d, k) => { if (k && r.id !== "r6" && olc([duraklar[k - 1].lat, duraklar[k - 1].lng], [d.lat, d.lng]) > 1500) tasit.push(k - 1); });
-  const m0 = METIN[r.id], m = { ...m0, pills: m0.pills.map((p) => (/^\d+ durak$/.test(p) ? duraklar.length + " durak" : /^\d+ taşıt geçişi$/.test(p) ? (tasit.length ? tasit.length + " taşıt geçişi" : "") : p)).filter(Boolean) };
+  const m0 = METIN[r.id], m = { ...m0, pills: m0.pills.map((p) => (/^\d+ durak$/.test(p) ? duraklar.length + " durak" : /^\d+ taşıt geçişi$/.test(p) ? (tasit.length ? tasit.length + " taşıt geçişi" : "") : KM_HAP.test(p) && r.km ? r.km + " yürüyüş" : p)).filter(Boolean) };
   return { ...r, yol: KOK + "guzergahlar/" + r.slug + "/", duraklar, tasit, m };
 });
 // Durak sayıları veriden hesaplanır; panelden durak eklenip çıkarılınca kendiliğinden güncellenir.
@@ -252,7 +255,7 @@ ${veri ? `<script type="application/json" id="veri">${JSON.stringify(veri).repla
 
 /* ——— Rota kartları (ana sayfa ve Güzergâhlar) ——— */
 const hapSim = (t) => (/durak/.test(t) ? "pin" : /saat|dk/.test(t) ? "clock" : /taşıt/.test(t) ? "tram" : "walk");
-const haplar = (r) => `<div class="haplar">${r.m.pills.map((p) => `<span class="hap">${ic(hapSim(p))}${esc(p)}</span>`).join("")}</div>`;
+const haplar = (r) => `<div class="haplar">${r.m.pills.map((p) => `<span class="hap"${KM_HAP.test(p) ? " data-yuru" : ""}>${ic(hapSim(p))}${esc(p)}</span>`).join("")}</div>`;
 const rkart = (r, i) => `<article class="rkart ${r.id}" data-g style="--i:${i % 3}"><div class="rkart-g"><img src="${GORSEL}rota-${r.id}.jpg" alt="${esc(r.name)} güzergâhının harita önizlemesi" width="960" height="540" loading="lazy"><span class="no">${r.no}</span><i>© OpenStreetMap</i></div>
 <div class="rkart-y"><span class="kicker">Rota ${r.no} · ${esc(r.kicker)}</span><h3><a href="${r.yol}">${esc(r.name)}</a></h3><p>${esc(r.lede)}</p>${haplar(r)}
 <div class="dugmeler"><a class="btn kucuk koyu" href="${r.yol}">Rotayı aç${ic("fwd")}</a><a class="btn kucuk yumusak" href="${yol.olustur}#rota=${r.id}" data-hash="rota=${r.id}">${ic("rota")}Haritada başlat</a></div></div></article>`;
@@ -334,7 +337,7 @@ ${m.tip.map((t) => `<div class="ipucu" data-g><span class="menu-sim">${ic("ampul
 </section></div>`;
   const yan = { ad: "Bu rotanın durakları", simge: "liste", ogeler: r.duraklar.map((d) => ["#durak-" + d.n, d.ad, d.yer, d.n, d.hon]) };
   return sayfa({ yan, gorsel: `rota-${r.id}.jpg`, dosya: `guzergahlar/${r.slug}/index.html`, s: "guz", id: "rota", sinif: r.id, baslik: m.h1, ozet: r.lede + " " + m.pills.join(", ") + ".", govde, harita: true, yolJs: true,
-    veri: { id: r.id, no: r.no, ad: r.name, tasit: r.tasit, ulasim: yol.ulasim, duraklar: r.duraklar.map((d) => ({ n: d.n, ad: d.ad, hon: d.hon, tur: d.tur, lat: d.lat, lng: d.lng })) } });
+    veri: { id: r.id, no: r.no, ad: r.name, km: r.km, tasit: r.tasit, ulasim: yol.ulasim, duraklar: r.duraklar.map((d) => ({ n: d.n, ad: d.ad, hon: d.hon, tur: d.tur, lat: d.lat, lng: d.lng })) } });
 }
 
 /* ——— Ulaşım ——— */

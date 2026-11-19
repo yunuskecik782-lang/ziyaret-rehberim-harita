@@ -88,6 +88,16 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
   hangi durakların etkilendiğini söyleyen kısa bir not çıkar. Yeni bilgi üretilmez, yalnızca sayfadaki saat notu okunur; gün İstanbul
   saatine göre belirlenir. Saat notunun yazımı değişirse (gün adı ve "kapalı" aynı " · " parçasında olmalı) not çıkmaz, sayfa bozulmaz.
   Telefonda durak kartındaki iki düğme tek satırda durur.
+- Yürüyüş mesafesi tek sayıdır ve tek yerden gelir: rotanın `km` alanı (`ROUTES`, `kaynak/data.js`). Ana sayfa kartları, harita uygulamasındaki
+  hazır rotalar, rota sayfasının başlığındaki bilgi satırı ve önceki/sonraki rota kartları bu alanı yazar (`KM_HAP`, `site/build.js`;
+  `rota-metin.json` içindeki "… km yürüyüş" satırı yalnızca yer tutar). Alandaki sayılar sokaktan ölçülen toplamlardır: yürünen etapların
+  yol tarifi hizmetindeki uzunluğu ile durağın yola uzaklığı toplanır, taşıtla geçilen aralar sayılmaz (19 Kasım 2026 ölçümü: 5,3 · 2,9 · 6,9 ·
+  10,1 · 6,5 · 6,5 km). Rota sayfası açılınca harita yolu yeniden ölçer; başlıktaki satır ve haritanın altındaki satır ölçülen sayıyla eşitlenir
+  (`tarifYaz`, `site/site.js`), yol alınamazsa ikisi de `km` alanını gösterir. Durak eklenir, çıkarılır ya da yeri değişirse `km` alanı
+  rota sayfasının haritasının altında yazan sayıyla güncellenmelidir.
+  Aynı avlu kuralı (`iste`, `kaynak/yol.js`): art arda iki durak birbirine, bağlandıkları sokaklardan daha yakınsa (aynı hazire, aynı yapı)
+  sokağa çıkıp geri dönen yol yerine doğrudan bağlanır; aynı yerdeki duraklar "aynı yerde" görünür. Bu kural değişirse rota sayfasının
+  cihazdaki yol kaydı anahtarındaki sayı (`zr.yolc.2.`) artırılır.
 - `kaynak/vendor/leaflet/`: Leaflet 1.9.4 (BSD-2-Clause, lisansı klasörün içinde).
 - `kaynak/vendor/yazi/`: sitenin ve harita uygulamasının iki yazı tipi, Inter ve Plus Jakarta Sans (SIL Open Font License 1.1,
   lisansları ve kaynak notu klasörün içinde). Yalnızca sitede geçen harflerle küçültülmüş tek dosyalardır; site kendi sunucusundan
