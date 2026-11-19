@@ -80,6 +80,14 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
   Sayfa, seçimi `<html>` üzerine `data-rozet`, `data-desen`, `data-cizgi`, `data-stil`, `data-isaret`, `data-hareket` olarak yazar;
   renkler ve biçimler bu niteliklere bağlı CSS ile değişir. Sayfa başındaki küçük betik bunu ilk çizimden önce uygular.
   Yeni bir seçenek eklemek için: `G_SEC`'e değer, `site/site.js` içindeki `G_AD`'a ad, CSS'e o değerin kuralı eklenir.
+- Rota sayfalarının düzeni (`rotaSayfa`, `site/build.js`): başlık ve bilgi hapları, altında sayfa içi kısa yollar (`.atla`: Nasıl gidilir,
+  Duraklar, Yürüyüş tarifi, Ziyaret âdâbı), harita, sonra "yola çıkmadan" notları (`.once`: rotanın ipuçları durak listesinden önce durur),
+  duraklar, Güzergâh hakkında, Nasıl gidilir, Duraklar arası yürüyüş ve en altta önceki ile sonraki rotaya geçiş (`komsu`, `.rota-gec`).
+  "Bugün kapalı" notu (`bugunKapali`, `site/site.js`): bir durağın saat notunda bugünün adı ile "kapalı" aynı parçada geçiyorsa
+  ("Pazartesi kapalı", "cuma turistik ziyarete kapalı") o parça kartta "Bugün" etiketiyle belirginleşir ve durak listesinin üstünde
+  hangi durakların etkilendiğini söyleyen kısa bir not çıkar. Yeni bilgi üretilmez, yalnızca sayfadaki saat notu okunur; gün İstanbul
+  saatine göre belirlenir. Saat notunun yazımı değişirse (gün adı ve "kapalı" aynı " · " parçasında olmalı) not çıkmaz, sayfa bozulmaz.
+  Telefonda durak kartındaki iki düğme tek satırda durur.
 - `kaynak/vendor/leaflet/`: Leaflet 1.9.4 (BSD-2-Clause, lisansı klasörün içinde).
 - `kaynak/vendor/yazi/`: sitenin ve harita uygulamasının iki yazı tipi, Inter ve Plus Jakarta Sans (SIL Open Font License 1.1,
   lisansları ve kaynak notu klasörün içinde). Yalnızca sitede geçen harflerle küçültülmüş tek dosyalardır; site kendi sunucusundan

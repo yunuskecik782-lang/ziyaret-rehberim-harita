@@ -180,9 +180,33 @@
     navigator.geolocation.getCurrentPosition((p) => tamam([p.coords.latitude, p.coords.longitude], p.coords.accuracy), (e) => hata(e.code === 1 ? "Konum izni verilmedi. Tarayıcının adres çubuğundaki izinlerden açabilirsin." : "Konum alınamadı. Açık havada ya da konum servisi açıkken yeniden dene."), { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 });
   }
 
+  /* ——— Bugün kapalı olan duraklar ———
+     Durağın saat notunda bugünün adı ile "kapalı" aynı parçada geçiyorsa ("Pazartesi kapalı", "cuma turistik ziyarete kapalı") o parça
+     kartta belirginleşir ve durak listesinin üstünde kısa bir not çıkar. Yeni bilgi üretilmez; yalnızca sayfadaki not öne alınır.
+     Gün İstanbul saatine göre belirlenir. */
+  function bugunKapali(toplam) {
+    let gun; try { gun = new Intl.DateTimeFormat("tr-TR", { weekday: "long", timeZone: "Europe/Istanbul" }).format(new Date()).toLocaleLowerCase("tr-TR"); } catch (e) { return; }
+    const harf = "a-zçğıöşüâîû", re = new RegExp("(^|[^" + harf + "])" + gun + "(?![" + harf + "])"), kapali = [];
+    $$(".durak").forEach((k) => {
+      const s = k.querySelector(".durak-s span"); if (!s) return;
+      const par = s.textContent.split(" · "), i = par.findIndex((p) => { const kucuk = p.toLocaleLowerCase("tr-TR"); return kucuk.includes("kapalı") && re.test(kucuk); });
+      if (i < 0) return;
+      const r = document.createElement("em"); r.className = "bugun-r"; r.textContent = "Bugün"; s.textContent = ""; s.append(r, " ");
+      par.forEach((p, j) => { if (j) s.append(" · "); if (j === i) { const b = document.createElement("strong"); b.className = "bugun-p"; b.textContent = p; s.append(b); } else s.append(p); });
+      k.classList.add("bugun-k"); kapali.push(+k.id.replace("durak-", ""));
+    });
+    const not = $("#bugun-not"); if (!not || !kapali.length) return;
+    const p = not.querySelector("p"), b = document.createElement("strong"); b.textContent = "Bugün " + gun + ".";
+    p.append(b, " Bu rotadaki " + (kapali.length === toplam ? "durakların" : kapali.length + " durağın") + " saat notunda bugün için “kapalı” yazıyor: ");
+    kapali.forEach((no, j) => { const a = document.createElement("a"); a.href = "#durak-" + no; a.textContent = no + ". durak"; if (j) p.append(", "); p.append(a); });
+    p.append(". Saatler değişebilir; gitmeden önce doğrula.");
+    not.hidden = false;
+  }
+
   /* ——— Rota sayfası: geniş harita, numaralı duraklar, sokaklardan yürüyüş yolu ve dönüş tarifi ——— */
   function rotaSayfa() {
     const R = veri, DU = R.duraklar, n = DU.length, host = $("#harita"), kart = $("#harita-kart");
+    bugunKapali(n);
     const { map } = haritaKur(host, "Haritayı kaydırmak için iki parmağını kullan ya da “Büyüt”e dokun", $('[data-h="uydu"]'), $("#h-kaynak"));
     const pts = DU.map((d) => [d.lat, d.lng]), sinir = L.latLngBounds(pts).pad(0.14);
     map.fitBounds(sinir);

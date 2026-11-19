@@ -361,6 +361,33 @@ html:not(.h-sokak) .harita:not(.leaflet-container), .harita.uydu { background: #
 .durak-s { display: flex; align-items: flex-start; gap: 8px; padding-top: 10px; border-top: 1px dashed var(--cizgi2); font-size: .86rem; color: var(--metin); }
 .durak-s .ic { width: 17px; height: 17px; margin-top: 2px; color: var(--altin-ink); }
 .durak .dugmeler { margin-top: 2px; }
+/* Rota sayfası: sayfa içi kısa yollar, yola çıkmadan notları, "bugün kapalı" işareti, komşu rotalar */
+.atla { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 2px; }
+.atla a { display: inline-flex; align-items: center; gap: 6px; padding: 7px 0; font: 700 .86rem/1.2 var(--fd); color: color-mix(in srgb, var(--rc) 55%, var(--ink)); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--altin) 55%, transparent); text-decoration-thickness: 2px; text-underline-offset: 5px; transition: text-decoration-color .25s; }
+.atla a:hover { text-decoration-color: var(--altin); }
+.atla .ic { width: 15px; height: 15px; color: var(--altin-ink); }
+.once { display: grid; gap: 12px; margin-top: clamp(16px, 2.2vw, 24px); }
+#nasil, #yuruyus, #once { scroll-margin-top: calc(var(--ust-h) + 16px); }
+.ipucu.bugun { background: linear-gradient(135deg, #FFF1EC, #FCE4DC); border-color: rgba(180,69,47,.36); box-shadow: 0 14px 28px -22px rgba(180,69,47,.8); }
+.ipucu.bugun .menu-sim { background: linear-gradient(145deg, #F8D6CC, #EDAE9E); color: #6E2318; }
+.ipucu.bugun a { color: var(--ink); font-weight: 700; text-underline-offset: 3px; }
+.bugun-r { display: inline-block; padding: 4px 7px; border-radius: 7px; background: #FCE4DC; color: #8A2E1F; font: 800 .64rem/1 var(--fd); font-style: normal; letter-spacing: .1em; text-transform: uppercase; vertical-align: 1px; }
+.bugun-p { color: #8A2E1F; }
+.durak.bugun-k .durak-s .ic { color: #B4452F; }
+.rota-gec { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.rota-gec > span:empty { display: none; }
+.rg { display: grid; grid-template-columns: 20px 46px minmax(0, 1fr); align-items: center; gap: 14px; padding: 14px 18px; border-radius: 22px; background: rgba(255,255,255,.93); border: 1px solid var(--cizgi); box-shadow: var(--golge); color: var(--ink); text-decoration: none; transition: transform .5s var(--yay), border-color .3s, box-shadow .4s; }
+.rg.ileri { grid-column: 2; grid-template-columns: 46px minmax(0, 1fr) 20px; }
+.rg:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--rc) 44%, white); box-shadow: var(--golge-ust); }
+.rg .no { width: 46px; height: 46px; font-size: 1.02rem; }
+.rg-y { display: grid; gap: 5px; min-width: 0; }
+.rg small { font: 800 .68rem/1 var(--fd); letter-spacing: .14em; text-transform: uppercase; color: var(--altin-ink); }
+.rg b { font: 800 1.05rem/1.2 var(--fd); color: color-mix(in srgb, var(--rc) 34%, var(--ink)); }
+.rg i { font-style: normal; font-size: .84rem; color: var(--soluk); }
+.rg > .ic { width: 20px; height: 20px; color: var(--soluk); transition: transform .4s var(--yay); }
+.rg:not(.ileri) > .ic { order: -1; transform: scaleX(-1); }
+.rg.ileri:hover > .ic { transform: translateX(3px); }
+@media (max-width: 720px) { .rota-gec { grid-template-columns: 1fr; } .rg.ileri { grid-column: auto; } }
 
 .bilgi { display: grid; gap: clamp(14px, 1.8vw, 20px); }
 .bilgi h2 { font-size: clamp(1.25rem, 2vw, 1.6rem); font-weight: 800; margin-bottom: 12px; }
@@ -694,4 +721,8 @@ body[data-sayfa="rota-olustur"] .alt { display: none; }
   .tarif summary span.ad { grid-area: ad; white-space: normal; }
   .durak { grid-template-columns: 42px minmax(0, 1fr); gap: 13px; }
   .durak .no { width: 42px; height: 42px; font-size: .95rem; }
+  /* İki düğme tek satıra sığsın diye satır, numara rozetinin altına kadar sola uzar. */
+  .durak .dugmeler { margin-left: -55px; flex-wrap: nowrap; gap: 8px; }
+  .durak .dugmeler .btn { flex: 1 1 0; justify-content: center; padding-inline: 10px; white-space: nowrap; }
+  .atla { gap: 2px 16px; } .atla .genis { display: none; }
 }

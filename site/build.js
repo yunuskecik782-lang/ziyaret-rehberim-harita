@@ -300,6 +300,8 @@ const guzSayfa = () => sayfa({ dosya: "guzergahlar/index.html", s: "guz", id: "g
 <section class="bolum"><div class="ipucu" data-g><span class="menu-sim">${ic("ampul")}</span><p><strong>Kendi rotanı mı kurmak istiyorsun?</strong> Durakları karıştırıp konumuna en yakın sırayla dizebilirsin. <a href="${yol.olustur}">Rota oluştur</a> sayfasını aç.</p></div></section></div>` });
 
 /* ——— Rota sayfası ——— */
+// Sayfanın sonunda bir önceki ve bir sonraki rotaya geçiş; ilk rotada "önceki", son rotada "sonraki" boş kalır.
+const komsu = (r, yon, etiket) => { const k = ROTALAR[ROTALAR.indexOf(r) + yon]; return k ? `<a class="rg ${k.id}${yon > 0 ? " ileri" : ""}" href="${k.yol}"><span class="no">${k.no}</span><span class="rg-y"><small>${etiket}</small><b>${esc(k.name)}</b><i>${esc(k.m.pills.slice(0, 3).join(" · "))}</i></span>${ic("fwd")}</a>` : "<span></span>"; };
 function rotaSayfa(r) {
   const m = r.m, n = r.duraklar.length;
   const durak = (d, k) => `<article class="durak" id="durak-${d.n}" data-g style="--i:${k % 2}"><span class="no">${d.n}</span><div class="durak-y"><h3>${esc(d.ad)}${d.hon ? `<em>${esc(d.hon)}</em>` : ""}</h3>
@@ -307,23 +309,28 @@ function rotaSayfa(r) {
 <p class="durak-a">${esc(d.acik)}</p>${d.saat ? `<div class="durak-s">${ic("clock")}<span>${esc(d.saat)}</span></div>` : ""}
 <div class="dugmeler"><button class="btn kucuk yumusak" type="button" data-goster="${d.n}">${ic("pin")}Haritada göster</button><a class="btn kucuk" href="https://www.google.com/maps/dir/?api=1&amp;destination=${d.lat},${d.lng}&amp;travelmode=walking" target="_blank" rel="noopener">Yol tarifi${ic("ext")}</a></div></div></article>`;
   const govde = `<div class="kap">
-<header class="rota-bas"><span class="goz">Rota ${r.no} · ${esc(r.kicker)}</span><h1>${esc(m.h1)}</h1><p class="ozet">${esc(r.lede)}</p>${haplar(r)}</header>
+<header class="rota-bas"><span class="goz">Rota ${r.no} · ${esc(r.kicker)}</span><h1>${esc(m.h1)}</h1><p class="ozet">${esc(r.lede)}</p>${haplar(r)}
+<nav class="atla" aria-label="Bu sayfada"><a href="#nasil">${ic("tram")}Nasıl gidilir?</a><a class="genis" href="#duraklar">${ic("pin")}Duraklar</a><a href="#yuruyus">${ic("walk")}Yürüyüş tarifi</a><a href="${yol.adab}">${ic("kalp")}Ziyaret âdâbı</a></nav></header>
 <div class="harita-kart" id="harita-kart"><div class="harita" id="harita" role="application" aria-label="${esc(r.name)} güzergâh haritası"></div>
 <div class="h-dugme"><button type="button" data-h="buyut" aria-pressed="false">${ic("buyut")}<span>Büyüt</span></button><button type="button" data-h="uydu" aria-pressed="true">${ic("layers")}<span>Harita</span></button><button type="button" class="kare" data-h="konum" aria-label="Konumumu göster" title="Konumumu göster">${ic("loc")}</button></div>
 <div class="h-ipucu" aria-hidden="true">Haritayı kaydırmak için iki parmağını kullan ya da “Büyüt”e dokun</div>
 <div class="harita-alt"><span id="h-kaynak">Uydu görüntüsü: Esri, Maxar, Earthstar Geographics</span><span class="sag" id="h-yol">Duraklar sırasıyla numaralı</span></div></div>
+
+<section class="once" id="once" aria-label="Yola çıkmadan">
+<div class="ipucu bugun" id="bugun-not" hidden><span class="menu-sim">${ic("clock")}</span><p></p></div>
+${m.tip.map((t) => `<div class="ipucu" data-g><span class="menu-sim">${ic("ampul")}</span><p>${t.replace("</strong>", "</strong> ")}</p></div>`).join("")}</section>
 
 <section class="bolum" id="duraklar"><div class="bolum-bas" data-g><span class="kicker">Duraklar</span><h2>${n} durak, sırasıyla</h2></div>
 <div class="duraklar">${r.duraklar.map(durak).join("\n")}</div></section>
 
 <section class="bolum bilgi" id="aciklama">
 <div class="kart" data-g><h2>Güzergâh hakkında</h2>${m.about.map((p) => `<p>${p}</p>`).join("")}</div>
-<div class="kart" data-g><h2>Nasıl gidilir?</h2><div class="uclu"><div class="nasil"><b>${ic("pin")}Başlangıç</b><p>${m.how.start}</p></div><div class="nasil"><b>${ic("walk")}Rota boyunca</b><p>${m.how.along}</p></div><div class="nasil"><b>${ic("tram")}Dönüş</b><p>${m.how.back}</p></div></div>
+<div class="kart" id="nasil" data-g><h2>Nasıl gidilir?</h2><div class="uclu"><div class="nasil"><b>${ic("pin")}Başlangıç</b><p>${m.how.start}</p></div><div class="nasil"><b>${ic("walk")}Rota boyunca</b><p>${m.how.along}</p></div><div class="nasil"><b>${ic("tram")}Dönüş</b><p>${m.how.back}</p></div></div>
 <p class="ince" style="margin-top:14px">Bulunduğun yerden buraya nasıl gideceğini <a href="${yol.ulasim}#oneri">Ulaşım</a> sayfasındaki harita gösterir.</p></div>
-${m.tip.map((t) => `<div class="ipucu" data-g><span class="menu-sim">${ic("ampul")}</span><p>${t.replace("</strong>", "</strong> ")}</p></div>`).join("")}
-<div class="kart" data-g><h2>Duraklar arası yürüyüş</h2><p class="tarif-durum bekle" id="tarif-durum">Sokak sokak yürüyüş yolu hazırlanıyor…</p><div class="tarif" id="tarif"></div>
+<div class="kart" id="yuruyus" data-g><h2>Duraklar arası yürüyüş</h2><p class="tarif-durum bekle" id="tarif-durum">Sokak sokak yürüyüş yolu hazırlanıyor…</p><div class="tarif" id="tarif"></div>
 <p class="ince" style="margin-top:14px">Yürüyüş yolu ve dönüşler OpenStreetMap verisiyle hesaplanır; süreler dakikada 75 metre yürüyüşe göre yaklaşıktır. Sahada tabelalara ve kapalı yollara dikkat et.</p></div>
 <div class="dugmeler" data-g><a class="btn altin" href="${yol.olustur}#rota=${r.id}">${ic("rota")}Bu rotayı haritada başlat</a><a class="btn" href="${yol.guz}">Tüm güzergâhlar</a></div>
+<nav class="rota-gec" data-g aria-label="Diğer rotalar">${komsu(r, -1, "Önceki rota")}${komsu(r, 1, "Sonraki rota")}</nav>
 </section></div>`;
   const yan = { ad: "Bu rotanın durakları", simge: "liste", ogeler: r.duraklar.map((d) => ["#durak-" + d.n, d.ad, d.yer, d.n, d.hon]) };
   return sayfa({ yan, gorsel: `rota-${r.id}.jpg`, dosya: `guzergahlar/${r.slug}/index.html`, s: "guz", id: "rota", sinif: r.id, baslik: m.h1, ozet: r.lede + " " + m.pills.join(", ") + ".", govde, harita: true, yolJs: true,
