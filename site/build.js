@@ -68,12 +68,26 @@ const ICON = {
 };
 const ic = (n) => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON[n]}</svg>`;
 // Sayfa betiğinin (site.js) çalışırken ürettiği parçalarda kullandığı simgeler
-const JS_SIMGE = ["fwd", "down", "x", "ext", "trash", "rota", "mark", "user", "loc", "pin", "clock", "walk", "tram", "bilgi", "sag", "sol", "duz", "geri", "basla", "buyut", "kucult", "check"];
+const JS_SIMGE = ["fwd", "down", "x", "ext", "trash", "rota", "mark", "user", "loc", "pin", "clock", "walk", "tram", "bilgi", "sag", "sol", "duz", "geri", "basla", "buyut", "kucult", "check", "spark"];
 ICON.check = '<path d="M5 12.5l4.5 4.5L19 7.5"/>';
 ICON.menu = '<path d="M4 6.5h16M4 12h16M4 17.5h10"/>';
 ICON.filtre = '<path d="M4 6.5h16M7 12h10M10 17.5h4"/>';
 ICON.once = '<path d="M14.5 6l-6 6 6 6"/>';
 ICON.liste ='<path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.8" cy="6.5" r=".9"/><circle cx="4.8" cy="12" r=".9"/><circle cx="4.8" cy="17.5" r=".9"/>';
+
+/* ——— Kategori resimleri (64×64, dolu) ———
+   Ana sayfadaki kutular, sol sütun ve harita uygulaması aynı altı resmi kullanır: kubbeli türbe ve hilal (sahâbe), revaklı büyük türbe (padişah),
+   kubbe ve iki minare (cami), Galata Kulesi (tarihî mekân), burçlu sur ve kapı (suriçi), pusula (hepsi). Resimler rotanın rengindeki zeminin üzerinde durur.
+   Tonlar site.css içindeki sınıflardan gelir: a beyaz, b yarı saydam beyaz, c soluk ışık, d koyu oyuk (kapı, pencere), e hafif gölge çizgisi, g altın (alem, hilal), h beyaz halka. */
+const RESIM = {
+  sahabe: '<circle class="c" cx="47" cy="17" r="13"/><path class="g" d="M50.5 7.5a9.5 9.5 0 1 0 7.6 14.9 7.6 7.6 0 0 1-7.6-14.9z"/><path class="b" d="M9 55c-3.6-7-3.8-20.5 0-29 3.8 8.5 3.6 22 0 29z"/><path class="c" d="M55.5 55c-2.8-5.5-3-15.5 0-22 3 6.5 2.8 16.5 0 22z"/><path class="g" d="M31.2 10.5h1.6V17h-1.6z"/><circle class="g" cx="32" cy="9.6" r="2"/><path class="a" d="M17.5 36c0-9.5 6.3-17 14.5-19.5C40.2 19 46.5 26.5 46.5 36z"/><path class="b" d="M16 35.5h32v4H16z"/><path class="a" d="M18.5 39.5h27V56h-27z"/><path class="d" d="M28.5 56V47.5a3.5 3.5 0 0 1 7 0V56z"/><path class="d" d="M21.8 50.5v-4.8a1.9 1.9 0 0 1 3.8 0v4.8zM38.4 50.5v-4.8a1.9 1.9 0 0 1 3.8 0v4.8z"/><path class="b" d="M4 56h56v2.5H4z"/>',
+  padisah: '<circle class="c" cx="17" cy="16" r="10"/><path class="g" d="M31.2 5.5h1.6V13h-1.6z"/><path class="g" d="M32 2.2a2.6 2.6 0 1 0 2.3 3.8A2.1 2.1 0 0 1 32 2.2z"/><path class="a" d="M14 33c0-10.5 7.8-18 18-20.5C42.2 15 50 22.5 50 33z"/><path class="e" d="M31.3 13.5h1.4V33h-1.4z"/><path class="e" d="M22.5 33c.3-8.5 3.3-15.5 8-19.7l1 .9c-4.2 4-6.9 10.6-7.2 18.8zM41.5 33c-.3-8.5-3.3-15.5-8-19.7l-1 .9c4.2 4 6.9 10.6 7.2 18.8z"/><path class="b" d="M11.5 32.5h41V37h-41z"/><path class="a" d="M13.5 37h37v19h-37z"/><path class="d" d="M16.8 56V46.8a4 4 0 0 1 8 0V56zM28 56V46.8a4 4 0 0 1 8 0V56zM39.2 56V46.8a4 4 0 0 1 8 0V56z"/><path class="g" d="M13.5 39.5h37V41h-37z"/><path class="b" d="M6 30.5a4.5 4.5 0 0 1 9 0V37H6zM49 30.5a4.5 4.5 0 0 1 9 0V37h-9z"/><path class="b" d="M7 37h7v19H7zM50 37h7v19h-7z"/><path class="b" d="M3 56h58v2.5H3z"/>',
+  cami: '<circle class="c" cx="32" cy="20" r="15"/><path class="a" d="M8.2 20.5 10 9l1.8 11.5z"/><path class="a" d="M8.6 20.5h2.8V56H8.6z"/><path class="b" d="M7 26.5h6v2.2H7zM7 37h6v2.2H7z"/><path class="a" d="M52.2 20.5 54 9l1.8 11.5z"/><path class="a" d="M52.6 20.5h2.8V56h-2.8z"/><path class="b" d="M51 26.5h6v2.2h-6zM51 37h6v2.2h-6z"/><path class="g" d="M9.4 5.5h1.2V9H9.4zM53.4 5.5h1.2V9h-1.2z"/><path class="g" d="M31.2 16.5h1.6V22h-1.6z"/><path class="g" d="M32 12.8a2.5 2.5 0 1 0 2.2 3.7A2 2 0 0 1 32 12.8z"/><path class="a" d="M20 38c0-8 5.2-14 12-16 6.8 2 12 8 12 16z"/><path class="b" d="M13.5 46c0-5.5 3.6-9 8.5-9.5V46zM50.5 46c0-5.5-3.6-9-8.5-9.5V46z"/><path class="b" d="M18.5 37.5h27v3h-27z"/><path class="a" d="M14 45.5h36V56H14z"/><path class="a" d="M20 40.5h24v6H20z"/><path class="d" d="M28.8 56v-5.8a3.2 3.2 0 0 1 6.4 0V56z"/><path class="d" d="M18 53v-3.2a1.7 1.7 0 0 1 3.4 0V53zM23.4 53v-3.2a1.7 1.7 0 0 1 3.4 0V53zM37.2 53v-3.2a1.7 1.7 0 0 1 3.4 0V53zM42.6 53v-3.2a1.7 1.7 0 0 1 3.4 0V53z"/><path class="d" d="M24.5 45v-2a1.3 1.3 0 0 1 2.6 0v2zM30.7 45v-2a1.3 1.3 0 0 1 2.6 0v2zM36.9 45v-2a1.3 1.3 0 0 1 2.6 0v2z"/><path class="b" d="M3 56h58v2.5H3z"/>',
+  mekan: '<circle class="c" cx="45" cy="18" r="12"/><path class="c" d="M4 56V44h7v-5h8v17zM45 56V41h6v-4h9v19z"/><path class="g" d="M31.3 3.5h1.4V9h-1.4z"/><circle class="g" cx="32" cy="3.5" r="1.5"/><path class="a" d="M24.5 24 32 8l7.5 16z"/><path class="b" d="M22 23.5h20v3.5H22z"/><path class="a" d="M24 27h16v29H24z"/><path class="g" d="M21 31.5h22v2.2H21z"/><path class="d" d="M26.8 30.5v-2a1.2 1.2 0 0 1 2.4 0v2zM30.8 30.5v-2a1.2 1.2 0 0 1 2.4 0v2zM34.8 30.5v-2a1.2 1.2 0 0 1 2.4 0v2z"/><path class="d" d="M27 41.5v-4a1.5 1.5 0 0 1 3 0v4zM34 41.5v-4a1.5 1.5 0 0 1 3 0v4zM27 49.5v-4a1.5 1.5 0 0 1 3 0v4zM34 49.5v-4a1.5 1.5 0 0 1 3 0v4z"/><path class="e" d="M24 27h3v29h-3z"/><path class="b" d="M3 56h58v2.5H3z"/>',
+  sur: '<circle class="c" cx="18" cy="17" r="11"/><path class="b" d="M40 56V19h3v3h3.5v-3h3.5v3H53.5v-3H57V56z"/><path class="e" d="M46.5 32v-3.5a2 2 0 0 1 4 0V32z"/><path class="a" d="M7 56V24h3.5v3.5H14V24h3.5v3.5H21V24h3.5v32z"/><path class="d" d="M13.7 38v-4a2 2 0 0 1 4 0v4z"/><path class="a" d="M24.5 56V35.5h3V38.5h3.2v-3h3.2v3h3.2v-3h3.2v3H40V56z"/><path class="g" d="M7 29.5h17.5V31H7z"/><path class="d" d="M28.3 56v-7.5a4 4 0 0 1 8 0V56z"/><path class="b" d="M3 56h58v2.5H3z"/>',
+  hepsi: '<circle class="c" cx="32" cy="32" r="26"/><circle class="h" cx="32" cy="32" r="21"/><path class="b" d="M31 8h2v5h-2zM31 51h2v5h-2zM8 31h5v2H8zM51 31h5v2h-5z"/><path class="g" d="M32 13.5 37 32H27z"/><path class="a" d="M32 50.5 27 32h10z"/><path class="b" d="M13.5 32 32 28.5v7zM50.5 32 32 35.5v-7z"/><circle class="d" cx="32" cy="32" r="2.6"/><circle class="g" cx="32" cy="32" r="1.2"/>',
+};
+const rs = (n) => `<svg class="rs" viewBox="0 0 64 64" aria-hidden="true">${RESIM[n]}</svg>`;
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const R6 = 6371000, RAD = Math.PI / 180;
@@ -93,31 +107,26 @@ const TOPLAM = ROTALAR.reduce((n, r) => n + r.duraklar.length, 0);
 const yol = { ana: KOK, olustur: KOK + "rota-olustur/", guz: KOK + "guzergahlar/", ulasim: KOK + "ulasim/", ucret: KOK + "ucretler-ve-saatler/", adab: KOK + "ziyaret-adabi/", hesap: KOK + "hesabim/", rotalarim: KOK + "rotalarim/" };
 
 /* ——— Zemin ———
-   Bilerek sade: beyaza yakın sıcak zemin, yavaşça yer değiştiren iki yumuşak ışık (altın ve mavi) ve köşelerde çok yavaş dönen
-   iki ince geometrik gül (sekiz köşeli yıldız). Başka bileşen yok. Hareket yalnızca transform ile yapılır; işi ekran kartı yapar,
-   sayfa açılırken ve kaydırılırken takılmaz. Gül tek bir küçük resim olarak CSS içinde durur; tarayıcı onu bir kez çizer. */
+   Beyaza yakın sıcak zemin, yavaşça yer değiştiren iki yumuşak ışık ve çok soluk bir desen. Desen küçük bir karo olarak CSS içinde durur,
+   tarayıcı onu bir kez çizer ve yan yana dizer; hareket yalnızca transform ile yapılır (işi ekran kartı yapar, sayfa takılmaz).
+   Varsayılan desen Osmanlı kumaşlarındaki lale kafesidir: sivri kemerli (ogival) kafes, her gözde bir lale; karo 240×360, yarım kaydırmalı tekrar.
+   Hesabım › Görünüm’den seçilebilen ikinci desen Selçuklu çinilerindeki sekiz köşeli yıldız kafesidir; üçüncü seçenek desensizdir.
+   Desen bir karo boyu kaydığında kendi üzerine oturur; bu yüzden hareket kesintisiz döner. */
 const f1 = (v) => v.toFixed(1);
-// Catmull-Rom noktalarından kübik Bézier yolu: köşesiz, organik çizgi (açılır listedeki küçük rota çizimleri kullanır)
-const yumusak = (P, kapali) => {
-  const n = P.length, g = (i) => (kapali ? P[(i + n) % n] : P[Math.max(0, Math.min(n - 1, i))]);
-  let d = `M${f1(P[0][0])} ${f1(P[0][1])}`;
-  for (let i = 0; i < (kapali ? n : n - 1); i++) {
-    const p0 = g(i - 1), p1 = g(i), p2 = g(i + 1), p3 = g(i + 2), t = 1 / 6;
-    d += `C${f1(p1[0] + (p2[0] - p0[0]) * t)} ${f1(p1[1] + (p2[1] - p0[1]) * t)} ${f1(p2[0] - (p3[0] - p1[0]) * t)} ${f1(p2[1] - (p3[1] - p1[1]) * t)} ${f1(p2[0])} ${f1(p2[1])}`;
-  }
-  return d + (kapali ? "Z" : "");
-};
 const svgUrl = (s) => `url("data:image/svg+xml,${s.replace(/\s+/g, " ").replace(/"/g, "'").replace(/%/g, "%25").replace(/#/g, "%23").replace(/</g, "%3C").replace(/>/g, "%3E")}")`;
-// Sekiz köşeli yıldız: çember üzerindeki sekiz noktayı "adim" atlayarak birleştirir. Merkez 0,0.
-const yildizYol = (r, adim) => { let d = ""; for (let k = 0; k < 8; k++) { const a = (k * adim * Math.PI) / 4 - Math.PI / 2; d += `${k ? "L" : "M"}${f1(Math.cos(a) * r)} ${f1(Math.sin(a) * r)}`; } return d + "Z"; };
-const Z_KARE = f1(486 / Math.SQRT2);
-const Z_GUL = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-500 -500 1000 1000"><style>*{fill:none;vector-effect:non-scaling-stroke;stroke:rgba(169,119,58,.6);stroke-width:1}</style>
-<circle r="486"/><path d="${yildizYol(486, 3)}"/><rect x="-${Z_KARE}" y="-${Z_KARE}" width="${f1(Z_KARE * 2)}" height="${f1(Z_KARE * 2)}"/><rect x="-${Z_KARE}" y="-${Z_KARE}" width="${f1(Z_KARE * 2)}" height="${f1(Z_KARE * 2)}" transform="rotate(45)"/>
-<circle r="263"/><path d="${yildizYol(263, 3)}"/><circle r="100"/></svg>`;
-const ZEMIN_CSS = `/* ——— Zemin (site/build.js üretir): köşelerde dönen ince geometrik gül ——— */
-.z-gul { background-image: ${svgUrl(Z_GUL)}; }
+const Z_STIL = (dolgu) => `<style>*{fill:none;stroke:rgba(169,119,58,.62);stroke-width:1.15;stroke-linecap:round;stroke-linejoin:round}.y{fill:rgba(169,119,58,${dolgu})}</style>`;
+// Lale: üç yapraklı çiçek, sap, iki uzun yaprak ve iki tomurcuk. Merkez, çiçeğin sapa oturduğu noktadır.
+const zLale = (x, y) => `<g transform="translate(${x} ${y})"><path class="y" d="M0 0C-20-4-29-26-25-48-23-60-27-70-33-78-21-74-13-64-11-50-9-34-6-16 0 0Z"/><path class="y" d="M0 0C20-4 29-26 25-48 23-60 27-70 33-78 21-74 13-64 11-50 9-34 6-16 0 0Z"/><path class="y" d="M0-5C-11-28-10-58 0-86 10-58 11-28 0-5Z"/><path d="M0 0C3 26-5 52 0 84"/><path class="y" d="M0 84C-22 77-43 57-48 24-37 46-18 66 0 84Z"/><path class="y" d="M0 84C20 75 40 53 43 18 34 42 17 64 0 84Z"/><path d="M-1 46C-14 40-24 28-27 12"/><path class="y" d="M-27 12C-33 5-32-5-27-12-22-5-21 5-27 12Z"/><path d="M1 54C15 46 24 32 26 14"/><path class="y" d="M26 14C20 7 21-3 26-10 31-3 32 7 26 14Z"/></g>`;
+const zDugum = (x, y) => `<path class="y" d="M${x} ${y - 11}C${x + 7} ${y - 5} ${x + 7} ${y + 5} ${x} ${y + 11}C${x - 7} ${y + 5} ${x - 7} ${y - 5} ${x} ${y - 11}Z"/>`;
+const Z_LALE = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 360">${Z_STIL(".07")}<path d="M120 0C120 70 240 110 240 180M240 180C240 250 120 290 120 360M120 360C120 290 0 250 0 180M0 180C0 110 120 70 120 0"/>${zDugum(120, 0)}${zDugum(120, 360)}${zDugum(0, 180)}${zDugum(240, 180)}${zLale(120, 194)}${zLale(0, 14)}${zLale(240, 14)}${zLale(0, 374)}${zLale(240, 374)}</svg>`;
+// Sekiz köşeli yıldız: iç içe iki karenin dış çizgisi (16 köşe). Karo 200×200; yıldızların uçları birbirine değer, aradaki boşluk haç biçimini verir.
+const zYildiz = (x, y, R) => { const r = (R * Math.SQRT1_2) / Math.cos(Math.PI / 8); let d = ""; for (let k = 0; k < 16; k++) { const a = (k * Math.PI) / 8, q = k % 2 ? r : R; d += `${k ? "L" : "M"}${f1(x + Math.cos(a) * q)} ${f1(y + Math.sin(a) * q)}`; } return d + "Z"; };
+const Z_YILDIZ = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">${Z_STIL(".05")}<path class="y" d="${zYildiz(100, 100, 100)}"/><path d="${zYildiz(100, 100, 58)}"/><path class="y" d="${zYildiz(100, 100, 22)}"/><path d="${zYildiz(0, 0, 26)}${zYildiz(200, 0, 26)}${zYildiz(0, 200, 26)}${zYildiz(200, 200, 26)}"/></svg>`;
+const ZEMIN_CSS = `/* ——— Zemin deseni (site/build.js üretir): lale kafesi ve sekiz köşeli yıldız karoları ——— */
+.z-desen, .do-lale { background-image: ${svgUrl(Z_LALE)}; }
+[data-desen="yildiz"] .z-desen, .g-on.do-yildiz { background-image: ${svgUrl(Z_YILDIZ)}; }
 `;
-const ZEMIN = `<div class="zemin" aria-hidden="true"><i class="isik i1"></i><i class="isik i2"></i><i class="z-gul g1"></i><i class="z-gul g2"></i></div>`;
+const ZEMIN = `<div class="zemin" aria-hidden="true"><i class="z-desen"></i><i class="z-sis"></i><i class="isik i1"></i><i class="isik i2"></i></div>`;
 
 /* ——— Ortak parçalar ——— */
 const marka = `<a class="marka" href="${KOK}" aria-label="Ziyaret Rehberim ana sayfa"><img src="${GORSEL}zr-logo.jpg" alt="" width="46" height="46"><span class="marka-y">Ziyaret<b>Rehberim</b></span></a>`;
@@ -130,19 +139,12 @@ const MENU = [
   ["adab", yol.adab, "Ziyaret Âdâbı", "kalp", "Ziyaretin incelikleri"],
 ];
 const cur = (a, b) => (a === b ? ' aria-current="page"' : "");
-// Rotanın küçük çizimi: durakların gerçek konumlarından, kuzey yukarıda, 72×46 kutuya sığdırılmış yumuşak çizgi
-const miniRota = (r) => {
-  const P = r.duraklar.map((d) => [d.lng * Math.cos(41 * RAD), -d.lat]), xs = P.map((p) => p[0]), ys = P.map((p) => p[1]);
-  const x0 = Math.min(...xs), y0 = Math.min(...ys), k = Math.min(60 / (Math.max(...xs) - x0 || 1), 34 / (Math.max(...ys) - y0 || 1));
-  const ox = (72 - (Math.max(...xs) - x0) * k) / 2, oy = (46 - (Math.max(...ys) - y0) * k) / 2, Q = P.map((p) => [ox + (p[0] - x0) * k, oy + (p[1] - y0) * k]);
-  return `<svg viewBox="0 0 72 46" aria-hidden="true"><path pathLength="100" d="${yumusak(Q)}"/>${Q.map((q, i) => `<circle cx="${f1(q[0])}" cy="${f1(q[1])}" r="${i === 0 || i === Q.length - 1 ? 2.8 : 1.5}"${i === 0 || i === Q.length - 1 ? ' class="uc"' : ""}/>`).join("")}</svg>`;
-};
 function ust(s) {
   return `<header class="ust"><div class="ust-ic">${marka}
 <nav class="gezin" aria-label="Ana menü"><a href="${yol.ana}"${cur(s, "ana")}>Ana Sayfa</a>
 <div class="acilir${s === "guz" ? " secili" : ""}"><button type="button" aria-haspopup="true" aria-expanded="false">Güzergâhlar${ic("down")}</button><div class="acilir-kutu">
 <div class="guz-bas"><span><b>Hazır güzergâhlar</b><small>${ROTALAR.length} rota · ${TOPLAM} durak · yürüyerek</small></span><a href="${yol.guz}">Hepsini gör${ic("fwd")}</a></div>
-<div class="guz-izgara">${ROTALAR.map((r) => `<a class="guz-k ${r.id}" href="${r.yol}"><span class="guz-cizim">${miniRota(r)}</span><span class="guz-y"><small>Rota ${r.no}</small><b>${esc(r.name)}</b><em>${r.duraklar.length} durak · ${r.km} · ${r.sure.replace("≈ ", "")}</em></span></a>`).join("")}</div>
+<div class="guz-izgara">${ROTALAR.map((r, ri) => `<a class="guz-k ${r.id}" href="${r.yol}" style="--i:${ri}"><span class="guz-no"><b>${r.no}</b></span><span class="guz-y"><small>${esc(r.kicker)}</small><b>${esc(r.name)}</b><em>${r.duraklar.length} durak · ${r.km} · ${r.sure.replace("≈ ", "")}</em></span></a>`).join("")}</div>
 <a class="guz-alt" href="${yol.olustur}">${ic("rota")}<span><b>Kendi rotanı oluştur</b><small>Durakları seç, konumuna göre sırala</small></span>${ic("fwd")}</a></div></div>
 <a href="${yol.ulasim}"${cur(s, "ulasim")}>Ulaşım</a><a href="${yol.ucret}"${cur(s, "ucret")}>Ücretler ve Saatler</a><a href="${yol.adab}"${cur(s, "adab")}>Ziyaret Âdâbı</a></nav>
 <a class="giris" href="${yol.hesap}">${ic("user")}<span data-hesap-ad="Giriş yap">Giriş yap</span></a>
@@ -164,8 +166,8 @@ ${MENU.slice(3).map((m, i) => `<a class="m" style="--i:${6 + i}" href="${m[1]}"$
    altında gruplara giden kısayollar. Telefonda ikisi de yoktur (orada üstteki düğmeyle açılan tam ekran menü var). */
 const yanGrup = (id, ad, simge, icerik, acik, sinif) => `<details class="yan-grup${sinif ? " " + sinif : ""}" id="${id}"${acik ? " open" : ""}><summary>${ic(simge)}<span>${ad}</span>${ic("down")}</summary><div class="yan-ic">${icerik}</div></details>`;
 function yanCubuk(s, bu, rid) {
-  const filtre = KAT.map((k) => `<a class="${k[1]}" href="${yol.olustur}#kategori=${k[0]}" data-hash="kategori=${k[0]}"><span class="yan-sim">${ic(k[2])}</span><span>${k[3]}</span><em>${k[4]}</em></a>`).join("");
-  const rotalar = ROTALAR.map((r) => `<a class="${r.id}" href="${r.yol}"${r.id === rid ? ' aria-current="page"' : ""}><span class="sira">${r.no}</span><span>${esc(r.name)}<small>${r.duraklar.length} durak · ${r.sure}</small></span></a>`).join("")
+  const filtre = KAT.map((k) => `<a class="${k[1]}" href="${yol.olustur}#kategori=${k[0]}" data-hash="kategori=${k[0]}"><span class="yan-sim res">${rs(k[2])}</span><span>${k[3]}</span><em>${k[4]}</em></a>`).join("");
+  const rotalar = ROTALAR.map((r) => `<a class="${r.id}" href="${r.yol}"${r.id === rid ? ' aria-current="page"' : ""}><span class="sira altin">${r.no}</span><span>${esc(r.name)}<small>${r.duraklar.length} durak · ${r.sure}</small></span></a>`).join("")
     + `<a href="${yol.guz}"${s === "guz" && !rid ? ' aria-current="page"' : ""}><span class="sira sade">${ic("fwd")}</span><span>Tüm güzergâhlar</span></a>`;
   const bilgi = [...MENU.slice(3), ["rotalarim", yol.rotalarim, "Rotalarım", "mark", "Kaydettiğin rotalar"]].map((m) => `<a href="${m[1]}"${cur(s, m[0])}><span class="yan-sim sade">${ic(m[3])}</span><span>${m[2]}<small>${m[4]}</small></span></a>`).join("");
   const buSayfa = bu ? yanGrup("yg-bu", bu.ad, bu.simge || "liste", bu.ogeler.map((o) => `<a href="${o[0]}">${o[3] ? `<span class="sira">${o[3]}</span>` : '<span class="yan-nokta"></span>'}<span>${esc(o[1])}${o[4] ? ` <i>${esc(o[4])}</i>` : ""}${o[2] ? `<small>${esc(o[2])}</small>` : ""}</span></a>`).join(""), true, rid) : "";
@@ -211,7 +213,7 @@ function sayfa({ dosya, s, id, baslik, ozet, govde, sinif = "", veri, harita, yo
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 ${FONT}
-<script>${onBetik}${HTTPS}(function(){var d=document.documentElement;d.className="js";d.style.setProperty("--zt",-(Date.now()%3600000)/1000+"s");try{if(localStorage.getItem("zr.yan")==="0")d.className+=" yan-kapali";if(localStorage.getItem("zr.katman.2")==="sokak")d.className+=" h-sokak"}catch(e){}try{if(!sessionStorage.getItem("zr.ilk")){d.className+=" ilk";sessionStorage.setItem("zr.ilk","1")}}catch(e){}setTimeout(function(){if(!window.ZR_HAZIR)d.classList.remove("js")},3500)})();</script>
+<script>${onBetik}${HTTPS}(function(){var d=document.documentElement;d.className="js";d.style.setProperty("--zt",-(Date.now()%3600000)/1000+"s");try{if(localStorage.getItem("zr.yan")==="0")d.className+=" yan-kapali";if(localStorage.getItem("zr.katman.2")==="sokak")d.className+=" h-sokak";if(localStorage.getItem("zr.oturum.v1")){var g=JSON.parse(localStorage.getItem("zr.gorunum.v1")||"{}");for(var k in g)if(/^(rozet|desen|cizgi|stil|isaret|hareket)$/.test(k)&&/^[a-z]{2,12}$/.test(g[k]))d.setAttribute("data-"+k,g[k])}}catch(e){}try{if(!sessionStorage.getItem("zr.ilk")){d.className+=" ilk";sessionStorage.setItem("zr.ilk","1")}}catch(e){}setTimeout(function(){if(!window.ZR_HAZIR)d.classList.remove("js")},3500)})();</script>
 <title>${tamBaslik}</title>
 <meta name="description" content="${esc(ozet)}">
 ${kapali ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${adres}">
@@ -251,7 +253,7 @@ const rkart = (r, i) => `<article class="rkart ${r.id}" data-g style="--i:${i % 
 
 /* ——— Ana sayfa ——— */
 const katSay = (liste) => ROTALAR.filter((r) => liste.split(",").includes(r.concept)).reduce((n, r) => n + r.duraklar.length, 0);
-const KAT = [["sahabe", "r1", "yildiz", "Sahâbe-i Kirâm"], ["padisah", "r3", "tac", "Padişah türbeleri"], ["cami", "r4", "cami", "Tarihî camiler"], ["mekan", "r5", "sutun", "Tarihî mekânlar"], ["sur", "r6", "sur", "Suriçi ve surlar"], ["sahabe,padisah,cami,mekan,sur", "tumu", "hepsi", "Tümü"]].map((k) => [...k, katSay(k[0])]);
+const KAT = [["sahabe", "r1", "sahabe", "Sahâbe-i Kirâm"], ["padisah", "r3", "padisah", "Padişah türbeleri"], ["cami", "r4", "cami", "Tarihî camiler"], ["mekan", "r5", "mekan", "Tarihî mekânlar"], ["sur", "r6", "sur", "Suriçi ve surlar"], ["sahabe,padisah,cami,mekan,sur", "tumu", "hepsi", "Tümü"]].map((k) => [...k, katSay(k[0])]);
 function anaSayfa() {
   const govde = `<section class="kapak kap"><div class="kapak-ic"><img src="${GORSEL}ana-kapak.jpg" srcset="${GORSEL}ana-kapak-k.jpg 1100w, ${GORSEL}ana-kapak.jpg 2000w" sizes="(max-width: 781px) 100vw, (max-width: 1479px) 96vw, calc(100vw - 368px)" alt="Gün batımında Galata Kulesi, Haliç ve tarihî yarımada, havadan" width="2000" height="1125" fetchpriority="high">
 <div class="kapak-kart"><span class="goz">İstanbul · ${ROTALAR.length} rota · ${TOPLAM} durak</span><h1>${["İstanbul", "Ziyaret", "Rehberi"].map((w, i) => `<span style="--i:${i}">${w}</span>`).join(" ")}</h1>
@@ -259,7 +261,7 @@ function anaSayfa() {
 <div class="dugmeler"><a class="btn altin" href="#rota-olustur">${ic("rota")}Rotanı oluştur</a><a class="btn" href="#hazir-rotalar">Hazır rotalar</a></div></div></div></section>
 
 <section class="bolum kap" id="rota-olustur"><div class="bolum-bas" data-g><span class="kicker">Harita</span><h2 class="vurgulu">Ziyaret <em>rotanı</em> oluştur</h2><p>Ne görmek istediğini seç; duraklar gerçek harita üzerinde açılır. En yakın rotayı tek dokunuşla kur ya da durakları kendin seç.</p></div>
-<div class="kat" role="group" aria-label="Ne görmek istersin?">${KAT.map((k, i) => `<a class="${k[1]}" data-g style="--i:${i}" href="${yol.olustur}#kategori=${k[0]}" data-hash="kategori=${k[0]}"><span class="kat-sim">${ic(k[2])}</span><span>${k[3]}<small>${k[4]} durak</small></span></a>`).join("")}</div>
+<div class="kat" role="group" aria-label="Ne görmek istersin?">${KAT.map((k, i) => `<a class="${k[1]}" data-g style="--i:${i}" href="${yol.olustur}#kategori=${k[0]}" data-hash="kategori=${k[0]}"><span class="kat-sim">${rs(k[2])}</span><span>${k[3]}<small>${k[4]} durak</small></span></a>`).join("")}</div>
 <div class="cerceve" data-g="buyu"><iframe title="Rota oluşturma haritası" data-src="${HARITA}?gomulu=1" allow="geolocation"></iframe>
 <a class="cerceve-on" href="${yol.olustur}" style="background-image:url(${GORSEL}ana-harita.jpg)"><b>${TOPLAM} durak gerçek harita üzerinde</b><span class="btn altin">${ic("rota")}Haritayı aç</span></a></div>
 <ol class="uc-adim"><li data-g style="--i:0"><span><b>Kategorini seç</b>Sahâbe kabirleri, türbeler, camiler ya da hepsi.</span></li><li data-g style="--i:1"><span><b>Rotanı kur</b>En yakın rotayı oluştur ya da durakları tek tek ekle; yol sokaklardan çizilir.</span></li><li data-g style="--i:2"><span><b>Yola çık</b>Rotayı kaydet, dönüş tarifini oku, Google ya da Apple Haritalar’da aç.</span></li></ol>

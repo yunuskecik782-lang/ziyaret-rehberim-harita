@@ -69,6 +69,18 @@
   });
   const BYKEY = new Map(STOPS.map((s) => [s.key, s]));
   const CONCEPT = new Map(D.CONCEPTS.map((c) => [c.id, c]));
+  /* Harita işaretleri. Kategoriler yalnızca renkle değil biçimle de ayrılır: kabir ve türbeler ile camiler konum işareti (iğne),
+     gezi durakları ve surlar yuvarlak. Sahâbe kabirlerinin ucunda yavaş bir halka atar. İşaretin içinde kategorinin küçük simgesi durur.
+     Hesabım › Görünüm’den "hepsi konum işareti" ya da "hepsi yuvarlak" seçilebilir (html[data-isaret]). */
+  const MK_SEKIL = { sahabe: "igne", padisah: "igne", cami: "igne", mekan: "daire", sur: "daire" };
+  const MK_SIMGE = {
+    sahabe: '<path d="M14.5 3.2a8.9 8.9 0 1 0 6.9 14.1A7.2 7.2 0 0 1 14.5 3.2z"/>',
+    padisah: '<path d="M11.2 2h1.6v3.3h-1.6zM5 12.8c0-4.3 3-7.5 7-8 4 .5 7 3.7 7 8zM3.8 13.6h16.4v2.6H3.8zM5.8 16.2h12.4V22H5.8z"/>',
+    cami: '<path d="M2.8 22V9.5L4.3 4l1.5 5.5V22zM13.2 6.2h1.6v3h-1.6zM8 22v-6.2c0-3.6 2.6-6.3 6-6.8 3.4.5 6 3.2 6 6.8V22z"/>',
+    mekan: '<path d="M11.3 1.5h1.4v3h-1.4zM7.3 10.5 12 3.5l4.7 7zM8.5 11.5h7V22h-7z"/>',
+    sur: '<path fill-rule="evenodd" d="M3 22V7.5h3.6V10h2.8V7.5h5.2V10h2.8V7.5H21V22zM10 22v-4.5a2 2 0 0 1 4 0V22z"/>',
+  };
+  const mkSekil = (s) => { const g = document.documentElement.dataset.isaret; return g === "igne" || g === "daire" ? g : MK_SEKIL[s.r.concept] || "daire"; };
   // Aynı noktadaki duraklar (ör. aynı yapıdaki kabirler) haritada küçük bir yelpaze hâlinde açılır.
   (() => {
     const seen = new Set();
@@ -497,9 +509,11 @@
     const f = document.createDocumentFragment();
     for (const s of STOPS) {
       const b = document.createElement("button");
-      b.type = "button"; b.className = `mk c-${s.r.id}${s.approx ? " approx" : ""}`; b.dataset.stop = s.id;
+      b.type = "button"; b.className = `mk c-${s.r.id} k-${s.r.concept} s-${mkSekil(s)}${s.approx ? " approx" : ""}`; b.dataset.stop = s.id;
       b.setAttribute("aria-label", `${s.name}${s.hon ? " " + s.hon : ""}, ${s.r.name}`);
-      const i = document.createElement("i"); b.append(i); s.el = b; s.dot = i;
+      // i: işaretin gövdesi · mk-g: iğne biçimi · mk-s: kategori simgesi · b: rotadaki sıra numarası
+      b.innerHTML = `<i><svg class="mk-g" viewBox="0 0 30 40" aria-hidden="true"><path d="M15 38.6C15 38.6 2.6 25.2 2.6 14.6a12.4 12.4 0 0 1 24.8 0C27.4 25.2 15 38.6 15 38.6z"/></svg><svg class="mk-s" viewBox="0 0 24 24" aria-hidden="true">${MK_SIMGE[s.r.concept] || ""}</svg><b></b></i>`;
+      s.el = b; s.dot = b.querySelector("b");
       if (!REAL) { f.append(b); continue; }
       b.style.setProperty("--fx", s.fx.toFixed(3)); b.style.setProperty("--fy", s.fy.toFixed(3));
       s.mk = L.marker([s.lat, s.lng], { icon: L.divIcon({ className: "lmk", html: b, iconSize: [0, 0] }), keyboard: false }).addTo(map);
@@ -519,13 +533,17 @@
       if (REAL) s.mk.setZIndexOffset(S.sel === s.id ? 4000 : o ? 1000 : 0);
     }
     const sel = S.sel != null ? STOPS[S.sel] : null;
-    tipEl.hidden = !sel;
+    tipEl.hidden = !sel; if (sel) tipEl.dataset.s = mkSekil(sel);
     if (REAL && sel) tipMk.setLatLng([sel.lat, sel.lng]);
     if (sel) { tipEl.firstElementChild.textContent = sel.name; tipEl.firstElementChild.style.animation = "none"; void tipEl.offsetWidth; tipEl.firstElementChild.style.animation = ""; }
     const rc = $("#rcount"); rc.hidden = !S.route.length;
     if (rc.textContent !== String(S.route.length)) { rc.textContent = S.route.length; rc.classList.remove("bump"); void rc.offsetWidth; rc.classList.add("bump"); }
     draw();
   }
+
+  // Hesabım › Görünüm’de işaret biçimi değişince (başka sekmede de olsa) işaretler yeni biçime geçer.
+  function mkBicim() { for (const s of STOPS) { if (!s.el) continue; const g = mkSekil(s); s.el.classList.toggle("s-igne", g === "igne"); s.el.classList.toggle("s-daire", g === "daire"); } if (S.sel != null) tipEl.dataset.s = mkSekil(STOPS[S.sel]); }
+  if (HESAP) HESAP.dinle(mkBicim);
 
   /* ——— Rota hesabı ——— */
   function computeRT() {
@@ -1331,7 +1349,7 @@
     S.me = { lat: p0.lat, lng: p0.lng, x: x0, y: y0, src: "ornek", label: p0.label };
     meEl.hidden = false; meEl.className = "me ornek";
     if (REAL) meMk.setLatLng([p0.lat, p0.lng]);
-    for (const s of STOPS) s.dot.style.animationDelay = Math.round(380 + Math.min(1100, dist(S.me, s) / 7)) + "ms";
+    for (const s of STOPS) s.el.firstElementChild.style.animationDelay = Math.round(380 + Math.min(1100, dist(S.me, s) / 7)) + "ms";
     readColors();
     V.w = mapEl.clientWidth; V.h = mapEl.clientHeight;
     fit(STOPS, 0, 0.12);

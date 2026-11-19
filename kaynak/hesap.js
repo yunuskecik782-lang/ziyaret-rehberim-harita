@@ -1,8 +1,10 @@
-/* Hesap ve kayıtlı rotalar. Sunucu yok: hesap ve rotalar yalnızca bu cihazda, bu tarayıcıda (localStorage) durur.
-   Şifre düz yazıyla saklanmaz; rastgele tuzla PBKDF2-SHA-256 özeti tutulur. Sunucu tarafı kurulduğunda bu dosyanın yerini o alır. */
+/* Hesap, kayıtlı rotalar ve görünüm ayarları. Sunucu yok: hepsi yalnızca bu cihazda, bu tarayıcıda (localStorage) durur.
+   Şifre düz yazıyla saklanmaz; rastgele tuzla PBKDF2-SHA-256 özeti tutulur. Sunucu tarafı kurulduğunda bu dosyanın yerini o alır.
+   Görünüm ayarları (rozet rengi, zemin deseni, rota çizgisi, harita işaretleri, hareket) hesaba bağlıdır: giriş yapınca uygulanır,
+   çıkış yapınca site varsayılan görünümüne döner. Seçimler <html> üzerine data-… olarak yazılır; gerisini CSS yapar. */
 globalThis.ZR_HESAP = (() => {
   "use strict";
-  const K_H = "zr.hesaplar.v1", K_O = "zr.oturum.v1", K_M = "zr.rotalar.v1", K_U = "zr.rotalar.u.";
+  const K_H = "zr.hesaplar.v1", K_O = "zr.oturum.v1", K_M = "zr.rotalar.v1", K_U = "zr.rotalar.u.", K_G = "zr.gorunum.v1", K_GU = "zr.gorunum.u.";
   const ls = {
     al(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     yaz(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
@@ -23,6 +25,28 @@ globalThis.ZR_HESAP = (() => {
   const duyur = () => { for (const f of dinleyen) { try { f(); } catch (e) {} } };
   const dinle = (f) => { dinleyen.add(f); return () => dinleyen.delete(f); };
   try { window.addEventListener("storage", (e) => { if (!e.key || e.key.indexOf("zr.") === 0) duyur(); }); } catch (e) {}
+
+  // Görünüm seçenekleri. Her listenin ilk değeri varsayılandır.
+  const G_SEC = { rozet: ["altin", "lacivert", "zumrut", "gul", "gumus"], desen: ["lale", "yildiz", "yok"], cizgi: ["varsayilan", "altin", "turkuaz", "gul", "yesil"], stil: ["nokta", "kesik", "duz"], isaret: ["karisik", "igne", "daire"], hareket: ["acik", "az"] };
+  const gDuzelt = (v) => { const o = {}; for (const k in G_SEC) o[k] = v && G_SEC[k].includes(v[k]) ? v[k] : G_SEC[k][0]; return o; };
+  const gorunum = () => gDuzelt(aktif() ? oku(K_G, null) : null);
+  function gorunumUygula() {
+    const o = gorunum(), d = document.documentElement;
+    for (const k in o) { if (o[k] === G_SEC[k][0]) d.removeAttribute("data-" + k); else d.setAttribute("data-" + k, o[k]); }
+  }
+  function gorunumYaz(yeni) {
+    const a = aktif(); if (!a) return false;
+    const o = gDuzelt({ ...gorunum(), ...yeni }), m = JSON.stringify(o), ok = ls.yaz(K_G, m);
+    ls.yaz(K_GU + a.id, m); gorunumUygula(); duyur();
+    return ok;
+  }
+  // Oturum değişince: hesabın kayıtlı görünümü etkin kopyaya alınır; oturum yoksa etkin kopya silinir.
+  function gorunumOturum() {
+    const a = aktif(), m = a ? ls.al(K_GU + a.id) : null;
+    if (m) ls.yaz(K_G, m); else ls.sil(K_G);
+    gorunumUygula();
+  }
+  try { gorunumUygula(); window.addEventListener("storage", (e) => { if (!e.key || e.key === K_G || e.key === K_O) gorunumUygula(); }); } catch (e) {}
 
   const hex = (buf) => Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, "0")).join("");
   const kripto = () => (globalThis.crypto && globalThis.crypto.subtle ? globalThis.crypto : null);
@@ -48,7 +72,7 @@ globalThis.ZR_HESAP = (() => {
     const tuz = hex(kripto().getRandomValues(new Uint8Array(16)));
     h[id] = { ad: String(ad).trim(), tuz, ozet: await ozet(sifre, tuz), t: Date.now() };
     if (!ls.yaz(K_H, JSON.stringify(h))) return { ok: false, hata: "Tarayıcı kayda izin vermedi. Gizli pencerede olabilirsin." };
-    ls.yaz(K_O, id); duyur();
+    ls.yaz(K_O, id); gorunumOturum(); duyur();
     return { ok: true, misafir: misafirRotalari().length };
   }
   async function giris(ad, sifre) {
@@ -56,10 +80,10 @@ globalThis.ZR_HESAP = (() => {
     if (!kay) return { ok: false, hata: "Böyle bir kullanıcı adı bulunamadı. Yazımı kontrol et ya da hesap oluştur." };
     if (!kripto()) return { ok: false, hata: "Sayfa güvenli (https) adresten açılmadığı için giriş yapılamıyor." };
     if (!esit(await ozet(sifre, kay.tuz), kay.ozet)) return { ok: false, hata: "Şifre yanlış." };
-    ls.yaz(K_O, id); duyur();
+    ls.yaz(K_O, id); gorunumOturum(); duyur();
     return { ok: true, misafir: misafirRotalari().length };
   }
-  function cikis() { ls.sil(K_O); duyur(); }
+  function cikis() { ls.sil(K_O); gorunumOturum(); duyur(); }
   async function sifreDegis(eski, yeni) {
     const a = aktif(); if (!a) return { ok: false, hata: "Önce giriş yap." };
     if (String(yeni || "").length < 6) return { ok: false, hata: "Yeni şifre en az 6 karakter olmalı." };
@@ -72,7 +96,7 @@ globalThis.ZR_HESAP = (() => {
     const a = aktif(); if (!a) return { ok: false, hata: "Önce giriş yap." };
     const h = hesaplar(), kay = h[a.id];
     if (!esit(await ozet(sifre, kay.tuz), kay.ozet)) return { ok: false, hata: "Şifre yanlış." };
-    delete h[a.id]; ls.yaz(K_H, JSON.stringify(h)); ls.sil(K_U + a.id); ls.sil(K_O); duyur();
+    delete h[a.id]; ls.yaz(K_H, JSON.stringify(h)); ls.sil(K_U + a.id); ls.sil(K_GU + a.id); ls.sil(K_O); gorunumOturum(); duyur();
     return { ok: true };
   }
   // Giriş yapmadan kaydedilmiş rotaları hesaba taşır (aynı adlı rota varsa hesaptaki kalır).
@@ -84,5 +108,5 @@ globalThis.ZR_HESAP = (() => {
     ls.yaz(K_U + a.id, JSON.stringify([...yeni, ...benim])); ls.sil(K_M); duyur();
     return yeni.length;
   }
-  return { aktif, rotalar, rotalariYaz, misafirRotalari, misafiriTasi, kayit, giris, cikis, sifreDegis, hesabiSil, denetle, dinle };
+  return { aktif, rotalar, rotalariYaz, misafirRotalari, misafiriTasi, kayit, giris, cikis, sifreDegis, hesabiSil, denetle, dinle, gorunum, gorunumYaz, G_SEC };
 })();

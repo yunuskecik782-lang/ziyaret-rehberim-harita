@@ -745,24 +745,62 @@ svg.ic { width: 1.25em; height: 1.25em; flex: none; fill: none; stroke: currentC
 #mk { position: absolute; inset: 0; pointer-events: none; }
 @keyframes map-in { from { opacity: 0; } to { opacity: 1; } }
 
-.mk { position: absolute; left: 0; top: 0; width: 32px; height: 32px; margin: -16px 0 0 -16px; display: grid; place-items: center; pointer-events: auto; border-radius: 50%; will-change: transform; }
-.mk i { --ms: 13px; display: grid; place-items: center; width: var(--ms); height: var(--ms); border-radius: 50%; background: var(--c); color: var(--mk-fg);
-  box-shadow: 0 0 0 2px var(--mk-ring), 0 5px 12px -3px rgba(14,27,46,.55); font: 800 11px/1 var(--f-display); font-style: normal; font-variant-numeric: tabular-nums;
+/* ——— Harita işaretleri ———
+   İki biçim var: yuvarlak (s-daire) ve konum işareti (s-igne; ucu tam noktaya değer). Hangi kategorinin hangisini kullandığı app.js içindeki
+   MK_SEKIL’dedir. i gövdedir; içinde iğnenin çizimi (mk-g), kategori simgesi (mk-s) ve rotadaki sıra numarası (b) durur.
+   --ms işaretin genişliğidir: uzaktan küçük, yakından büyük; rotadaki ve seçili işaret daha büyük. */
+.mk { position: absolute; left: 0; top: 0; width: 34px; height: 34px; margin: -17px 0 0 -17px; display: grid; place-items: center; pointer-events: auto; border-radius: 50%; will-change: transform; }
+.mk i { --ms: 16px; position: relative; display: block; width: var(--ms); height: var(--ms); border-radius: 50%; background: var(--c); color: var(--mk-fg);
+  box-shadow: 0 0 0 2px var(--mk-ring), 0 5px 12px -3px rgba(14,27,46,.55); font-style: normal;
   transition: width .45s var(--spring), height .45s var(--spring), opacity .35s, transform .45s var(--spring), box-shadow .35s; animation: mk-in .7s var(--spring) backwards; }
-.z-lo .mk i { --ms: 9px; box-shadow: 0 0 0 1.5px var(--mk-ring), 0 3px 8px -3px rgba(14,27,46,.5); }
-.z-hi .mk i { --ms: 17px; }
+/* Leaflet harita içindeki bütün svg’lere z-index 200 verir; işaretin içindeki çizimler için sıra burada açıkça yazılır. */
+.mk .mk-g { display: none; position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; overflow: visible; }
+.mk-g path { fill: var(--c); stroke: var(--mk-ring); stroke-width: 2.6; stroke-linejoin: round; paint-order: stroke; }
+.mk .mk-s, .mk i b { position: absolute; left: 50%; top: 50%; z-index: 1; transform: translate(-50%, -50%); }
+.mk .mk-s { width: 64%; height: 64%; fill: var(--mk-fg); opacity: 0; transition: opacity .3s; }
+.mk i b { font: 800 11.5px/1 var(--f-display); font-variant-numeric: tabular-nums; color: var(--mk-fg); white-space: nowrap; }
+.z-lo .mk i { --ms: 10px; box-shadow: 0 0 0 1.5px var(--mk-ring), 0 3px 8px -3px rgba(14,27,46,.5); }
+.z-hi .mk i { --ms: 24px; }
+.z-hi .mk .mk-s, .mk.sel .mk-s { opacity: 1; }
+.mk.inr .mk-s { opacity: 0; }
 .mk.approx i { box-shadow: 0 0 0 2px var(--mk-ring), 0 0 0 3.5px color-mix(in srgb, var(--c) 55%, transparent), 0 5px 12px -3px rgba(14,27,46,.5); }
 .mk.dim { pointer-events: none; }
 .mk.dim i { opacity: .2; transform: scale(.62); }
 .mk.inr { z-index: 2; }
-.mk.inr i, .z-lo .mk.inr i { --ms: 24px; box-shadow: 0 0 0 2.5px var(--mk-ring), 0 8px 16px -4px rgba(14,27,46,.6); }
+.mk.inr i, .z-lo .mk.inr i { --ms: 25px; box-shadow: 0 0 0 2.5px var(--mk-ring), 0 8px 16px -4px rgba(14,27,46,.6); }
 .mk.inr.wait i { transform: scale(.45); opacity: .45; }
 .mk.inr.pop i { animation: mk-pop .6s var(--spring); }
 .mk.sel { z-index: 3; }
-.mk.sel i, .z-lo .mk.sel i { --ms: 24px; box-shadow: 0 0 0 3px var(--mk-ring), 0 0 0 10px color-mix(in srgb, var(--c) 30%, transparent), 0 10px 20px -4px rgba(14,27,46,.6); }
-@media (hover: hover) { .mk:not(.dim):hover i { transform: scale(1.3); } }
+.mk.sel i, .z-lo .mk.sel i { --ms: 27px; box-shadow: 0 0 0 3px var(--mk-ring), 0 0 0 10px color-mix(in srgb, var(--c) 30%, transparent), 0 10px 20px -4px rgba(14,27,46,.6); }
+@media (hover: hover) { .mk:not(.dim):hover i { transform: scale(1.22); } }
+
+/* Konum işareti: kutu noktanın üstünde durur, ucu noktaya değer; büyüme ve küçülme uçtan olur. */
+.mk.s-igne { width: 36px; height: 48px; margin: -45px 0 0 -18px; place-items: end center; border-radius: 12px; }
+.mk.s-igne i { --ms: 21px; height: calc(var(--ms) * 1.3334); margin-bottom: 3px; border-radius: 0; background: none; box-shadow: none; transform-origin: 50% 100%; filter: drop-shadow(0 4px 3px rgba(14,27,46,.42)); animation-name: mk-dus; }
+.mk.s-igne .mk-g { display: block; }
+.mk.s-igne .mk-s, .mk.s-igne i b { top: 36.5%; }
+.mk.s-igne .mk-s { width: 50%; height: 37.5%; }
+.z-lo .mk.s-igne i { --ms: 14px; box-shadow: none; filter: drop-shadow(0 2px 2px rgba(14,27,46,.4)); }
+.z-hi .mk.s-igne i { --ms: 28px; }
+.mk.s-igne .mk-s { opacity: 1; }
+.z-lo .mk.s-igne:not(.sel) .mk-s, .mk.s-igne.inr .mk-s { opacity: 0; }
+.mk.s-igne.inr i, .z-lo .mk.s-igne.inr i { --ms: 30px; box-shadow: none; }
+.mk.s-igne.sel i, .z-lo .mk.s-igne.sel i { --ms: 36px; box-shadow: none; filter: drop-shadow(0 0 5px color-mix(in srgb, var(--c) 80%, white)) drop-shadow(0 6px 5px rgba(14,27,46,.5)); }
+.mk.s-igne.sel .mk-g path { stroke-width: 3.2; }
+.mk.s-igne.approx i { box-shadow: none; }
+.mk.s-igne.approx .mk-g path { stroke-dasharray: 3.2 2.4; }
+.mk.k-padisah .mk-g path { stroke: #F6D88F; }
+/* Uçtaki halka: sahâbe kabirlerinde ve seçili işarette yavaşça atar. */
+.mk.s-igne::before { content: ""; position: absolute; left: 50%; bottom: -3px; width: 18px; height: 10px; margin-left: -9px; border-radius: 50%; background: color-mix(in srgb, var(--c) 70%, white); opacity: 0; pointer-events: none; }
+.mk.s-igne.k-sahabe:not(.dim)::before, .mk.s-igne.sel::before { animation: mk-nabiz 2.6s ease-out infinite; animation-delay: inherit; }
+.z-lo .mk.s-igne.k-sahabe:not(.sel)::before, .mk.dim::before { animation: none; }
 @keyframes mk-in { from { transform: scale(0); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes mk-dus { 0% { transform: translateY(-26px) scale(.5); opacity: 0; } 60% { transform: translateY(0) scale(1.14, .9); opacity: 1; } 80% { transform: scale(.96, 1.05); } 100% { transform: none; } }
 @keyframes mk-pop { 0% { transform: scale(.45); } 55% { transform: scale(1.35); } 100% { transform: none; } }
+@keyframes mk-nabiz { 0% { transform: scale(.5); opacity: .75; } 70%, 100% { transform: scale(2.7); opacity: 0; } }
+[data-hareket="az"] .mk::before { display: none; }
+@media (prefers-reduced-motion: reduce) { .mk::before { display: none; } }
+[data-hareket="az"] .mk i { animation: none; }
 
 .me { position: absolute; left: 0; top: 0; width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; pointer-events: none; z-index: 4; will-change: transform; }
 .me span { position: absolute; inset: 0; border-radius: 50%; background: var(--me); box-shadow: 0 0 0 3px #fff, 0 8px 16px -4px rgba(47,111,237,.8); }
@@ -772,7 +810,8 @@ svg.ic { width: 1.25em; height: 1.25em; flex: none; fill: none; stroke: currentC
 @keyframes me-pulse { 0% { transform: scale(1); opacity: .42; } 100% { transform: scale(3.6); opacity: 0; } }
 
 .tip { position: absolute; left: 0; top: 0; z-index: 5; pointer-events: none; will-change: transform; }
-.tip span { position: absolute; left: 0; bottom: 20px; transform: translateX(-50%); max-width: min(240px, 70vw); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+.tip[data-s="igne"] span { bottom: 54px; }
+.tip span { position: absolute; left: 0; bottom: 22px; transform: translateX(-50%); max-width: min(240px, 70vw); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   padding: 7px 12px; border-radius: 12px; background: var(--glass-strong); color: var(--heading); border: 1px solid var(--edge); box-shadow: var(--shadow); font: 700 12.5px/1.2 var(--f-display); animation: tip-in .45s var(--spring) both; }
 @keyframes tip-in { from { opacity: 0; transform: translateX(-50%) translateY(8px) scale(.9); } to { opacity: 1; transform: translateX(-50%); } }
 
@@ -1042,6 +1081,22 @@ a.btn { text-decoration: none; }
 @keyframes akis { from { stroke-dashoffset: var(--akis, 20.1); } to { stroke-dashoffset: 0; } }
 .navda .rt-akis:not(.nav) { display: none; }
 @media (prefers-reduced-motion: reduce) { .rt-akis { animation: none; display: none; } }
+/* ——— Görünüm ayarları (Hesabım › Görünüm; kaynak/hesap.js <html> üzerine data-… yazar) ———
+   Rozet rengi sitedekiyle aynı değişkenlerden gelir. Rota çizgisinin rengi ve biçimi, işaretlerin hareketi buradan değişir. */
+:root { --altin-gr: linear-gradient(150deg, #B47F24 0%, #D5A23F 30%, #EFCB7B 64%, #FBE9BD 100%); --altin-yazi: #1B2A45; --rozet-k: rgba(150,108,30,.5); --rozet-g: rgba(150,108,30,.95); --rozet-ys: rgba(255,255,255,.42); }
+[data-rozet="altin"] { --altin-gr: linear-gradient(150deg, #B47F24 0%, #D5A23F 30%, #EFCB7B 64%, #FBE9BD 100%); --altin-yazi: #1B2A45; --rozet-k: rgba(150,108,30,.5); --rozet-g: rgba(150,108,30,.95); --rozet-ys: rgba(255,255,255,.42); }
+[data-rozet="lacivert"] { --altin-gr: linear-gradient(150deg, #162F5E 0%, #254A90 32%, #4472C6 68%, #8FB0EA 100%); --altin-yazi: #FFFFFF; --rozet-k: rgba(18,40,84,.6); --rozet-g: rgba(30,62,124,.9); --rozet-ys: rgba(8,20,48,.35); }
+[data-rozet="zumrut"] { --altin-gr: linear-gradient(150deg, #124F40 0%, #1F7A64 32%, #3BA288 68%, #8FD6C2 100%); --altin-yazi: #FFFFFF; --rozet-k: rgba(14,66,53,.6); --rozet-g: rgba(24,100,82,.9); --rozet-ys: rgba(6,36,28,.35); }
+[data-rozet="gul"] { --altin-gr: linear-gradient(150deg, #762339 0%, #A53E58 32%, #CC6C84 68%, #F1B6C4 100%); --altin-yazi: #FFFFFF; --rozet-k: rgba(96,28,46,.6); --rozet-g: rgba(140,50,74,.9); --rozet-ys: rgba(60,12,26,.35); }
+[data-rozet="gumus"] { --altin-gr: linear-gradient(150deg, #7A8696 0%, #A7B1C0 32%, #D3D9E2 68%, #F5F7FA 100%); --altin-yazi: #1B2A45; --rozet-k: rgba(92,104,122,.55); --rozet-g: rgba(92,104,122,.85); --rozet-ys: rgba(255,255,255,.5); }
+[data-cizgi="altin"] #map.real, [data-cizgi="altin"] #map.real.is-sat { --route: #F5C451; --route-casing: #0E1B2E; --route-flow: #0E1B2E; }
+[data-cizgi="turkuaz"] #map.real, [data-cizgi="turkuaz"] #map.real.is-sat { --route: #22C3D6; --route-casing: #0B2A3A; --route-flow: #FFFFFF; }
+[data-cizgi="gul"] #map.real, [data-cizgi="gul"] #map.real.is-sat { --route: #E4577F; --route-casing: #FFFFFF; --route-flow: #FFFFFF; }
+[data-cizgi="yesil"] #map.real, [data-cizgi="yesil"] #map.real.is-sat { --route: #2FAE72; --route-casing: #FFFFFF; --route-flow: #FFFFFF; }
+[data-stil="kesik"] .rt-akis:not(.nav) { stroke-dasharray: 7 13; stroke-width: 2.4px; --akis: 20; }
+[data-stil="duz"] .rt-akis:not(.nav) { display: none; }
+[data-hareket="az"] .rt-akis { animation: none; }
+[data-hareket="az"] .rt-akis:not(.nav) { display: none; }
 #map.picking .leaflet-grab, #map.picking .leaflet-interactive, #map.picking .mk { cursor: crosshair; }
 #map.real ~ .cap { pointer-events: auto; background: var(--glass-strong); color: var(--fg); box-shadow: 0 6px 16px -10px rgba(14,27,46,.5); }
 .cap a { color: inherit; }
@@ -1138,7 +1193,10 @@ a.btn { text-decoration: none; }
 .hz { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; border-radius: 16px; background: var(--glass-soft); border: 1px solid var(--edge); transition: background-color .3s, border-color .3s, transform .45s var(--ease); animation: rise .5s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 40ms); }
 @media (hover: hover) { .hz:hover { background: var(--glass-strong); border-color: color-mix(in srgb, var(--c) 40%, var(--edge)); transform: translateX(3px); } }
 .hz-main { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 11px; padding: 9px 4px 9px 10px; text-align: left; min-width: 0; border-radius: 16px 0 0 16px; }
-.hz .bdg { width: 34px; height: 34px; border-radius: 11px; font-size: 12.5px; box-shadow: none; }
+/* Hazır rota numaraları sitedeki altın rozetle aynıdır; rotanın rengi satırın solundaki ince şeritte kalır. */
+.hz { position: relative; overflow: hidden; }
+.hz::before { content: ""; position: absolute; left: 0; top: 11px; bottom: 11px; width: 3px; border-radius: 0 3px 3px 0; background: var(--c); }
+.hz .bdg { width: 34px; height: 34px; border-radius: 50%; font-size: 12.5px; background: var(--altin-gr); color: var(--altin-yazi); text-shadow: 0 1px 0 var(--rozet-ys); box-shadow: inset 0 1px 0 rgba(255,255,255,.72), inset 0 -1px 1px rgba(0,0,0,.14), 0 0 0 1px var(--rozet-k), 0 7px 10px -7px var(--rozet-g); }
 .hz-tx { display: grid; gap: 2px; min-width: 0; }
 .hz-tx b { font: 750 14.5px/1.25 var(--f-display); color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hz-tx small { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1595,11 +1653,13 @@ globalThis.ZR_YOL = (() => {
   const SERVIS = { ad: "OpenStreetMap yol tarifi (FOSSGIS)", adres: "routing.openstreetmap.de" };
   return { yol, hazir, anahtar, olc, dk, SERVIS };
 })();
-/* Hesap ve kayıtlı rotalar. Sunucu yok: hesap ve rotalar yalnızca bu cihazda, bu tarayıcıda (localStorage) durur.
-   Şifre düz yazıyla saklanmaz; rastgele tuzla PBKDF2-SHA-256 özeti tutulur. Sunucu tarafı kurulduğunda bu dosyanın yerini o alır. */
+/* Hesap, kayıtlı rotalar ve görünüm ayarları. Sunucu yok: hepsi yalnızca bu cihazda, bu tarayıcıda (localStorage) durur.
+   Şifre düz yazıyla saklanmaz; rastgele tuzla PBKDF2-SHA-256 özeti tutulur. Sunucu tarafı kurulduğunda bu dosyanın yerini o alır.
+   Görünüm ayarları (rozet rengi, zemin deseni, rota çizgisi, harita işaretleri, hareket) hesaba bağlıdır: giriş yapınca uygulanır,
+   çıkış yapınca site varsayılan görünümüne döner. Seçimler <html> üzerine data-… olarak yazılır; gerisini CSS yapar. */
 globalThis.ZR_HESAP = (() => {
   "use strict";
-  const K_H = "zr.hesaplar.v1", K_O = "zr.oturum.v1", K_M = "zr.rotalar.v1", K_U = "zr.rotalar.u.";
+  const K_H = "zr.hesaplar.v1", K_O = "zr.oturum.v1", K_M = "zr.rotalar.v1", K_U = "zr.rotalar.u.", K_G = "zr.gorunum.v1", K_GU = "zr.gorunum.u.";
   const ls = {
     al(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     yaz(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
@@ -1620,6 +1680,28 @@ globalThis.ZR_HESAP = (() => {
   const duyur = () => { for (const f of dinleyen) { try { f(); } catch (e) {} } };
   const dinle = (f) => { dinleyen.add(f); return () => dinleyen.delete(f); };
   try { window.addEventListener("storage", (e) => { if (!e.key || e.key.indexOf("zr.") === 0) duyur(); }); } catch (e) {}
+
+  // Görünüm seçenekleri. Her listenin ilk değeri varsayılandır.
+  const G_SEC = { rozet: ["altin", "lacivert", "zumrut", "gul", "gumus"], desen: ["lale", "yildiz", "yok"], cizgi: ["varsayilan", "altin", "turkuaz", "gul", "yesil"], stil: ["nokta", "kesik", "duz"], isaret: ["karisik", "igne", "daire"], hareket: ["acik", "az"] };
+  const gDuzelt = (v) => { const o = {}; for (const k in G_SEC) o[k] = v && G_SEC[k].includes(v[k]) ? v[k] : G_SEC[k][0]; return o; };
+  const gorunum = () => gDuzelt(aktif() ? oku(K_G, null) : null);
+  function gorunumUygula() {
+    const o = gorunum(), d = document.documentElement;
+    for (const k in o) { if (o[k] === G_SEC[k][0]) d.removeAttribute("data-" + k); else d.setAttribute("data-" + k, o[k]); }
+  }
+  function gorunumYaz(yeni) {
+    const a = aktif(); if (!a) return false;
+    const o = gDuzelt({ ...gorunum(), ...yeni }), m = JSON.stringify(o), ok = ls.yaz(K_G, m);
+    ls.yaz(K_GU + a.id, m); gorunumUygula(); duyur();
+    return ok;
+  }
+  // Oturum değişince: hesabın kayıtlı görünümü etkin kopyaya alınır; oturum yoksa etkin kopya silinir.
+  function gorunumOturum() {
+    const a = aktif(), m = a ? ls.al(K_GU + a.id) : null;
+    if (m) ls.yaz(K_G, m); else ls.sil(K_G);
+    gorunumUygula();
+  }
+  try { gorunumUygula(); window.addEventListener("storage", (e) => { if (!e.key || e.key === K_G || e.key === K_O) gorunumUygula(); }); } catch (e) {}
 
   const hex = (buf) => Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, "0")).join("");
   const kripto = () => (globalThis.crypto && globalThis.crypto.subtle ? globalThis.crypto : null);
@@ -1645,7 +1727,7 @@ globalThis.ZR_HESAP = (() => {
     const tuz = hex(kripto().getRandomValues(new Uint8Array(16)));
     h[id] = { ad: String(ad).trim(), tuz, ozet: await ozet(sifre, tuz), t: Date.now() };
     if (!ls.yaz(K_H, JSON.stringify(h))) return { ok: false, hata: "Tarayıcı kayda izin vermedi. Gizli pencerede olabilirsin." };
-    ls.yaz(K_O, id); duyur();
+    ls.yaz(K_O, id); gorunumOturum(); duyur();
     return { ok: true, misafir: misafirRotalari().length };
   }
   async function giris(ad, sifre) {
@@ -1653,10 +1735,10 @@ globalThis.ZR_HESAP = (() => {
     if (!kay) return { ok: false, hata: "Böyle bir kullanıcı adı bulunamadı. Yazımı kontrol et ya da hesap oluştur." };
     if (!kripto()) return { ok: false, hata: "Sayfa güvenli (https) adresten açılmadığı için giriş yapılamıyor." };
     if (!esit(await ozet(sifre, kay.tuz), kay.ozet)) return { ok: false, hata: "Şifre yanlış." };
-    ls.yaz(K_O, id); duyur();
+    ls.yaz(K_O, id); gorunumOturum(); duyur();
     return { ok: true, misafir: misafirRotalari().length };
   }
-  function cikis() { ls.sil(K_O); duyur(); }
+  function cikis() { ls.sil(K_O); gorunumOturum(); duyur(); }
   async function sifreDegis(eski, yeni) {
     const a = aktif(); if (!a) return { ok: false, hata: "Önce giriş yap." };
     if (String(yeni || "").length < 6) return { ok: false, hata: "Yeni şifre en az 6 karakter olmalı." };
@@ -1669,7 +1751,7 @@ globalThis.ZR_HESAP = (() => {
     const a = aktif(); if (!a) return { ok: false, hata: "Önce giriş yap." };
     const h = hesaplar(), kay = h[a.id];
     if (!esit(await ozet(sifre, kay.tuz), kay.ozet)) return { ok: false, hata: "Şifre yanlış." };
-    delete h[a.id]; ls.yaz(K_H, JSON.stringify(h)); ls.sil(K_U + a.id); ls.sil(K_O); duyur();
+    delete h[a.id]; ls.yaz(K_H, JSON.stringify(h)); ls.sil(K_U + a.id); ls.sil(K_GU + a.id); ls.sil(K_O); gorunumOturum(); duyur();
     return { ok: true };
   }
   // Giriş yapmadan kaydedilmiş rotaları hesaba taşır (aynı adlı rota varsa hesaptaki kalır).
@@ -1681,7 +1763,7 @@ globalThis.ZR_HESAP = (() => {
     ls.yaz(K_U + a.id, JSON.stringify([...yeni, ...benim])); ls.sil(K_M); duyur();
     return yeni.length;
   }
-  return { aktif, rotalar, rotalariYaz, misafirRotalari, misafiriTasi, kayit, giris, cikis, sifreDegis, hesabiSil, denetle, dinle };
+  return { aktif, rotalar, rotalariYaz, misafirRotalari, misafiriTasi, kayit, giris, cikis, sifreDegis, hesabiSil, denetle, dinle, gorunum, gorunumYaz, G_SEC };
 })();
 </script>
 <script>
@@ -1756,6 +1838,18 @@ globalThis.ZR_HESAP = (() => {
   });
   const BYKEY = new Map(STOPS.map((s) => [s.key, s]));
   const CONCEPT = new Map(D.CONCEPTS.map((c) => [c.id, c]));
+  /* Harita işaretleri. Kategoriler yalnızca renkle değil biçimle de ayrılır: kabir ve türbeler ile camiler konum işareti (iğne),
+     gezi durakları ve surlar yuvarlak. Sahâbe kabirlerinin ucunda yavaş bir halka atar. İşaretin içinde kategorinin küçük simgesi durur.
+     Hesabım › Görünüm’den "hepsi konum işareti" ya da "hepsi yuvarlak" seçilebilir (html[data-isaret]). */
+  const MK_SEKIL = { sahabe: "igne", padisah: "igne", cami: "igne", mekan: "daire", sur: "daire" };
+  const MK_SIMGE = {
+    sahabe: '<path d="M14.5 3.2a8.9 8.9 0 1 0 6.9 14.1A7.2 7.2 0 0 1 14.5 3.2z"/>',
+    padisah: '<path d="M11.2 2h1.6v3.3h-1.6zM5 12.8c0-4.3 3-7.5 7-8 4 .5 7 3.7 7 8zM3.8 13.6h16.4v2.6H3.8zM5.8 16.2h12.4V22H5.8z"/>',
+    cami: '<path d="M2.8 22V9.5L4.3 4l1.5 5.5V22zM13.2 6.2h1.6v3h-1.6zM8 22v-6.2c0-3.6 2.6-6.3 6-6.8 3.4.5 6 3.2 6 6.8V22z"/>',
+    mekan: '<path d="M11.3 1.5h1.4v3h-1.4zM7.3 10.5 12 3.5l4.7 7zM8.5 11.5h7V22h-7z"/>',
+    sur: '<path fill-rule="evenodd" d="M3 22V7.5h3.6V10h2.8V7.5h5.2V10h2.8V7.5H21V22zM10 22v-4.5a2 2 0 0 1 4 0V22z"/>',
+  };
+  const mkSekil = (s) => { const g = document.documentElement.dataset.isaret; return g === "igne" || g === "daire" ? g : MK_SEKIL[s.r.concept] || "daire"; };
   // Aynı noktadaki duraklar (ör. aynı yapıdaki kabirler) haritada küçük bir yelpaze hâlinde açılır.
   (() => {
     const seen = new Set();
@@ -2184,9 +2278,11 @@ globalThis.ZR_HESAP = (() => {
     const f = document.createDocumentFragment();
     for (const s of STOPS) {
       const b = document.createElement("button");
-      b.type = "button"; b.className = `mk c-${s.r.id}${s.approx ? " approx" : ""}`; b.dataset.stop = s.id;
+      b.type = "button"; b.className = `mk c-${s.r.id} k-${s.r.concept} s-${mkSekil(s)}${s.approx ? " approx" : ""}`; b.dataset.stop = s.id;
       b.setAttribute("aria-label", `${s.name}${s.hon ? " " + s.hon : ""}, ${s.r.name}`);
-      const i = document.createElement("i"); b.append(i); s.el = b; s.dot = i;
+      // i: işaretin gövdesi · mk-g: iğne biçimi · mk-s: kategori simgesi · b: rotadaki sıra numarası
+      b.innerHTML = `<i><svg class="mk-g" viewBox="0 0 30 40" aria-hidden="true"><path d="M15 38.6C15 38.6 2.6 25.2 2.6 14.6a12.4 12.4 0 0 1 24.8 0C27.4 25.2 15 38.6 15 38.6z"/></svg><svg class="mk-s" viewBox="0 0 24 24" aria-hidden="true">${MK_SIMGE[s.r.concept] || ""}</svg><b></b></i>`;
+      s.el = b; s.dot = b.querySelector("b");
       if (!REAL) { f.append(b); continue; }
       b.style.setProperty("--fx", s.fx.toFixed(3)); b.style.setProperty("--fy", s.fy.toFixed(3));
       s.mk = L.marker([s.lat, s.lng], { icon: L.divIcon({ className: "lmk", html: b, iconSize: [0, 0] }), keyboard: false }).addTo(map);
@@ -2206,13 +2302,17 @@ globalThis.ZR_HESAP = (() => {
       if (REAL) s.mk.setZIndexOffset(S.sel === s.id ? 4000 : o ? 1000 : 0);
     }
     const sel = S.sel != null ? STOPS[S.sel] : null;
-    tipEl.hidden = !sel;
+    tipEl.hidden = !sel; if (sel) tipEl.dataset.s = mkSekil(sel);
     if (REAL && sel) tipMk.setLatLng([sel.lat, sel.lng]);
     if (sel) { tipEl.firstElementChild.textContent = sel.name; tipEl.firstElementChild.style.animation = "none"; void tipEl.offsetWidth; tipEl.firstElementChild.style.animation = ""; }
     const rc = $("#rcount"); rc.hidden = !S.route.length;
     if (rc.textContent !== String(S.route.length)) { rc.textContent = S.route.length; rc.classList.remove("bump"); void rc.offsetWidth; rc.classList.add("bump"); }
     draw();
   }
+
+  // Hesabım › Görünüm’de işaret biçimi değişince (başka sekmede de olsa) işaretler yeni biçime geçer.
+  function mkBicim() { for (const s of STOPS) { if (!s.el) continue; const g = mkSekil(s); s.el.classList.toggle("s-igne", g === "igne"); s.el.classList.toggle("s-daire", g === "daire"); } if (S.sel != null) tipEl.dataset.s = mkSekil(STOPS[S.sel]); }
+  if (HESAP) HESAP.dinle(mkBicim);
 
   /* ——— Rota hesabı ——— */
   function computeRT() {
@@ -3018,7 +3118,7 @@ globalThis.ZR_HESAP = (() => {
     S.me = { lat: p0.lat, lng: p0.lng, x: x0, y: y0, src: "ornek", label: p0.label };
     meEl.hidden = false; meEl.className = "me ornek";
     if (REAL) meMk.setLatLng([p0.lat, p0.lng]);
-    for (const s of STOPS) s.dot.style.animationDelay = Math.round(380 + Math.min(1100, dist(S.me, s) / 7)) + "ms";
+    for (const s of STOPS) s.el.firstElementChild.style.animationDelay = Math.round(380 + Math.min(1100, dist(S.me, s) / 7)) + "ms";
     readColors();
     V.w = mapEl.clientWidth; V.h = mapEl.clientHeight;
     fit(STOPS, 0, 0.12);

@@ -70,24 +70,62 @@ svg.ic { width: 1.25em; height: 1.25em; flex: none; fill: none; stroke: currentC
 #mk { position: absolute; inset: 0; pointer-events: none; }
 @keyframes map-in { from { opacity: 0; } to { opacity: 1; } }
 
-.mk { position: absolute; left: 0; top: 0; width: 32px; height: 32px; margin: -16px 0 0 -16px; display: grid; place-items: center; pointer-events: auto; border-radius: 50%; will-change: transform; }
-.mk i { --ms: 13px; display: grid; place-items: center; width: var(--ms); height: var(--ms); border-radius: 50%; background: var(--c); color: var(--mk-fg);
-  box-shadow: 0 0 0 2px var(--mk-ring), 0 5px 12px -3px rgba(14,27,46,.55); font: 800 11px/1 var(--f-display); font-style: normal; font-variant-numeric: tabular-nums;
+/* ——— Harita işaretleri ———
+   İki biçim var: yuvarlak (s-daire) ve konum işareti (s-igne; ucu tam noktaya değer). Hangi kategorinin hangisini kullandığı app.js içindeki
+   MK_SEKIL’dedir. i gövdedir; içinde iğnenin çizimi (mk-g), kategori simgesi (mk-s) ve rotadaki sıra numarası (b) durur.
+   --ms işaretin genişliğidir: uzaktan küçük, yakından büyük; rotadaki ve seçili işaret daha büyük. */
+.mk { position: absolute; left: 0; top: 0; width: 34px; height: 34px; margin: -17px 0 0 -17px; display: grid; place-items: center; pointer-events: auto; border-radius: 50%; will-change: transform; }
+.mk i { --ms: 16px; position: relative; display: block; width: var(--ms); height: var(--ms); border-radius: 50%; background: var(--c); color: var(--mk-fg);
+  box-shadow: 0 0 0 2px var(--mk-ring), 0 5px 12px -3px rgba(14,27,46,.55); font-style: normal;
   transition: width .45s var(--spring), height .45s var(--spring), opacity .35s, transform .45s var(--spring), box-shadow .35s; animation: mk-in .7s var(--spring) backwards; }
-.z-lo .mk i { --ms: 9px; box-shadow: 0 0 0 1.5px var(--mk-ring), 0 3px 8px -3px rgba(14,27,46,.5); }
-.z-hi .mk i { --ms: 17px; }
+/* Leaflet harita içindeki bütün svg’lere z-index 200 verir; işaretin içindeki çizimler için sıra burada açıkça yazılır. */
+.mk .mk-g { display: none; position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; overflow: visible; }
+.mk-g path { fill: var(--c); stroke: var(--mk-ring); stroke-width: 2.6; stroke-linejoin: round; paint-order: stroke; }
+.mk .mk-s, .mk i b { position: absolute; left: 50%; top: 50%; z-index: 1; transform: translate(-50%, -50%); }
+.mk .mk-s { width: 64%; height: 64%; fill: var(--mk-fg); opacity: 0; transition: opacity .3s; }
+.mk i b { font: 800 11.5px/1 var(--f-display); font-variant-numeric: tabular-nums; color: var(--mk-fg); white-space: nowrap; }
+.z-lo .mk i { --ms: 10px; box-shadow: 0 0 0 1.5px var(--mk-ring), 0 3px 8px -3px rgba(14,27,46,.5); }
+.z-hi .mk i { --ms: 24px; }
+.z-hi .mk .mk-s, .mk.sel .mk-s { opacity: 1; }
+.mk.inr .mk-s { opacity: 0; }
 .mk.approx i { box-shadow: 0 0 0 2px var(--mk-ring), 0 0 0 3.5px color-mix(in srgb, var(--c) 55%, transparent), 0 5px 12px -3px rgba(14,27,46,.5); }
 .mk.dim { pointer-events: none; }
 .mk.dim i { opacity: .2; transform: scale(.62); }
 .mk.inr { z-index: 2; }
-.mk.inr i, .z-lo .mk.inr i { --ms: 24px; box-shadow: 0 0 0 2.5px var(--mk-ring), 0 8px 16px -4px rgba(14,27,46,.6); }
+.mk.inr i, .z-lo .mk.inr i { --ms: 25px; box-shadow: 0 0 0 2.5px var(--mk-ring), 0 8px 16px -4px rgba(14,27,46,.6); }
 .mk.inr.wait i { transform: scale(.45); opacity: .45; }
 .mk.inr.pop i { animation: mk-pop .6s var(--spring); }
 .mk.sel { z-index: 3; }
-.mk.sel i, .z-lo .mk.sel i { --ms: 24px; box-shadow: 0 0 0 3px var(--mk-ring), 0 0 0 10px color-mix(in srgb, var(--c) 30%, transparent), 0 10px 20px -4px rgba(14,27,46,.6); }
-@media (hover: hover) { .mk:not(.dim):hover i { transform: scale(1.3); } }
+.mk.sel i, .z-lo .mk.sel i { --ms: 27px; box-shadow: 0 0 0 3px var(--mk-ring), 0 0 0 10px color-mix(in srgb, var(--c) 30%, transparent), 0 10px 20px -4px rgba(14,27,46,.6); }
+@media (hover: hover) { .mk:not(.dim):hover i { transform: scale(1.22); } }
+
+/* Konum işareti: kutu noktanın üstünde durur, ucu noktaya değer; büyüme ve küçülme uçtan olur. */
+.mk.s-igne { width: 36px; height: 48px; margin: -45px 0 0 -18px; place-items: end center; border-radius: 12px; }
+.mk.s-igne i { --ms: 21px; height: calc(var(--ms) * 1.3334); margin-bottom: 3px; border-radius: 0; background: none; box-shadow: none; transform-origin: 50% 100%; filter: drop-shadow(0 4px 3px rgba(14,27,46,.42)); animation-name: mk-dus; }
+.mk.s-igne .mk-g { display: block; }
+.mk.s-igne .mk-s, .mk.s-igne i b { top: 36.5%; }
+.mk.s-igne .mk-s { width: 50%; height: 37.5%; }
+.z-lo .mk.s-igne i { --ms: 14px; box-shadow: none; filter: drop-shadow(0 2px 2px rgba(14,27,46,.4)); }
+.z-hi .mk.s-igne i { --ms: 28px; }
+.mk.s-igne .mk-s { opacity: 1; }
+.z-lo .mk.s-igne:not(.sel) .mk-s, .mk.s-igne.inr .mk-s { opacity: 0; }
+.mk.s-igne.inr i, .z-lo .mk.s-igne.inr i { --ms: 30px; box-shadow: none; }
+.mk.s-igne.sel i, .z-lo .mk.s-igne.sel i { --ms: 36px; box-shadow: none; filter: drop-shadow(0 0 5px color-mix(in srgb, var(--c) 80%, white)) drop-shadow(0 6px 5px rgba(14,27,46,.5)); }
+.mk.s-igne.sel .mk-g path { stroke-width: 3.2; }
+.mk.s-igne.approx i { box-shadow: none; }
+.mk.s-igne.approx .mk-g path { stroke-dasharray: 3.2 2.4; }
+.mk.k-padisah .mk-g path { stroke: #F6D88F; }
+/* Uçtaki halka: sahâbe kabirlerinde ve seçili işarette yavaşça atar. */
+.mk.s-igne::before { content: ""; position: absolute; left: 50%; bottom: -3px; width: 18px; height: 10px; margin-left: -9px; border-radius: 50%; background: color-mix(in srgb, var(--c) 70%, white); opacity: 0; pointer-events: none; }
+.mk.s-igne.k-sahabe:not(.dim)::before, .mk.s-igne.sel::before { animation: mk-nabiz 2.6s ease-out infinite; animation-delay: inherit; }
+.z-lo .mk.s-igne.k-sahabe:not(.sel)::before, .mk.dim::before { animation: none; }
 @keyframes mk-in { from { transform: scale(0); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes mk-dus { 0% { transform: translateY(-26px) scale(.5); opacity: 0; } 60% { transform: translateY(0) scale(1.14, .9); opacity: 1; } 80% { transform: scale(.96, 1.05); } 100% { transform: none; } }
 @keyframes mk-pop { 0% { transform: scale(.45); } 55% { transform: scale(1.35); } 100% { transform: none; } }
+@keyframes mk-nabiz { 0% { transform: scale(.5); opacity: .75; } 70%, 100% { transform: scale(2.7); opacity: 0; } }
+[data-hareket="az"] .mk::before { display: none; }
+@media (prefers-reduced-motion: reduce) { .mk::before { display: none; } }
+[data-hareket="az"] .mk i { animation: none; }
 
 .me { position: absolute; left: 0; top: 0; width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; pointer-events: none; z-index: 4; will-change: transform; }
 .me span { position: absolute; inset: 0; border-radius: 50%; background: var(--me); box-shadow: 0 0 0 3px #fff, 0 8px 16px -4px rgba(47,111,237,.8); }
@@ -97,7 +135,8 @@ svg.ic { width: 1.25em; height: 1.25em; flex: none; fill: none; stroke: currentC
 @keyframes me-pulse { 0% { transform: scale(1); opacity: .42; } 100% { transform: scale(3.6); opacity: 0; } }
 
 .tip { position: absolute; left: 0; top: 0; z-index: 5; pointer-events: none; will-change: transform; }
-.tip span { position: absolute; left: 0; bottom: 20px; transform: translateX(-50%); max-width: min(240px, 70vw); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+.tip[data-s="igne"] span { bottom: 54px; }
+.tip span { position: absolute; left: 0; bottom: 22px; transform: translateX(-50%); max-width: min(240px, 70vw); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   padding: 7px 12px; border-radius: 12px; background: var(--glass-strong); color: var(--heading); border: 1px solid var(--edge); box-shadow: var(--shadow); font: 700 12.5px/1.2 var(--f-display); animation: tip-in .45s var(--spring) both; }
 @keyframes tip-in { from { opacity: 0; transform: translateX(-50%) translateY(8px) scale(.9); } to { opacity: 1; transform: translateX(-50%); } }
 
@@ -367,6 +406,22 @@ a.btn { text-decoration: none; }
 @keyframes akis { from { stroke-dashoffset: var(--akis, 20.1); } to { stroke-dashoffset: 0; } }
 .navda .rt-akis:not(.nav) { display: none; }
 @media (prefers-reduced-motion: reduce) { .rt-akis { animation: none; display: none; } }
+/* ——— Görünüm ayarları (Hesabım › Görünüm; kaynak/hesap.js <html> üzerine data-… yazar) ———
+   Rozet rengi sitedekiyle aynı değişkenlerden gelir. Rota çizgisinin rengi ve biçimi, işaretlerin hareketi buradan değişir. */
+:root { --altin-gr: linear-gradient(150deg, #B47F24 0%, #D5A23F 30%, #EFCB7B 64%, #FBE9BD 100%); --altin-yazi: #1B2A45; --rozet-k: rgba(150,108,30,.5); --rozet-g: rgba(150,108,30,.95); --rozet-ys: rgba(255,255,255,.42); }
+[data-rozet="altin"] { --altin-gr: linear-gradient(150deg, #B47F24 0%, #D5A23F 30%, #EFCB7B 64%, #FBE9BD 100%); --altin-yazi: #1B2A45; --rozet-k: rgba(150,108,30,.5); --rozet-g: rgba(150,108,30,.95); --rozet-ys: rgba(255,255,255,.42); }
+[data-rozet="lacivert"] { --altin-gr: linear-gradient(150deg, #162F5E 0%, #254A90 32%, #4472C6 68%, #8FB0EA 100%); --altin-yazi: #FFFFFF; --rozet-k: rgba(18,40,84,.6); --rozet-g: rgba(30,62,124,.9); --rozet-ys: rgba(8,20,48,.35); }
+[data-rozet="zumrut"] { --altin-gr: linear-gradient(150deg, #124F40 0%, #1F7A64 32%, #3BA288 68%, #8FD6C2 100%); --altin-yazi: #FFFFFF; --rozet-k: rgba(14,66,53,.6); --rozet-g: rgba(24,100,82,.9); --rozet-ys: rgba(6,36,28,.35); }
+[data-rozet="gul"] { --altin-gr: linear-gradient(150deg, #762339 0%, #A53E58 32%, #CC6C84 68%, #F1B6C4 100%); --altin-yazi: #FFFFFF; --rozet-k: rgba(96,28,46,.6); --rozet-g: rgba(140,50,74,.9); --rozet-ys: rgba(60,12,26,.35); }
+[data-rozet="gumus"] { --altin-gr: linear-gradient(150deg, #7A8696 0%, #A7B1C0 32%, #D3D9E2 68%, #F5F7FA 100%); --altin-yazi: #1B2A45; --rozet-k: rgba(92,104,122,.55); --rozet-g: rgba(92,104,122,.85); --rozet-ys: rgba(255,255,255,.5); }
+[data-cizgi="altin"] #map.real, [data-cizgi="altin"] #map.real.is-sat { --route: #F5C451; --route-casing: #0E1B2E; --route-flow: #0E1B2E; }
+[data-cizgi="turkuaz"] #map.real, [data-cizgi="turkuaz"] #map.real.is-sat { --route: #22C3D6; --route-casing: #0B2A3A; --route-flow: #FFFFFF; }
+[data-cizgi="gul"] #map.real, [data-cizgi="gul"] #map.real.is-sat { --route: #E4577F; --route-casing: #FFFFFF; --route-flow: #FFFFFF; }
+[data-cizgi="yesil"] #map.real, [data-cizgi="yesil"] #map.real.is-sat { --route: #2FAE72; --route-casing: #FFFFFF; --route-flow: #FFFFFF; }
+[data-stil="kesik"] .rt-akis:not(.nav) { stroke-dasharray: 7 13; stroke-width: 2.4px; --akis: 20; }
+[data-stil="duz"] .rt-akis:not(.nav) { display: none; }
+[data-hareket="az"] .rt-akis { animation: none; }
+[data-hareket="az"] .rt-akis:not(.nav) { display: none; }
 #map.picking .leaflet-grab, #map.picking .leaflet-interactive, #map.picking .mk { cursor: crosshair; }
 #map.real ~ .cap { pointer-events: auto; background: var(--glass-strong); color: var(--fg); box-shadow: 0 6px 16px -10px rgba(14,27,46,.5); }
 .cap a { color: inherit; }
@@ -463,7 +518,10 @@ a.btn { text-decoration: none; }
 .hz { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; border-radius: 16px; background: var(--glass-soft); border: 1px solid var(--edge); transition: background-color .3s, border-color .3s, transform .45s var(--ease); animation: rise .5s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 40ms); }
 @media (hover: hover) { .hz:hover { background: var(--glass-strong); border-color: color-mix(in srgb, var(--c) 40%, var(--edge)); transform: translateX(3px); } }
 .hz-main { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 11px; padding: 9px 4px 9px 10px; text-align: left; min-width: 0; border-radius: 16px 0 0 16px; }
-.hz .bdg { width: 34px; height: 34px; border-radius: 11px; font-size: 12.5px; box-shadow: none; }
+/* Hazır rota numaraları sitedeki altın rozetle aynıdır; rotanın rengi satırın solundaki ince şeritte kalır. */
+.hz { position: relative; overflow: hidden; }
+.hz::before { content: ""; position: absolute; left: 0; top: 11px; bottom: 11px; width: 3px; border-radius: 0 3px 3px 0; background: var(--c); }
+.hz .bdg { width: 34px; height: 34px; border-radius: 50%; font-size: 12.5px; background: var(--altin-gr); color: var(--altin-yazi); text-shadow: 0 1px 0 var(--rozet-ys); box-shadow: inset 0 1px 0 rgba(255,255,255,.72), inset 0 -1px 1px rgba(0,0,0,.14), 0 0 0 1px var(--rozet-k), 0 7px 10px -7px var(--rozet-g); }
 .hz-tx { display: grid; gap: 2px; min-width: 0; }
 .hz-tx b { font: 750 14.5px/1.25 var(--f-display); color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hz-tx small { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -426,6 +426,35 @@
     HESAP.dinle(ciz); ciz();
   }
 
+  /* ——— Hesabım › Görünüm ———
+     Giriş yapan ziyaretçi sitenin ve haritanın görünümünü kendine göre ayarlar: sayı rozetlerinin rengi, zemin deseni, rota çizgisinin rengi ve
+     biçimi, harita işaretlerinin biçimi, hareket. Seçim anında uygulanır; kaydı ve uygulaması kaynak/hesap.js içindedir. */
+  const G_AD = {
+    rozet: ["Sayı rozetleri", { altin: "Altın", lacivert: "Lacivert", zumrut: "Zümrüt", gul: "Gül", gumus: "Gümüş" }],
+    desen: ["Arka plan deseni", { lale: "Lale (Osmanlı)", yildiz: "Yıldız (Selçuklu)", yok: "Desensiz" }],
+    cizgi: ["Rota çizgisinin rengi", { varsayilan: "Varsayılan", altin: "Altın", turkuaz: "Turkuaz", gul: "Gül", yesil: "Yeşil" }],
+    stil: ["Rota çizgisinin biçimi", { nokta: "Akan noktalar", kesik: "Akan çizgiler", duz: "Düz çizgi" }],
+    isaret: ["Harita işaretleri", { karisik: "Kategoriye göre", igne: "Hepsi konum işareti", daire: "Hepsi yuvarlak" }],
+    hareket: ["Hareket", { acik: "Açık", az: "Azaltılmış" }],
+  };
+  const G_CIZGI = { varsayilan: ["#FFE08A", "#0E1B2E", "#0E1B2E"], altin: ["#F5C451", "#0E1B2E", "#0E1B2E"], turkuaz: ["#22C3D6", "#0B2A3A", "#fff"], gul: ["#E4577F", "#fff", "#fff"], yesil: ["#2FAE72", "#fff", "#fff"] };
+  const G_YOL = "M4 25C12 25 13 9 21 9s9 16 17 16", G_IGNE = "M0 14.6C0 14.6-7.4 6.6-7.4.3a7.4 7.4 0 0 1 14.8 0C7.4 6.6 0 14.6 0 14.6z";
+  function gOrnek(g, v, sec) {
+    if (g === "rozet") return `<span class="g-on"><span class="no" data-rozet="${v}">1</span></span>`;
+    if (g === "desen") return `<span class="g-on do-${v}"></span>`;
+    if (g === "cizgi") { const c = G_CIZGI[v]; return `<span class="g-on uydu"><svg viewBox="0 0 42 34" aria-hidden="true"><path d="${G_YOL}" fill="none" stroke="${c[1]}" stroke-width="7" stroke-linecap="round"/><path d="${G_YOL}" fill="none" stroke="${c[0]}" stroke-width="3.4" stroke-linecap="round"/><path d="${G_YOL}" fill="none" stroke="${c[2]}" stroke-width="2" stroke-linecap="round" stroke-dasharray=".1 7"/></svg></span>`; }
+    if (g === "stil") { const c = G_CIZGI[sec.cizgi]; return `<span class="g-on uydu"><svg viewBox="0 0 42 34" aria-hidden="true"><path d="${G_YOL}" fill="none" stroke="${c[1]}" stroke-width="7" stroke-linecap="round"/><path d="${G_YOL}" fill="none" stroke="${c[0]}" stroke-width="3.4" stroke-linecap="round"/>${v === "duz" ? "" : `<path class="g-akis" d="${G_YOL}" fill="none" stroke="${c[2]}" stroke-width="2" stroke-linecap="round" stroke-dasharray="${v === "kesik" ? "4 6" : ".1 7"}"/>`}</svg></span>`; }
+    if (g === "isaret") { const igne = (x, r) => `<g transform="translate(${x} 13)"><path d="${G_IGNE}" fill="${r}" stroke="#fff" stroke-width="1.6"/></g>`, daire = (x, r) => `<circle cx="${x}" cy="17" r="6.6" fill="${r}" stroke="#fff" stroke-width="1.6"/>`;
+      return `<span class="g-on uydu"><svg viewBox="0 0 42 34" aria-hidden="true">${v === "karisik" ? igne(14, "#2E5AAC") + daire(29, "#5B6FB8") : v === "igne" ? igne(13, "#2E5AAC") + igne(29, "#B04A62") : daire(13, "#2E5AAC") + daire(29, "#B04A62")}</svg></span>`; }
+    return `<span class="g-on">${ic(v === "az" ? "basla" : "spark")}</span>`;
+  }
+  function gorunumHtml() {
+    const sec = HESAP.gorunum();
+    return `<div class="kart gorunum" id="gorunum"><h2>Görünüm</h2><p class="ince">Siteyi ve haritayı kendine göre ayarla. Seçimin anında uygulanır, bu hesaba bağlıdır ve bu cihazda saklanır; çıkış yapınca site varsayılan görünümüne döner.</p>
+${Object.keys(G_AD).map((g) => `<fieldset class="g-grup"><legend>${G_AD[g][0]}</legend><div class="g-sec">${HESAP.G_SEC[g].map((v) => `<button class="g-s" type="button" data-g="${g}" data-v="${v}" aria-pressed="${sec[g] === v}">${gOrnek(g, v, sec)}<b>${G_AD[g][1][v]}</b></button>`).join("")}</div></fieldset>`).join("")}
+<div class="dugmeler" style="margin-top:20px"><a class="btn kucuk yumusak" href="${ZR_YER.olustur}">${ic("rota")}Haritada gör</a><button class="btn kucuk" type="button" data-is="g-sifirla">Varsayılana dön</button></div></div>`;
+  }
+
   /* ——— Hesabım ——— */
   function hesabim() {
     const kok = $("#hesap"), rot = $("#hesap-rotalar"); let sek = location.hash === "#kayit" ? "kayit" : "giris", mesaj = "", liste = false;
@@ -450,12 +479,14 @@ ${mis ? `<p class="ince" style="margin-top:14px">Giriş yapmadan kaydedilmiş ${
 ${mis ? `<div class="uyari-serit" style="margin:16px 0 0"><span>Giriş yapmadan kaydettiğin ${mis} rota var.</span><button class="btn kucuk koyu" type="button" data-is="tasi">Hesabıma taşı</button></div>` : ""}
 <div class="dugmeler" style="margin-top:18px"><a class="btn altin" href="${ZR_YER.olustur}">${ic("rota")}Rota oluştur</a><a class="btn" href="${ZR_YER.rotalarim}">${ic("mark")}Rotalarım</a><button class="btn" type="button" data-is="cikis">Çıkış yap</button></div>
 <details class="katla"><summary>${ic("fwd")}Şifre değiştir</summary><form class="form" data-form="sifre" novalidate><div class="alan"><label for="s-eski">Şimdiki şifre</label><input id="s-eski" name="eski" type="password" autocomplete="current-password" required></div><div class="alan"><label for="s-yeni">Yeni şifre</label><input id="s-yeni" name="yeni" type="password" autocomplete="new-password" required><small>En az 6 karakter.</small></div><div class="hata" role="alert" hidden></div><button class="btn koyu" type="submit">Şifreyi değiştir</button></form></details>
-<details class="katla"><summary>${ic("fwd")}Hesabı sil</summary><form class="form" data-form="sil" novalidate><p class="ince">Hesap ve bu hesaba kayıtlı rotalar silinir. Geri alınamaz.</p><div class="alan"><label for="x-sifre">Şifre</label><input id="x-sifre" name="sifre" type="password" autocomplete="current-password" required></div><div class="hata" role="alert" hidden></div><button class="btn" type="submit">Hesabımı sil</button></form></details></div>`;
+<details class="katla"><summary>${ic("fwd")}Hesabı sil</summary><form class="form" data-form="sil" novalidate><p class="ince">Hesap ve bu hesaba kayıtlı rotalar silinir. Geri alınamaz.</p><div class="alan"><label for="x-sifre">Şifre</label><input id="x-sifre" name="sifre" type="password" autocomplete="current-password" required></div><div class="hata" role="alert" hidden></div><button class="btn" type="submit">Hesabımı sil</button></form></details></div>${gorunumHtml()}`;
       if (!liste) { liste = true; kayitListesi($("#kayitlar")); }
     }
     kok.addEventListener("click", (e) => {
       const s = e.target.closest("[data-sek]"); if (s) { sek = s.dataset.sek; ciz(); $("#h-ad").focus(); return; }
+      const g = e.target.closest(".g-s"); if (g) { HESAP.gorunumYaz({ [g.dataset.g]: g.dataset.v }); const y = $(`.g-s[data-g="${g.dataset.g}"][data-v="${g.dataset.v}"]`, kok); if (y) y.focus({ preventScroll: true }); return; }
       const b = e.target.closest("[data-is]"); if (!b) return;
+      if (b.dataset.is === "g-sifirla") { HESAP.gorunumYaz(Object.fromEntries(Object.keys(HESAP.G_SEC).map((k) => [k, HESAP.G_SEC[k][0]]))); bildir("Varsayılan görünüme dönüldü."); return; }
       if (b.dataset.is === "cikis") { mesaj = ""; HESAP.cikis(); bildir("Çıkış yapıldı."); ciz(); }
       if (b.dataset.is === "tasi") { const k = HESAP.misafiriTasi(); bildir(k ? k + " rota hesabına taşındı." : "Rotalar zaten hesabında."); ciz(); }
     });

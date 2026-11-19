@@ -44,11 +44,16 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
   açar: filtreler, güzergâhlar, o sayfanın bölümleri, pratik bilgi (`yanCubuk` işlevi, `site/build.js`). Sütunun başındaki koyu "Menü"
   çubuğu onu kapatır. Sütun 1480 pikselden geniş ekranda sabit durur; kapatılırsa tercih o tarayıcıda saklanır (`zr.yan`), daha dar
   ekranda sayfanın üstüne açılır. Telefonda sütun ve ince şerit yoktur, tam ekran menü vardır.
-  "Güzergâhlar" açılır listesi altı rotayı küçük rota çizimleriyle gösterir (`miniRota`).
+  "Güzergâhlar" açılır listesi altı rotayı gölgeli altın rakam rozetleriyle gösterir (`.guz-no`); liste açılınca rozetler sırayla belirir.
+  Rakam rozetleri sitenin her yerinde aynıdır (`.no`, `.sira.altin`; harita uygulamasında `.bdg`): açılan altın zemin, koyu lacivert rakam.
+  Renkleri `--altin-gr`, `--altin-yazi` ve `--rozet-*` değişkenlerinden gelir. Altın yazı rengi olarak kullanılmaz, yalnızca zemin ve çizgidir.
+  Kategori resimleri (`RESIM` ve `rs()`, `site/build.js`) bu site için çizilmiş altı küçük resimdir; fotoğraf değildir, dışarıdan dosya yüklenmez.
   Sayfa geçişinde bilerek efekt yoktur: tarayıcı eski sayfayı yeni sayfa çizilene kadar tutar, tek karede değiştirir (titreme olmasın diye).
   Aşağıdaki bölümler kaydırınca belirir; açılışta ekranda olan içerik hiç gizlenmez.
-  Arka plan (`.zemin`; `ZEMIN` ve `ZEMIN_CSS`, `site/build.js`) bilerek sadedir: beyaza yakın zemin, yavaşça yer değiştiren iki yumuşak ışık
-  ve köşelerde çok yavaş dönen iki ince geometrik gül. Yalnızca `transform` ile hareket eder; işi ekran kartı yapar, sayfa yavaşlamaz.
+  Arka plan (`.zemin`; `ZEMIN` ve `ZEMIN_CSS`, `site/build.js`): beyaza yakın zemin, çok yavaş kayan Osmanlı lale kafesi (`.z-desen`),
+  ortayı açık tutan beyaz bir örtü (`.z-sis`) ve yavaşça yer değiştiren iki yumuşak ışık. Desen karosu betikte çizilir; ikinci seçenek
+  Selçuklu sekiz köşeli yıldız kafesidir. Üçgen ya da başka geometrik dolgu kullanılmaz. Desen tam bir karo (lalede yarım karo çapraz)
+  kayınca kendi üzerine oturur, döngüde sıçrama olmaz. Yalnızca `transform` ile hareket eder; işi ekran kartı yapar.
   Hareketler sayfanın başındaki ortak saate (`--zt`) bağlıdır, sayfa değişince kaldığı yerden sürer. "Hareketi azalt" seçili cihazlarda durur.
 - `kaynak/data.js`: rotalar, duraklar, koordinatlar, hazır başlangıç noktaları. Her durağın son alanı kalıcı anahtarıdır
   (`r1-4` gibi); sıra ya da rota değişse de aynı kalır, ziyaretçilerin kayıtlı rotaları bozulmaz. Elle durak eklerken yeni,
@@ -57,12 +62,21 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
   Panelde üç sekme vardır: Hazır rotalar (her rota tek satırlık kart), Keşfet (üstte tek satırlık rota özeti ve başlangıç noktası,
   iki satıra sığan kategori düğmeleri, sonra yakından uzağa durak listesi) ve Rotam. "Rotayı başlat" çubuğu yalnızca Rotam sekmesinde
   görünür (`syncGo`); Keşfet'teki "Rotama git" oraya götürür. Rota çizgisinin üstünde gidiş yönüne doğru küçük noktalar akar (`.rt-akis`).
+  Harita işaretleri iki biçimdedir (`MK_SEKIL`, `kaynak/app.js`): Sahâbe, padişah türbeleri ve camiler konum işareti (ucu tam noktada),
+  tarihî mekânlar ve surlar yuvarlak. İçlerinde kategori simgesi (`MK_SIMGE`), rotaya girince sıra numarası vardır. Sahâbe işaretlerinin
+  ve seçili işaretin ucunda yavaş bir halka atar; padişah işaretlerinin kenarı altındır; yeri yaklaşık olanların kenarı kesiklidir.
 - `kaynak/build.js`: harita uygulamasının parçalarını birleştirir. Sitenin bu alan adındaki yolu `SITE_YOL` sabitindedir.
 - `kaynak/yol.js`: sokakları izleyen yürüyüş yolu ve dönüş tarifi. Hesap, OpenStreetMap verisiyle çalışan açık yol tarifi sunucusunda
   (FOSSGIS · routing.openstreetmap.de) yapılır; sunucuya yalnızca noktaların enlem ve boylamı gider. Ziyaretçinin kendi konumu,
   ekranda sorulup "evet" denmedikçe gönderilmez. Sunucu yanıt vermezse çizgi kuş uçuşuna döner. Ücretsiz bir topluluk hizmetidir, garanti vermez.
 - `kaynak/hesap.js`: kullanıcı adı ve şifreyle hesap. Sunucu yoktur: hesap ve kayıtlı rotalar yalnızca o cihazda, o tarayıcıda durur;
   şifrenin kendisi saklanmaz (rastgele tuzla PBKDF2-SHA-256 özeti tutulur). Şifre sıfırlanamaz. Rota kaydetmek için giriş gerekir.
+  Görünüm ayarları da buradadır (Hesabım sayfasındaki "Görünüm" kartı): rozet rengi, arka plan deseni, rota çizgisinin rengi ve biçimi,
+  harita işaretlerinin biçimi, hareket. Seçenekler `G_SEC` içindedir (ilk değer varsayılandır); kart `gorunumHtml()` ile çizilir (`site/site.js`).
+  Seçim hesaba bağlıdır ve o cihazda durur (`zr.gorunum.u.<hesap>`); giriş yapınca etkin kopyaya (`zr.gorunum.v1`) alınır, çıkışta silinir.
+  Sayfa, seçimi `<html>` üzerine `data-rozet`, `data-desen`, `data-cizgi`, `data-stil`, `data-isaret`, `data-hareket` olarak yazar;
+  renkler ve biçimler bu niteliklere bağlı CSS ile değişir. Sayfa başındaki küçük betik bunu ilk çizimden önce uygular.
+  Yeni bir seçenek eklemek için: `G_SEC`'e değer, `site/site.js` içindeki `G_AD`'a ad, CSS'e o değerin kuralı eklenir.
 - `kaynak/vendor/leaflet/`: Leaflet 1.9.4 (BSD-2-Clause, lisansı klasörün içinde).
 - `kaynak/vendor/yazi/`: sitenin ve harita uygulamasının iki yazı tipi, Inter ve Plus Jakarta Sans (SIL Open Font License 1.1,
   lisansları ve kaynak notu klasörün içinde). Yalnızca sitede geçen harflerle küçültülmüş tek dosyalardır; site kendi sunucusundan

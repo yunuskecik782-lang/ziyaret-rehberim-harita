@@ -1,6 +1,6 @@
 /* Ziyaret Rehberim · sayfa betiği. site/site.js dosyasından üretilir. */
 const ZR_YER = {"kok":"/","harita":"/harita/","ana":"/","olustur":"/rota-olustur/","guz":"/guzergahlar/","ulasim":"/ulasim/","ucret":"/ucretler-ve-saatler/","adab":"/ziyaret-adabi/","hesap":"/hesabim/","rotalarim":"/rotalarim/"};
-const ZR_IC = {"fwd":"<path d=\"M9.5 6l6 6-6 6\"/>","down":"<path d=\"M6 9.5l6 6 6-6\"/>","x":"<path d=\"M6.5 6.5l11 11M17.5 6.5l-11 11\"/>","ext":"<path d=\"M14 5h5v5M19 5l-8 8M11 6H6.5A1.5 1.5 0 0 0 5 7.5v10A1.5 1.5 0 0 0 6.5 19h10a1.5 1.5 0 0 0 1.5-1.5V13\"/>","trash":"<path d=\"M5 7h14M10 7V4.5h4V7M7 7l1 12.5h8L17 7\"/>","rota":"<circle cx=\"6\" cy=\"18\" r=\"2.2\"/><circle cx=\"18\" cy=\"5\" r=\"2.2\"/><path d=\"M8.2 18H15a3.25 3.25 0 0 0 0-6.5H9A3.25 3.25 0 0 1 9 5h6.8\"/>","mark":"<path d=\"M7 4.5h10a1 1 0 0 1 1 1V20l-6-4-6 4V5.5a1 1 0 0 1 1-1z\"/>","user":"<circle cx=\"12\" cy=\"8.5\" r=\"3.6\"/><path d=\"M4.8 20c.9-3.6 3.7-5.4 7.2-5.4s6.3 1.8 7.2 5.4\"/>","loc":"<circle cx=\"12\" cy=\"12\" r=\"7\"/><circle cx=\"12\" cy=\"12\" r=\"2.6\"/><path d=\"M12 2v3M12 19v3M2 12h3M19 12h3\"/>","pin":"<path d=\"M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 1 1 13 0c0 5.4-6.5 11-6.5 11z\"/><circle cx=\"12\" cy=\"10\" r=\"2.3\"/>","clock":"<circle cx=\"12\" cy=\"12\" r=\"8.5\"/><path d=\"M12 7.5V12l3 2\"/>","walk":"<circle cx=\"13\" cy=\"4.6\" r=\"1.7\"/><path d=\"M10 21l1.8-5.5-2.3-3 1-4.5 3 1 1.8 3 3 1M10.5 8L7.3 9.6 6.5 13M12.3 15.5L15 21\"/>","tram":"<rect x=\"5.5\" y=\"4.5\" width=\"13\" height=\"12.5\" rx=\"2.2\"/><path d=\"M5.5 11h13M9 17l-1.5 3M15 17l1.5 3M9.5 14h.01M14.5 14h.01M10 2.5h4\"/>","bilgi":"<circle cx=\"12\" cy=\"12\" r=\"8.5\"/><path d=\"M12 11v5M12 7.8v.01\"/>","sag":"<path d=\"M7 20v-8a3 3 0 0 1 3-3h8M14.5 5l4 4-4 4\"/>","sol":"<path d=\"M17 20v-8a3 3 0 0 0-3-3H6M9.5 5l-4 4 4 4\"/>","duz":"<path d=\"M12 20V5M6.5 10.5L12 5l5.5 5.5\"/>","geri":"<path d=\"M8 20V9a4 4 0 0 1 8 0v3M12.5 9.5L16 13l3.5-3.5\"/>","basla":"<circle cx=\"12\" cy=\"12\" r=\"3.2\"/><circle cx=\"12\" cy=\"12\" r=\"8\"/>","buyut":"<path d=\"M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5\"/>","kucult":"<path d=\"M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5\"/>","check":"<path d=\"M5 12.5l4.5 4.5L19 7.5\"/>"};
+const ZR_IC = {"fwd":"<path d=\"M9.5 6l6 6-6 6\"/>","down":"<path d=\"M6 9.5l6 6 6-6\"/>","x":"<path d=\"M6.5 6.5l11 11M17.5 6.5l-11 11\"/>","ext":"<path d=\"M14 5h5v5M19 5l-8 8M11 6H6.5A1.5 1.5 0 0 0 5 7.5v10A1.5 1.5 0 0 0 6.5 19h10a1.5 1.5 0 0 0 1.5-1.5V13\"/>","trash":"<path d=\"M5 7h14M10 7V4.5h4V7M7 7l1 12.5h8L17 7\"/>","rota":"<circle cx=\"6\" cy=\"18\" r=\"2.2\"/><circle cx=\"18\" cy=\"5\" r=\"2.2\"/><path d=\"M8.2 18H15a3.25 3.25 0 0 0 0-6.5H9A3.25 3.25 0 0 1 9 5h6.8\"/>","mark":"<path d=\"M7 4.5h10a1 1 0 0 1 1 1V20l-6-4-6 4V5.5a1 1 0 0 1 1-1z\"/>","user":"<circle cx=\"12\" cy=\"8.5\" r=\"3.6\"/><path d=\"M4.8 20c.9-3.6 3.7-5.4 7.2-5.4s6.3 1.8 7.2 5.4\"/>","loc":"<circle cx=\"12\" cy=\"12\" r=\"7\"/><circle cx=\"12\" cy=\"12\" r=\"2.6\"/><path d=\"M12 2v3M12 19v3M2 12h3M19 12h3\"/>","pin":"<path d=\"M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 1 1 13 0c0 5.4-6.5 11-6.5 11z\"/><circle cx=\"12\" cy=\"10\" r=\"2.3\"/>","clock":"<circle cx=\"12\" cy=\"12\" r=\"8.5\"/><path d=\"M12 7.5V12l3 2\"/>","walk":"<circle cx=\"13\" cy=\"4.6\" r=\"1.7\"/><path d=\"M10 21l1.8-5.5-2.3-3 1-4.5 3 1 1.8 3 3 1M10.5 8L7.3 9.6 6.5 13M12.3 15.5L15 21\"/>","tram":"<rect x=\"5.5\" y=\"4.5\" width=\"13\" height=\"12.5\" rx=\"2.2\"/><path d=\"M5.5 11h13M9 17l-1.5 3M15 17l1.5 3M9.5 14h.01M14.5 14h.01M10 2.5h4\"/>","bilgi":"<circle cx=\"12\" cy=\"12\" r=\"8.5\"/><path d=\"M12 11v5M12 7.8v.01\"/>","sag":"<path d=\"M7 20v-8a3 3 0 0 1 3-3h8M14.5 5l4 4-4 4\"/>","sol":"<path d=\"M17 20v-8a3 3 0 0 0-3-3H6M9.5 5l-4 4 4 4\"/>","duz":"<path d=\"M12 20V5M6.5 10.5L12 5l5.5 5.5\"/>","geri":"<path d=\"M8 20V9a4 4 0 0 1 8 0v3M12.5 9.5L16 13l3.5-3.5\"/>","basla":"<circle cx=\"12\" cy=\"12\" r=\"3.2\"/><circle cx=\"12\" cy=\"12\" r=\"8\"/>","buyut":"<path d=\"M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5\"/>","kucult":"<path d=\"M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5\"/>","check":"<path d=\"M5 12.5l4.5 4.5L19 7.5\"/>","spark":"<path d=\"M11 3l1.9 5.1L18 10l-5.1 1.9L11 17l-1.9-5.1L4 10l5.1-1.9z\"/><path d=\"M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z\"/>"};
 /* Sayfa davranışları: üst şerit, telefon menüsü, giriş animasyonları, rota haritası ve sokak tarifi,
    konuma göre ulaşım önerisi, hesap ve kayıtlı rotalar. ZR_YER ve ZR_IC değerlerini site/build.js bu dosyanın başına ekler. */
 (() => {
@@ -429,6 +429,35 @@ const ZR_IC = {"fwd":"<path d=\"M9.5 6l6 6-6 6\"/>","down":"<path d=\"M6 9.5l6 6
     HESAP.dinle(ciz); ciz();
   }
 
+  /* ——— Hesabım › Görünüm ———
+     Giriş yapan ziyaretçi sitenin ve haritanın görünümünü kendine göre ayarlar: sayı rozetlerinin rengi, zemin deseni, rota çizgisinin rengi ve
+     biçimi, harita işaretlerinin biçimi, hareket. Seçim anında uygulanır; kaydı ve uygulaması kaynak/hesap.js içindedir. */
+  const G_AD = {
+    rozet: ["Sayı rozetleri", { altin: "Altın", lacivert: "Lacivert", zumrut: "Zümrüt", gul: "Gül", gumus: "Gümüş" }],
+    desen: ["Arka plan deseni", { lale: "Lale (Osmanlı)", yildiz: "Yıldız (Selçuklu)", yok: "Desensiz" }],
+    cizgi: ["Rota çizgisinin rengi", { varsayilan: "Varsayılan", altin: "Altın", turkuaz: "Turkuaz", gul: "Gül", yesil: "Yeşil" }],
+    stil: ["Rota çizgisinin biçimi", { nokta: "Akan noktalar", kesik: "Akan çizgiler", duz: "Düz çizgi" }],
+    isaret: ["Harita işaretleri", { karisik: "Kategoriye göre", igne: "Hepsi konum işareti", daire: "Hepsi yuvarlak" }],
+    hareket: ["Hareket", { acik: "Açık", az: "Azaltılmış" }],
+  };
+  const G_CIZGI = { varsayilan: ["#FFE08A", "#0E1B2E", "#0E1B2E"], altin: ["#F5C451", "#0E1B2E", "#0E1B2E"], turkuaz: ["#22C3D6", "#0B2A3A", "#fff"], gul: ["#E4577F", "#fff", "#fff"], yesil: ["#2FAE72", "#fff", "#fff"] };
+  const G_YOL = "M4 25C12 25 13 9 21 9s9 16 17 16", G_IGNE = "M0 14.6C0 14.6-7.4 6.6-7.4.3a7.4 7.4 0 0 1 14.8 0C7.4 6.6 0 14.6 0 14.6z";
+  function gOrnek(g, v, sec) {
+    if (g === "rozet") return `<span class="g-on"><span class="no" data-rozet="${v}">1</span></span>`;
+    if (g === "desen") return `<span class="g-on do-${v}"></span>`;
+    if (g === "cizgi") { const c = G_CIZGI[v]; return `<span class="g-on uydu"><svg viewBox="0 0 42 34" aria-hidden="true"><path d="${G_YOL}" fill="none" stroke="${c[1]}" stroke-width="7" stroke-linecap="round"/><path d="${G_YOL}" fill="none" stroke="${c[0]}" stroke-width="3.4" stroke-linecap="round"/><path d="${G_YOL}" fill="none" stroke="${c[2]}" stroke-width="2" stroke-linecap="round" stroke-dasharray=".1 7"/></svg></span>`; }
+    if (g === "stil") { const c = G_CIZGI[sec.cizgi]; return `<span class="g-on uydu"><svg viewBox="0 0 42 34" aria-hidden="true"><path d="${G_YOL}" fill="none" stroke="${c[1]}" stroke-width="7" stroke-linecap="round"/><path d="${G_YOL}" fill="none" stroke="${c[0]}" stroke-width="3.4" stroke-linecap="round"/>${v === "duz" ? "" : `<path class="g-akis" d="${G_YOL}" fill="none" stroke="${c[2]}" stroke-width="2" stroke-linecap="round" stroke-dasharray="${v === "kesik" ? "4 6" : ".1 7"}"/>`}</svg></span>`; }
+    if (g === "isaret") { const igne = (x, r) => `<g transform="translate(${x} 13)"><path d="${G_IGNE}" fill="${r}" stroke="#fff" stroke-width="1.6"/></g>`, daire = (x, r) => `<circle cx="${x}" cy="17" r="6.6" fill="${r}" stroke="#fff" stroke-width="1.6"/>`;
+      return `<span class="g-on uydu"><svg viewBox="0 0 42 34" aria-hidden="true">${v === "karisik" ? igne(14, "#2E5AAC") + daire(29, "#5B6FB8") : v === "igne" ? igne(13, "#2E5AAC") + igne(29, "#B04A62") : daire(13, "#2E5AAC") + daire(29, "#B04A62")}</svg></span>`; }
+    return `<span class="g-on">${ic(v === "az" ? "basla" : "spark")}</span>`;
+  }
+  function gorunumHtml() {
+    const sec = HESAP.gorunum();
+    return `<div class="kart gorunum" id="gorunum"><h2>Görünüm</h2><p class="ince">Siteyi ve haritayı kendine göre ayarla. Seçimin anında uygulanır, bu hesaba bağlıdır ve bu cihazda saklanır; çıkış yapınca site varsayılan görünümüne döner.</p>
+${Object.keys(G_AD).map((g) => `<fieldset class="g-grup"><legend>${G_AD[g][0]}</legend><div class="g-sec">${HESAP.G_SEC[g].map((v) => `<button class="g-s" type="button" data-g="${g}" data-v="${v}" aria-pressed="${sec[g] === v}">${gOrnek(g, v, sec)}<b>${G_AD[g][1][v]}</b></button>`).join("")}</div></fieldset>`).join("")}
+<div class="dugmeler" style="margin-top:20px"><a class="btn kucuk yumusak" href="${ZR_YER.olustur}">${ic("rota")}Haritada gör</a><button class="btn kucuk" type="button" data-is="g-sifirla">Varsayılana dön</button></div></div>`;
+  }
+
   /* ——— Hesabım ——— */
   function hesabim() {
     const kok = $("#hesap"), rot = $("#hesap-rotalar"); let sek = location.hash === "#kayit" ? "kayit" : "giris", mesaj = "", liste = false;
@@ -453,12 +482,14 @@ ${mis ? `<p class="ince" style="margin-top:14px">Giriş yapmadan kaydedilmiş ${
 ${mis ? `<div class="uyari-serit" style="margin:16px 0 0"><span>Giriş yapmadan kaydettiğin ${mis} rota var.</span><button class="btn kucuk koyu" type="button" data-is="tasi">Hesabıma taşı</button></div>` : ""}
 <div class="dugmeler" style="margin-top:18px"><a class="btn altin" href="${ZR_YER.olustur}">${ic("rota")}Rota oluştur</a><a class="btn" href="${ZR_YER.rotalarim}">${ic("mark")}Rotalarım</a><button class="btn" type="button" data-is="cikis">Çıkış yap</button></div>
 <details class="katla"><summary>${ic("fwd")}Şifre değiştir</summary><form class="form" data-form="sifre" novalidate><div class="alan"><label for="s-eski">Şimdiki şifre</label><input id="s-eski" name="eski" type="password" autocomplete="current-password" required></div><div class="alan"><label for="s-yeni">Yeni şifre</label><input id="s-yeni" name="yeni" type="password" autocomplete="new-password" required><small>En az 6 karakter.</small></div><div class="hata" role="alert" hidden></div><button class="btn koyu" type="submit">Şifreyi değiştir</button></form></details>
-<details class="katla"><summary>${ic("fwd")}Hesabı sil</summary><form class="form" data-form="sil" novalidate><p class="ince">Hesap ve bu hesaba kayıtlı rotalar silinir. Geri alınamaz.</p><div class="alan"><label for="x-sifre">Şifre</label><input id="x-sifre" name="sifre" type="password" autocomplete="current-password" required></div><div class="hata" role="alert" hidden></div><button class="btn" type="submit">Hesabımı sil</button></form></details></div>`;
+<details class="katla"><summary>${ic("fwd")}Hesabı sil</summary><form class="form" data-form="sil" novalidate><p class="ince">Hesap ve bu hesaba kayıtlı rotalar silinir. Geri alınamaz.</p><div class="alan"><label for="x-sifre">Şifre</label><input id="x-sifre" name="sifre" type="password" autocomplete="current-password" required></div><div class="hata" role="alert" hidden></div><button class="btn" type="submit">Hesabımı sil</button></form></details></div>${gorunumHtml()}`;
       if (!liste) { liste = true; kayitListesi($("#kayitlar")); }
     }
     kok.addEventListener("click", (e) => {
       const s = e.target.closest("[data-sek]"); if (s) { sek = s.dataset.sek; ciz(); $("#h-ad").focus(); return; }
+      const g = e.target.closest(".g-s"); if (g) { HESAP.gorunumYaz({ [g.dataset.g]: g.dataset.v }); const y = $(`.g-s[data-g="${g.dataset.g}"][data-v="${g.dataset.v}"]`, kok); if (y) y.focus({ preventScroll: true }); return; }
       const b = e.target.closest("[data-is]"); if (!b) return;
+      if (b.dataset.is === "g-sifirla") { HESAP.gorunumYaz(Object.fromEntries(Object.keys(HESAP.G_SEC).map((k) => [k, HESAP.G_SEC[k][0]]))); bildir("Varsayılan görünüme dönüldü."); return; }
       if (b.dataset.is === "cikis") { mesaj = ""; HESAP.cikis(); bildir("Çıkış yapıldı."); ciz(); }
       if (b.dataset.is === "tasi") { const k = HESAP.misafiriTasi(); bildir(k ? k + " rota hesabına taşındı." : "Rotalar zaten hesabında."); ciz(); }
     });
