@@ -331,8 +331,19 @@
       ? L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19 })
       : L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, referrerPolicy: "strict-origin-when-cross-origin" });
     // Uydu görüntüsü: yüksek çözünürlüklü ekranlarda bir üst yakınlığın karoları yarı boyutta gösterilir (net görüntü); en son yakınlık düzeyinde büyütülür.
-    lySat = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", L.Browser.retina ? { detectRetina: true, maxZoom: 20, maxNativeZoom: 18 } : { maxZoom: 19 });
-    lySatLbl = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, zIndex: 2 });
+    // Uydu: Esri'nin anahtarlı resmî adresi (ArcGIS Location Platform, yalnızca "Altlık haritalar" izni, yalnızca ziyaretrehberim.com'dan çalışır).
+    // Anahtar herkese açık olacak şekilde üretildi; sitenin kodunda durması güvenlidir. Süresi en geç Kasım 2027'de dolar, yenilenince burası değişir.
+    // Anahtarlı adres yanıt vermezse (anahtarın süresi dolduysa ya da sayfa başka bir adresten açıldıysa) eski anahtarsız adrese geçilir.
+    const ESRI = "AAPTa_Wt9vKqU0lS7HajuGkIktQ..L_cdX_v4seePcDKgV9SVaXeBdYyEqt_KgajXpkuAZuUMiI6bZUq2s9xCnD25GwiA72BltkJR0Ackbw2RbL76PnKhIAyBhEEnaH_3jY2-_9OfF8oAHUyRtwKjhemdXLUFq-FPtazqDwLvFgfvBBqfCkN4aw_sFxzMvuVQzTznU4x48RU6Hlx8ArqrBlSSkCGzXH3GK7ceyUtjwLcFuKS_ti3GPBNzqTU7cDT-ZBgS9S7ggm2IivCLRG9cNRjtMPpsAT1_hSoT4TKV";
+    const esriAnahtarli = !FILE && /(^|\.)ziyaretrehberim\.com$/.test(location.hostname);
+    const esriUrl = (yol, anahtar) => anahtar ? `https://ibasemaps-api.arcgis.com/arcgis/rest/services/${yol}/MapServer/tile/{z}/{y}/{x}?token=${ESRI}` : `https://server.arcgisonline.com/ArcGIS/rest/services/${yol}/MapServer/tile/{z}/{y}/{x}`;
+    lySat = L.tileLayer(esriUrl("World_Imagery", esriAnahtarli), L.Browser.retina ? { detectRetina: true, maxZoom: 20, maxNativeZoom: 18 } : { maxZoom: 19 });
+    lySatLbl = L.tileLayer(esriUrl("Reference/World_Boundaries_and_Places", esriAnahtarli), { maxZoom: 19, zIndex: 2 });
+    if (esriAnahtarli) for (const [ly, yol] of [[lySat, "World_Imagery"], [lySatLbl, "Reference/World_Boundaries_and_Places"]]) {
+      let ok = 0, hata = 0;
+      ly.on("tileload", () => { ok++; });
+      ly.on("tileerror", () => { if (!ok && ++hata === 3) ly.setUrl(esriUrl(yol, false)); });
+    }
     for (const l of [lyStreet, lySat]) {
       l.on("tileerror", () => { if (++tileFails === 6) capText("Harita görüntüsü yüklenemedi. İnternet bağlantını kontrol et."); });
       l.on("tileload", () => { if (tileFails >= 6) { tileFails = 0; capText(); } });
