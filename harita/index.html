@@ -1289,6 +1289,15 @@ a.btn { text-decoration: none; }
 /* Uydu görüntüsü koyu olduğu için panel ve çipler onun üstünde daha dolu durur. */
 #map.real.is-sat ~ .sheet { background: color-mix(in srgb, var(--glass-strong) 93%, transparent); }
 #map.real.is-sat ~ .chips .chip:not([aria-pressed="true"]) { background: var(--glass-strong); }
+
+/* Kurumsal sadeleştirme (22 Kasım 2026): düz lacivert düğme, cümle düzeninde etiketler, belirgin odak. */
+.btn.gold { background: var(--gold-2); box-shadow: none; }
+.btn.gold::after { display: none; }
+@media (hover: hover) { .btn.gold:hover { background: var(--gold-3); } }
+.chip.soon em, .kicker, .d-eye, .tag, .facts b, .rc-tx i, .bas-tx small, .nav-info small { text-transform: none; letter-spacing: .01em; }
+.kicker, .d-eye { font-size: 12.5px; font-weight: 700; }
+.facts b, .bas-tx small, .nav-info small, .rc-tx i { font-size: 12px; }
+:where(a, button, input):focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 </style>
 <div class="app" id="app" data-tab="kesfet" data-sheet="half">
   <div id="map" role="application" aria-label="İstanbul şematik haritası: durakları seçmek için işaretlere dokun">
@@ -1661,7 +1670,8 @@ globalThis.ZR_YOL = (() => {
    Şifre düz yazıyla saklanmaz; rastgele tuzla PBKDF2-SHA-256 özeti tutulur. Sunucu tarafı kurulduğunda bu dosyanın yerini o alır.
    Görünüm ayarları (rozet rengi, zemin deseni, rota çizgisi, harita işaretleri, hareket) hesaba bağlıdır: giriş yapınca uygulanır,
    çıkış yapınca site varsayılan görünümüne döner. Seçimler <html> üzerine data-… olarak yazılır; gerisini CSS yapar.
-   İki tür hesap vardır: "cihaz" (kullanıcı adı ve şifre yalnızca bu cihazda) ve "wp" (WordPress.com hesabıyla giriş; aşağıda WP bölümü).
+   Üç tür hesap vardır: "fb" (e-posta ve şifreyle üyelik, Firebase; aşağıda), "wp" (WordPress.com hesabıyla giriş; aşağıda WP bölümü)
+   ve "cihaz" (eski yol: kullanıcı adı ve şifre yalnızca bu cihazda).
    İkisinde de kayıtlı rotalar ve görünüm ayarları bu cihazda durur. */
 globalThis.ZR_HESAP = (() => {
   "use strict";
@@ -1674,8 +1684,9 @@ globalThis.ZR_HESAP = (() => {
   const oku = (k, bos) => { try { const v = JSON.parse(ls.al(k) || "null"); return v == null ? bos : v; } catch (e) { return bos; } };
   const kimlik = (ad) => String(ad || "").trim().toLocaleLowerCase("tr");
   const hesaplar = () => { const v = oku(K_H, {}); return v && typeof v === "object" && !Array.isArray(v) ? v : {}; };
-  function aktif() { const id = ls.al(K_O), h = hesaplar(); return id && h[id] ? { id, ad: h[id].ad, t: h[id].t, tur: h[id].tur === "wp" ? "wp" : "cihaz", kullanici: h[id].kullanici || "" } : null; }
-  const cihazHesabiVar = () => Object.values(hesaplar()).some((k) => k && k.tur !== "wp");
+  function aktif() { const id = ls.al(K_O), h = hesaplar(); return id && h[id] ? { id, ad: h[id].ad, t: h[id].t, tur: h[id].tur === "wp" || h[id].tur === "fb" ? h[id].tur : "cihaz", kullanici: h[id].kullanici || "", eposta: h[id].eposta || "" } : null; }
+  const disHesap = (k) => !!k && (k.tur === "wp" || k.tur === "fb"); // WordPress.com ya da e-postayla (Firebase) açılan hesap
+  const cihazHesabiVar = () => Object.values(hesaplar()).some((k) => k && !disHesap(k));
   const anahtar = () => { const a = aktif(); return a ? K_U + a.id : K_M; };
   const gecerli = (r) => r && typeof r.name === "string" && Array.isArray(r.keys) && r.start && typeof r.start.lat === "number";
   const listeOku = (k) => { const v = oku(k, []); return Array.isArray(v) ? v.filter(gecerli) : []; };
@@ -1739,7 +1750,7 @@ globalThis.ZR_HESAP = (() => {
   }
   async function giris(ad, sifre) {
     const h = hesaplar(), id = kimlik(ad), kay = h[id];
-    if (!kay || kay.tur === "wp") return { ok: false, hata: "Böyle bir kullanıcı adı bulunamadı. Yazımı kontrol et ya da hesap oluştur." };
+    if (!kay || disHesap(kay)) return { ok: false, hata: "Böyle bir kullanıcı adı bulunamadı. Yazımı kontrol et ya da hesap oluştur." };
     if (!kripto()) return { ok: false, hata: "Sayfa güvenli (https) adresten açılmadığı için giriş yapılamıyor." };
     if (!esit(await ozet(sifre, kay.tuz), kay.ozet)) return { ok: false, hata: "Şifre yanlış." };
     ls.yaz(K_O, id); gorunumOturum(); duyur();
@@ -1751,6 +1762,7 @@ globalThis.ZR_HESAP = (() => {
     if (String(yeni || "").length < 6) return { ok: false, hata: "Yeni şifre en az 6 karakter olmalı." };
     const h = hesaplar(), kay = h[a.id];
     if (kay.tur === "wp") return { ok: false, hata: "Bu hesabın şifresi WordPress.com'da değiştirilir." };
+    if (kay.tur === "fb") return { ok: false, hata: "Bu hesabın şifresi e-postana gelen yenileme bağlantısıyla değiştirilir." };
     if (!esit(await ozet(eski, kay.tuz), kay.ozet)) return { ok: false, hata: "Şimdiki şifre yanlış." };
     kay.tuz = hex(kripto().getRandomValues(new Uint8Array(16))); kay.ozet = await ozet(yeni, kay.tuz);
     return ls.yaz(K_H, JSON.stringify(h)) ? { ok: true } : { ok: false, hata: "Tarayıcı kayda izin vermedi." };
@@ -1758,10 +1770,13 @@ globalThis.ZR_HESAP = (() => {
   async function hesabiSil(sifre) {
     const a = aktif(); if (!a) return { ok: false, hata: "Önce giriş yap." };
     const h = hesaplar(), kay = h[a.id];
+    if (kay.tur === "fb") return { ok: false, hata: "Bu hesap e-postayla açıldı; silmek için şifreni yaz." };
     if (kay.tur !== "wp" && !esit(await ozet(sifre, kay.tuz), kay.ozet)) return { ok: false, hata: "Şifre yanlış." };
-    delete h[a.id]; ls.yaz(K_H, JSON.stringify(h)); ls.sil(K_U + a.id); ls.sil(K_GU + a.id); ls.sil(K_O); gorunumOturum(); duyur();
+    yerelSil(a.id);
     return { ok: true };
   }
+  // Bir hesabın bu cihazdaki her şeyini siler (hesap kaydı, rotaları, görünüm ayarları) ve oturumu kapatır.
+  function yerelSil(id) { const h = hesaplar(); delete h[id]; ls.yaz(K_H, JSON.stringify(h)); ls.sil(K_U + id); ls.sil(K_GU + id); ls.sil(K_O); gorunumOturum(); duyur(); }
   // Giriş yapmadan kaydedilmiş rotaları hesaba taşır (aynı adlı rota varsa hesaptaki kalır).
   function misafiriTasi() {
     const a = aktif(); if (!a) return 0;
@@ -1776,7 +1791,7 @@ globalThis.ZR_HESAP = (() => {
   async function eskidenTasi(ad, sifre) {
     const a = aktif(); if (!a) return { ok: false, hata: "Önce giriş yap." };
     const h = hesaplar(), id = kimlik(ad), kay = h[id];
-    if (!kay || kay.tur === "wp" || id === a.id) return { ok: false, hata: "Bu cihazda böyle bir eski hesap bulunamadı." };
+    if (!kay || disHesap(kay) || id === a.id) return { ok: false, hata: "Bu cihazda böyle bir eski hesap bulunamadı." };
     if (!kripto()) return { ok: false, hata: "Sayfa güvenli (https) adresten açılmadığı için şifre denetlenemiyor." };
     if (!esit(await ozet(sifre, kay.tuz), kay.ozet)) return { ok: false, hata: "Şifre yanlış." };
     const benim = listeOku(K_U + a.id), adlar = new Set(benim.map((r) => r.name)), yeni = listeOku(K_U + id).filter((r) => !adlar.has(r.name));
@@ -1794,7 +1809,7 @@ globalThis.ZR_HESAP = (() => {
      "Client Secret" burada kullanılmaz ve depoya yazılmaz. Sayı boşken bu giriş yolu sitede görünmez. */
   const WP_ISTEMCI = "153668";
   const yerelDeneme = (() => { try { return /^(localhost|127\.0\.0\.1)$/.test(location.hostname); } catch (e) { return false; } })();
-  const WP = { istemci: String((yerelDeneme && globalThis.ZR_WP_ISTEMCI) || WP_ISTEMCI), taban: (yerelDeneme && globalThis.ZR_WP_TABAN) || "https://public-api.wordpress.com" };
+  const WP = { istemci: String(yerelDeneme && "ZR_WP_ISTEMCI" in globalThis ? globalThis.ZR_WP_ISTEMCI : WP_ISTEMCI), taban: (yerelDeneme && globalThis.ZR_WP_TABAN) || "https://public-api.wordpress.com" };
   const K_W = "zr.wp.bekleyen", WP_SURE = 15 * 60000;
   const wpAcik = () => !!WP.istemci;
   const wpDonusAdresi = () => location.origin + "/hesabim/";
@@ -1843,7 +1858,103 @@ globalThis.ZR_HESAP = (() => {
     return { ok: true, ilk, misafir: misafirRotalari().length };
   }
   const wp = { acik: wpAcik, basla: wpBasla, tamamla: wpTamamla, bekliyor: () => !!wpGelen };
-  return { aktif, rotalar, rotalariYaz, misafirRotalari, misafiriTasi, kayit, giris, cikis, sifreDegis, hesabiSil, denetle, dinle, gorunum, gorunumYaz, G_SEC, cihazHesabiVar, eskidenTasi, wp };
+
+  /* ——— E-posta ve şifreyle üyelik (Google Firebase Authentication) ———
+     Sunucumuz olmadığı için hesaplar Firebase'de tutulur; tarayıcı Firebase'in herkese açık REST adresleriyle konuşur (kütüphane yüklenmez).
+     Üye olunca e-postaya doğrulama bağlantısı gider; doğrulanmamış adresle giriş yapılmaz. Şifre unutulunca yenileme bağlantısı gider.
+     Bu siteye şifre yalnızca Firebase'e iletilmek için girilir; hiçbir yerde saklanmaz. Firebase'in verdiği kısa ömürlü giriş jetonu da saklanmaz:
+     oturum, diğer hesaplar gibi yalnızca bu cihazdaki işarettir. Hesap silme gibi işlemlerde şifre yeniden sorulur.
+     FB_API: Firebase projesinin web yapılandırmasındaki "apiKey". Herkese açık bir değerdir (sitede her ziyaretçiye görünür); koruma Firebase'deki
+     yetkili alan adı listesinden gelir. Değer boşken bu yol sitede görünmez. Hizmet hesabı anahtarı gibi gizli değerler asla buraya yazılmaz. */
+  const FB_API = "AIzaSyDUkHWFpOL_IsLRNJuebKthKVY-Enf8XY8"; // Firebase projesi: ziyaret-rehberim
+  const FB = { api: String(yerelDeneme && "ZR_FB_API" in globalThis ? globalThis.ZR_FB_API : FB_API), taban: (yerelDeneme && globalThis.ZR_FB_TABAN) || "https://identitytoolkit.googleapis.com/v1/accounts:" };
+  const fbAcik = () => !!FB.api;
+  const EPOSTA = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  const FB_HATA = {
+    EMAIL_EXISTS: "Bu e-posta adresiyle zaten bir hesap var. Giriş yapmayı dene; şifreni unuttuysan “Şifremi unuttum”a dokun.",
+    INVALID_LOGIN_CREDENTIALS: "E-posta adresi ya da şifre yanlış.", INVALID_PASSWORD: "E-posta adresi ya da şifre yanlış.", EMAIL_NOT_FOUND: "E-posta adresi ya da şifre yanlış.",
+    USER_DISABLED: "Bu hesap kapatılmış.", TOO_MANY_ATTEMPTS_TRY_LATER: "Çok fazla deneme yapıldı. Biraz bekleyip yeniden dene.",
+    INVALID_EMAIL: "E-posta adresi geçerli görünmüyor.", MISSING_EMAIL: "E-posta adresini yaz.", MISSING_PASSWORD: "Şifreni yaz.",
+    WEAK_PASSWORD: "Şifre çok zayıf. En az 8 karakter kullan.", PASSWORD_DOES_NOT_MEET_REQUIREMENTS: "Şifre kurallara uymuyor. Daha uzun bir şifre dene.",
+    OPERATION_NOT_ALLOWED: "E-postayla üyelik henüz açılmadı.", QUOTA_EXCEEDED: "Bugünlük e-posta gönderme sınırı doldu. Yarın yeniden dene.",
+    RESET_PASSWORD_EXCEED_LIMIT: "Bugünlük şifre yenileme sınırı doldu. Yarın yeniden dene.",
+    INVALID_ID_TOKEN: "Oturum süresi doldu. Yeniden dene.", TOKEN_EXPIRED: "Oturum süresi doldu. Yeniden dene.", CREDENTIAL_TOO_OLD_LOGIN_AGAIN: "Güvenlik için şifreni yeniden yaz.",
+    UNAUTHORIZED_DOMAIN: "Bu adres Firebase'de yetkili alan adı olarak eklenmemiş.", INVALID_CONTINUE_URI: "Bu adres Firebase'de yetkili alan adı olarak eklenmemiş.",
+    API_KEY_INVALID: "Üyelik ayarı hatalı (Firebase anahtarı).", API_KEY_HTTP_REFERRER_BLOCKED: "Firebase bu siteden gelen isteğe izin vermiyor.",
+  };
+  async function fbIstek(yol, govde) {
+    let r, j = null;
+    try {
+      r = await fetch(FB.taban + yol + "?key=" + encodeURIComponent(FB.api), { method: "POST", headers: { "Content-Type": "application/json", "X-Firebase-Locale": "tr" }, body: JSON.stringify(govde), credentials: "omit" });
+      try { j = await r.json(); } catch (e) {}
+    } catch (e) { return { ok: false, kod: "AG", hata: "Bağlantı kurulamadı. İnternetini kontrol edip yeniden dene." }; }
+    if (r.ok && j) return { ok: true, j };
+    const ham = String((j && j.error && (j.error.message || (j.error.details && j.error.details[0] && j.error.details[0].reason))) || "");
+    const kod = ham.split(/[ :]/)[0] || (j && j.error && j.error.status) || "HTTP" + r.status;
+    return { ok: false, kod, hata: FB_HATA[kod] || "İşlem tamamlanamadı. Biraz sonra yeniden dene." };
+  }
+  const fbDonus = () => location.origin + "/hesabim/";
+  let fbBekleyen = null; // doğrulanmamış girişte "yeniden gönder" için yalnızca bellekte tutulan kısa ömürlü jeton (5 dk)
+  function fbDenetle(eposta, sifre, ad, yeni) {
+    if (yeni && String(ad || "").trim().length < 2) return "Adını yaz (en az 2 harf).";
+    if (!EPOSTA.test(String(eposta || "").trim())) return "E-posta adresi geçerli görünmüyor.";
+    if (yeni && String(sifre || "").length < 8) return "Şifre en az 8 karakter olmalı.";
+    if (!yeni && !sifre) return "Şifreni yaz.";
+    return "";
+  }
+  async function fbKayit(ad, eposta, sifre) {
+    if (!fbAcik()) return { ok: false, hata: "E-postayla üyelik henüz açılmadı." };
+    const hata = fbDenetle(eposta, sifre, ad, true); if (hata) return { ok: false, hata };
+    const e = String(eposta).trim(), s = await fbIstek("signUp", { email: e, password: sifre, returnSecureToken: true });
+    if (!s.ok) return s;
+    const jeton = s.j.idToken;
+    await fbIstek("update", { idToken: jeton, displayName: String(ad).trim().slice(0, 60), returnSecureToken: false });
+    const m = await fbIstek("sendOobCode", { requestType: "VERIFY_EMAIL", idToken: jeton, continueUrl: fbDonus() });
+    return { ok: true, eposta: e, mail: m.ok, hata: m.ok ? "" : m.hata };
+  }
+  async function fbGiris(eposta, sifre) {
+    if (!fbAcik()) return { ok: false, hata: "E-postayla üyelik henüz açılmadı." };
+    const hata = fbDenetle(eposta, sifre); if (hata) return { ok: false, hata };
+    const s = await fbIstek("signInWithPassword", { email: String(eposta).trim(), password: sifre, returnSecureToken: true });
+    if (!s.ok) return s;
+    const b = await fbIstek("lookup", { idToken: s.j.idToken });
+    const u = b.ok && b.j.users && b.j.users[0];
+    if (!u) return { ok: false, hata: b.hata || "Hesap bilgisi okunamadı. Yeniden dene." };
+    if (!u.emailVerified) { fbBekleyen = { jeton: s.j.idToken, t: Date.now() }; return { ok: false, dogrulanmadi: true, hata: "E-posta adresini henüz doğrulamadın. Sana gönderdiğimiz e-postadaki bağlantıya dokun, sonra yeniden giriş yap." }; }
+    fbBekleyen = null;
+    const id = "fb:" + u.localId, h = hesaplar(), ilk = !h[id], e = String(u.email || eposta).trim();
+    h[id] = { t: Date.now(), ...(h[id] || {}), tur: "fb", ad: String(u.displayName || e.split("@")[0]).trim().slice(0, 60) || "Üye", eposta: e };
+    if (!ls.yaz(K_H, JSON.stringify(h))) return { ok: false, hata: "Tarayıcı kayda izin vermedi. Gizli pencerede olabilirsin." };
+    ls.yaz(K_O, id); gorunumOturum(); duyur();
+    return { ok: true, ilk, misafir: misafirRotalari().length };
+  }
+  async function fbDogrulamaTekrar() {
+    if (!fbBekleyen || Date.now() - fbBekleyen.t > 5 * 60000) return { ok: false, hata: "Önce e-posta ve şifrenle yeniden giriş yapmayı dene." };
+    const m = await fbIstek("sendOobCode", { requestType: "VERIFY_EMAIL", idToken: fbBekleyen.jeton, continueUrl: fbDonus() });
+    return m.ok ? { ok: true } : m;
+  }
+  // Hesap var mı yok mu belli edilmez: kayıtlı olmayan adres için de aynı yanıt verilir.
+  async function fbSifreYenile(eposta) {
+    if (!fbAcik()) return { ok: false, hata: "E-postayla üyelik henüz açılmadı." };
+    const e = String(eposta || "").trim(); if (!EPOSTA.test(e)) return { ok: false, hata: "E-posta adresi geçerli görünmüyor." };
+    const m = await fbIstek("sendOobCode", { requestType: "PASSWORD_RESET", email: e, continueUrl: fbDonus() });
+    return m.ok || m.kod === "EMAIL_NOT_FOUND" ? { ok: true } : m;
+  }
+  // Hesabı Firebase'den de siler (şifre yeniden sorulur), sonra bu cihazdaki kayıtları temizler.
+  async function fbSil(sifre) {
+    const a = aktif(); if (!a || a.tur !== "fb") return { ok: false, hata: "Önce giriş yap." };
+    const h = hesaplar(), kay = h[a.id];
+    const s = await fbIstek("signInWithPassword", { email: kay.eposta, password: sifre, returnSecureToken: true });
+    if (!s.ok) return s.kod === "INVALID_LOGIN_CREDENTIALS" || s.kod === "INVALID_PASSWORD" ? { ok: false, hata: "Şifre yanlış." } : s;
+    if ("fb:" + s.j.localId !== a.id) return { ok: false, hata: "Bu şifre bu hesaba ait değil." };
+    const d = await fbIstek("delete", { idToken: s.j.idToken });
+    if (!d.ok) return d;
+    yerelSil(a.id);
+    return { ok: true };
+  }
+  const fb = { acik: fbAcik, kayit: fbKayit, giris: fbGiris, dogrulamaTekrar: fbDogrulamaTekrar, sifreYenile: fbSifreYenile, sil: fbSil };
+
+  return { aktif, rotalar, rotalariYaz, misafirRotalari, misafiriTasi, kayit, giris, cikis, sifreDegis, hesabiSil, denetle, dinle, gorunum, gorunumYaz, G_SEC, cihazHesabiVar, eskidenTasi, wp, fb };
 })();
 </script>
 <script>

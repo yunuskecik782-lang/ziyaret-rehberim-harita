@@ -47,6 +47,16 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
   Görünüm (21 Kasım 2026'dan beri) ATLAS'ın "Kurumsal Lacivert" düzenini örnek alır: soğuk açık gri zemin, beyaz kart, hafif gölge, lacivert
   yazı ve düğme (`--ink`, `--koyu`), lacivert sol sütun (`--lacivert`), küçük köşeler (kart 14-16, kutu 8-10 piksel), altın yalnızca ince çizgi ve
   rakam rozetinde. Renkli zeminler ve renkli yazılar yoktur; rota renkleri (`--r1`…`--r6`) yalnızca haritada ve küçük noktalarda kullanılır.
+  22 Kasım 2026'da 40 kurumsal sitenin (e-Devlet, bakanlıklar, GOV.UK ve benzerleri) incelemesine göre sadeleştirildi: düğmeler düz
+  lacivert (parlama ve geçiş rengi yok), kart gölgeleri ince, etiketler büyük harf yerine cümle düzeninde, odak halkası 3 piksel lacivert
+  (lacivert zeminde beyaz), başlıklardaki altın alt çizgi kaldırıldı. Bu kurallar `site/site.css` ve `kaynak/app.css` sonundaki
+  "Kurumsal sadeleştirme" bölümündedir.
+  Site içi arama: üst şeritteki "Ara" düğmesi (kısayol `/`) ve ana sayfa kapağındaki alan aynı pencereyi açar (`ARA_KUTU`, `site/build.js`;
+  davranışı `site/site.js`). Dizin `a/ara.json` her üretimde yazılır: rotalar, duraklar (`#durak-<n>` bağlantısıyla) ve sayfaların
+  sol sütundaki "Bu sayfada" bölümleri. Arama tarayıcıda yapılır, Türkçe harfler ve şapkalar eşit sayılır.
+  Alt bilgi lacivert ve sütunludur (Güzergâhlar, Pratik bilgi, Site); en altta kaynaklar ve "Son güncelleme" (üretim günü, İstanbul saati).
+  Gizlilik (`/gizlilik/`) ve Erişilebilirlik (`/erisilebilirlik/`) sayfaları `metinSayfa` ile üretilir; metinler sitenin gerçekte yaptığını
+  anlatır. Yeni bir veri işlemi eklenirse önce bu metinler güncellenir.
   "Güzergâhlar" açılır listesi altı rotayı gölgeli rakam rozetleriyle gösterir (`.guz-no`); liste açılınca rozetler sırayla belirir.
   Rakam rozetleri (`.no`, `.sira.altin`, `.guz-no`): açılan soluk altın zemin, koyu rakam. Renkleri `--altin-gr`, `--altin-yazi` ve `--rozet-*`
   değişkenlerinden gelir. Altın yazı rengi olarak kullanılmaz, yalnızca zemin ve çizgidir. Harita uygulamasındaki sıra kutusu (`.bdg`) açık
@@ -95,6 +105,17 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
   bu yolda da yalnızca o cihazda durur; üye listesi tutulmaz. Giriş açıkken yeni "cihaz" hesabı açılmaz; cihazdaki eski hesapla giriş ve
   eski hesabın rotalarını taşıma (eski şifre sorulur) yerinde kalır. WordPress.com bu tarayıcı akışını "eski" (legacy) diye anar; kaldırırsa
   giriş için küçük bir sunucu gerekir.
+- E-posta ve şifreyle üyelik (`kaynak/hesap.js`, Firebase bölümü; 22 Kasım 2026'dan beri asıl giriş yolu): Google Firebase
+  Authentication'ın herkese açık REST adresleri kullanılır, kütüphane yüklenmez. `FB_API` sabiti Firebase projesinin ("ziyaret-rehberim")
+  web yapılandırmasındaki `apiKey` değeridir; herkese açık bir değerdir, koruma Firebase'deki yetkili alan adı listesinden gelir
+  (Authentication > Settings > Authorized domains: `ziyaretrehberim.com`). Hizmet hesabı anahtarı gibi gizli değerler depoya yazılmaz.
+  Akış: üye olunca adına doğrulama maili gider; doğrulanmamış adresle giriş yapılmaz (ekranda "yeniden gönder" düğmesi çıkar).
+  "Şifremi unuttum" yenileme bağlantısı yollar; kayıtlı olmayan adrese de aynı yanıtı verir. Maillerin dili `X-Firebase-Locale: tr`
+  başlığıyla Türkçe istenir; gönderen adı ve metinler Firebase'de Authentication > Templates bölümünden değişir.
+  Şifre ve Firebase jetonu saklanmaz; hesap o cihazda `fb:<Firebase kullanıcı kimliği>` olarak, adı ve e-posta adresiyle tutulur.
+  Hesap silme şifreyi yeniden sorar ve hesabı Firebase'den de siler. `FB_API` boşken bu yol görünmez; WordPress.com ile giriş açıksa
+  e-postayla üyeliğin altında "ya da" diye ikinci seçenek olarak durur. Gizlilik sayfası `FB_API` doluysa Firebase paragraflarını ekler.
+  Yerel denemede (localhost) `ZR_FB_API` ve `ZR_FB_TABAN` ile taklit bir sunucuya bağlanır; gerçek Firebase'e gidilmez.
 - Rota sayfalarının düzeni (`rotaSayfa`, `site/build.js`): başlık ve bilgi hapları, altında sayfa içi kısa yollar (`.atla`: Nasıl gidilir,
   Duraklar, Yürüyüş tarifi, Ziyaret âdâbı), harita, sonra "yola çıkmadan" notları (`.once`: rotanın ipuçları durak listesinden önce durur),
   duraklar, Güzergâh hakkında, Nasıl gidilir, Duraklar arası yürüyüş ve en altta önceki ile sonraki rotaya geçiş (`komsu`, `.rota-gec`).

@@ -614,3 +614,12 @@ a.btn { text-decoration: none; }
 /* Uydu görüntüsü koyu olduğu için panel ve çipler onun üstünde daha dolu durur. */
 #map.real.is-sat ~ .sheet { background: color-mix(in srgb, var(--glass-strong) 93%, transparent); }
 #map.real.is-sat ~ .chips .chip:not([aria-pressed="true"]) { background: var(--glass-strong); }
+
+/* Kurumsal sadeleştirme (22 Kasım 2026): düz lacivert düğme, cümle düzeninde etiketler, belirgin odak. */
+.btn.gold { background: var(--gold-2); box-shadow: none; }
+.btn.gold::after { display: none; }
+@media (hover: hover) { .btn.gold:hover { background: var(--gold-3); } }
+.chip.soon em, .kicker, .d-eye, .tag, .facts b, .rc-tx i, .bas-tx small, .nav-info small { text-transform: none; letter-spacing: .01em; }
+.kicker, .d-eye { font-size: 12.5px; font-weight: 700; }
+.facts b, .bas-tx small, .nav-info small, .rc-tx i { font-size: 12px; }
+:where(a, button, input):focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
