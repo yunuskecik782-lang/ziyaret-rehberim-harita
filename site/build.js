@@ -212,18 +212,17 @@ function yanCubuk(s, bu, rid) {
   const rotalar = ROTALAR.map((r) => `<a class="${r.id}" href="${r.yol}"${r.id === rid ? ' aria-current="page"' : ""}><span class="sira altin">${r.no}</span><span>${esc(r.name)}<small>${r.duraklar.length} durak · ${r.sure}</small></span></a>`).join("")
     + `<a href="${yol.guz}"${s === "guz" && !rid ? ' aria-current="page"' : ""}><span class="sira sade">${ic("fwd")}</span><span>Tüm güzergâhlar</span></a>`;
   const bilgi = [...MENU.slice(3), ["rotalarim", yol.rotalarim, "Rotalarım", "mark", "Kaydettiğin rotalar"]].map((m) => `<a href="${m[1]}"${cur(s, m[0])}><span class="yan-sim">${ic2(m[3])}</span><span>${m[2]}<small>${m[4]}</small></span></a>`).join("");
-  const buSayfa = bu ? yanGrup("yg-bu", bu.ad, bu.simge || "liste", bu.ogeler.map((o) => `<a href="${o[0]}">${o[3] ? `<span class="sira">${o[3]}</span>` : '<span class="yan-nokta"></span>'}<span>${esc(o[1])}${o[4] ? ` <i>${esc(o[4])}</i>` : ""}${o[2] ? `<small>${esc(o[2])}</small>` : ""}</span></a>`).join(""), true, rid) : "";
+  const buSayfa = bu ? yanGrup("yg-bu", bu.ad, bu.simge || "liste", bu.ogeler.map((o) => `<a href="${o[0]}">${o[3] ? `<span class="sira">${o[3]}</span>` : '<span class="yan-nokta"></span>'}<span>${esc(o[1])}${o[4] ? ` <i>${esc(o[4])}</i>` : ""}${o[2] ? `<small>${esc(o[2])}</small>` : ""}</span></a>`).join(""), false, rid) : "";
   const kisa = [...(bu && s !== "ana" ? [["yg-bu", bu.ad, bu.simge || "liste"]] : []), ["yg-filtre", "Ne görmek istersin?", "filtre"], ["yg-guz", "Güzergâhlar", "pin"], ...(bu && s === "ana" ? [["yg-bu", bu.ad, bu.simge || "liste"]] : []), ["yg-bilgi", "Pratik bilgi", "bilgi"]];
   return `<nav class="yan-ray" aria-label="Menü kısayolları"><button class="yan-ac" type="button" aria-controls="yan" aria-expanded="false" title="Menüyü aç">${ic("menu")}<span class="gizli">Menüyü aç</span></button><span class="yan-ray-c"></span>
 ${kisa.map((k) => `<button type="button" data-grup="${k[0]}" aria-controls="yan" title="${esc(k[1])}">${ic2(k[2])}<span class="gizli">${esc(k[1])}</span></button>`).join("")}</nav>
 <aside class="yan" id="yan" aria-label="Menü"><div class="yan-kay">
 <div class="yan-bas"><button class="yan-kapa" type="button" aria-controls="yan" aria-expanded="true" title="Menüyü kapat">${ic("menu")}<span>Menü</span>${ic("once")}</button></div>
 ${s === "ana" ? "" : buSayfa}
-${yanGrup("yg-filtre", "Ne görmek istersin?", "filtre", filtre, s === "ana" || !bu)}
-${yanGrup("yg-guz", "Güzergâhlar", "pin", rotalar, true)}
+${yanGrup("yg-filtre", "Ne görmek istersin?", "filtre", filtre, true)}
+${yanGrup("yg-guz", "Güzergâhlar", "pin", rotalar, false)}
 ${s === "ana" ? buSayfa : ""}
-${yanGrup("yg-bilgi", "Pratik bilgi", "bilgi", bilgi, true)}
-<div class="yan-not">${ic2("ampul")}<p><b>Yola çıkmadan önce</b>İstanbulkart tam biniş ${IC.ucret.kart[0][1]} (${IC.ucret.tarih}). Bazı türbeler ve müzeler pazartesi kapalıdır; rotandaki durakların saatine bak.</p></div>
+${yanGrup("yg-bilgi", "Pratik bilgi", "bilgi", bilgi, false)}
 <p class="yan-ince">Konumun yalnızca iznin olursa kullanılır ve hiçbir yere kaydedilmez.</p>
 </div></aside><div class="yan-perde"></div>`;
 }

@@ -858,8 +858,9 @@ html:not(.js) .ara-ac, html:not(.js) .kapak-ara { display: none; }
 
 /* ——— Alt bilgi: lacivert, sütunlu (40 kurumsal sitenin hemen hepsinde olduğu gibi) ——— */
 /* Sayfanın sonu beyazdan koyu maviye yumuşakça geçer (alt bilginin üstündeki şerit), alt bilgi aşağı doğru biraz daha koyulaşır. */
-.alt { position: relative; margin-top: calc(var(--alt-gecis) + clamp(16px, 2vw, 28px)); padding: 0; background: linear-gradient(180deg, var(--lacivert), #0A2346); color: rgba(255,255,255,.8); border-top: 0; --alt-gecis: clamp(150px, 15vw, 240px); }
-.alt::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: var(--alt-gecis); pointer-events: none; background: linear-gradient(180deg, rgba(14,45,87,0) 0%, rgba(14,45,87,.04) 18%, rgba(14,45,87,.13) 36%, rgba(14,45,87,.3) 54%, rgba(14,45,87,.55) 71%, rgba(14,45,87,.8) 86%, var(--lacivert) 100%); }
+.alt { position: relative; margin-top: calc(var(--alt-gecis) * .72); padding: 0; background: linear-gradient(180deg, var(--lacivert), #0A2346); color: rgba(255,255,255,.8); border-top: 0; --alt-gecis: clamp(300px, 30vw, 480px); }
+/* Geçiş eğrisi iki ucta da yatıktır (smoothstep): beyazdan ve laciverte keskin bir kenar oluşmadan girer. Şerit içeriğin altında kalır (z-index: -1). */
+.alt::before { content: ""; position: absolute; z-index: -1; left: 0; right: 0; bottom: 100%; height: var(--alt-gecis); pointer-events: none; background: linear-gradient(180deg, rgba(14,45,87,0) 0%, rgba(14,45,87,.007) 5%, rgba(14,45,87,.028) 10%, rgba(14,45,87,.061) 15%, rgba(14,45,87,.104) 20%, rgba(14,45,87,.156) 25%, rgba(14,45,87,.216) 30%, rgba(14,45,87,.282) 35%, rgba(14,45,87,.352) 40%, rgba(14,45,87,.425) 45%, rgba(14,45,87,.5) 50%, rgba(14,45,87,.575) 55%, rgba(14,45,87,.648) 60%, rgba(14,45,87,.718) 65%, rgba(14,45,87,.784) 70%, rgba(14,45,87,.844) 75%, rgba(14,45,87,.896) 80%, rgba(14,45,87,.939) 85%, rgba(14,45,87,.972) 90%, rgba(14,45,87,.993) 95%, var(--lacivert) 100%); }
 .alt-ic { grid-template-columns: minmax(0, 1.35fr) repeat(3, minmax(0, 1fr)); gap: 28px 36px; justify-items: stretch; align-items: start; text-align: left; padding-top: clamp(36px, 4.4vw, 56px); padding-bottom: clamp(26px, 3vw, 36px); }
 .alt .marka { color: #fff; }
 .alt .marka-y b { color: rgba(255,255,255,.72); }
