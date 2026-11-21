@@ -1792,7 +1792,7 @@ globalThis.ZR_HESAP = (() => {
      e-posta adresi istenmez, jeton saklanmaz ve adres çubuğundan hemen silinir. Şifre bu siteye hiç gelmez.
      WP_ISTEMCI: developer.wordpress.com/apps üzerinde açılan uygulamanın "Client ID" sayısı. Herkese açık bir sayıdır (giriş adresinde görünür);
      "Client Secret" burada kullanılmaz ve depoya yazılmaz. Sayı boşken bu giriş yolu sitede görünmez. */
-  const WP_ISTEMCI = "";
+  const WP_ISTEMCI = "153668";
   const yerelDeneme = (() => { try { return /^(localhost|127\.0\.0\.1)$/.test(location.hostname); } catch (e) { return false; } })();
   const WP = { istemci: String((yerelDeneme && globalThis.ZR_WP_ISTEMCI) || WP_ISTEMCI), taban: (yerelDeneme && globalThis.ZR_WP_TABAN) || "https://public-api.wordpress.com" };
   const K_W = "zr.wp.bekleyen", WP_SURE = 15 * 60000;
