@@ -623,3 +623,17 @@ a.btn { text-decoration: none; }
 .kicker, .d-eye { font-size: 12.5px; font-weight: 700; }
 .facts b, .bas-tx small, .nav-info small, .rc-tx i { font-size: 12px; }
 :where(a, button, input):focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* ——— Canlı konum (Google Haritalar'daki mavi nokta gibi) ———
+   Işık konisi telefonun baktığı yönü gösterir; açık mavi daire konumun kesinliğidir. Konum düğmesi: mavi simge = konum bulundu, dolu mavi = harita konumu izliyor. */
+.me .kon { display: none; position: absolute; left: 50%; top: 50%; width: 76px; height: 64px; margin: -64px 0 0 -38px; transform-origin: 50% 100%; transform: rotate(var(--yon, 0deg)); background: radial-gradient(ellipse at 50% 100%, rgba(47,111,237,.62) 0%, rgba(47,111,237,.28) 45%, rgba(47,111,237,0) 75%); clip-path: polygon(50% 100%, 6% 0, 94% 0); pointer-events: none; }
+.me.yonlu .kon { display: block; }
+.me.yonlu::before, .me.yonlu::after { animation: none; opacity: 0; }
+.dogruluk { fill: #2F6FED; fill-opacity: .13; stroke: #2F6FED; stroke-opacity: .45; transition: fill-opacity .3s, stroke-opacity .3s; }
+#locate.on:not(.takip) { color: var(--me); }
+#locate.takip { background: var(--me); color: #fff; border-color: transparent; }
+.fab.ses .cizik { display: none; }
+.fab.ses.kapali .dalga { display: none; }
+.fab.ses.kapali .cizik { display: inline; }
+.fab.ses[aria-pressed="true"] { background: var(--glass-strong); color: var(--heading); border: 1px solid var(--edge); }
+.fab.ses.kapali { color: #B3261E; }

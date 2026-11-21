@@ -2,7 +2,7 @@
   <div id="map" role="application" aria-label="İstanbul şematik haritası: durakları seçmek için işaretlere dokun">
     <canvas id="base" aria-hidden="true"></canvas>
     <div id="mk"></div>
-    <div class="me" id="me" hidden><span></span></div>
+    <div class="me" id="me" hidden><i class="kon"></i><span></span></div>
     <div class="tip" id="tip" hidden><span></span></div>
   </div>
   <div class="scale" id="scale" aria-hidden="true"><span></span></div>
@@ -67,6 +67,7 @@
     </div>
     <p class="nav-msg" id="nav-msg" hidden></p>
     <div class="nav-side">
+      <button class="fab ses" id="nav-ses" type="button" aria-pressed="true" aria-label="Sesli yönlendirmeyi kapat"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="dalga" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/><path class="cizik" d="M16 9.5l5 5M21 9.5l-5 5"/></svg></button>
       <button class="fab on" id="nav-c" type="button" hidden aria-label="Konumuma ortala"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 17-7-4-7 4z"/></svg></button>
     </div>
     <p class="nav-cap" id="nav-cap"></p>
