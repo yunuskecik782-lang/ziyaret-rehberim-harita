@@ -50,7 +50,7 @@ const web = () => `<!doctype html>
 <title>Ziyaret Rehberim Haritası</title>
 <meta name="description" content="İstanbul'da manevî ve tarihî ziyaret durakları gerçek harita ve uydu görüntüsü üzerinde: konumuna en yakın rotayı kur, kaydet, Google ya da Apple Haritalar'da aç.">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#0E1B2E">
+<meta name="theme-color" content="#0E2D57">
 ${YAZI}
 <style>${reset}</style>
 </head>

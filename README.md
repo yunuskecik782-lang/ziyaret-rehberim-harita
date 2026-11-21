@@ -44,10 +44,15 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
   açar: filtreler, güzergâhlar, o sayfanın bölümleri, pratik bilgi (`yanCubuk` işlevi, `site/build.js`). Sütunun başındaki koyu "Menü"
   çubuğu onu kapatır. Sütun 1480 pikselden geniş ekranda sabit durur; kapatılırsa tercih o tarayıcıda saklanır (`zr.yan`), daha dar
   ekranda sayfanın üstüne açılır. Telefonda sütun ve ince şerit yoktur, tam ekran menü vardır.
-  "Güzergâhlar" açılır listesi altı rotayı gölgeli altın rakam rozetleriyle gösterir (`.guz-no`); liste açılınca rozetler sırayla belirir.
-  Rakam rozetleri sitenin her yerinde aynıdır (`.no`, `.sira.altin`; harita uygulamasında `.bdg`): açılan altın zemin, koyu lacivert rakam.
-  Renkleri `--altin-gr`, `--altin-yazi` ve `--rozet-*` değişkenlerinden gelir. Altın yazı rengi olarak kullanılmaz, yalnızca zemin ve çizgidir.
-  Kategori resimleri (`RESIM` ve `rs()`, `site/build.js`) bu site için çizilmiş altı küçük resimdir; fotoğraf değildir, dışarıdan dosya yüklenmez.
+  Görünüm (21 Kasım 2026'dan beri) ATLAS'ın "Kurumsal Lacivert" düzenini örnek alır: soğuk açık gri zemin, beyaz kart, hafif gölge, lacivert
+  yazı ve düğme (`--ink`, `--koyu`), lacivert sol sütun (`--lacivert`), küçük köşeler (kart 14-16, kutu 8-10 piksel), altın yalnızca ince çizgi ve
+  rakam rozetinde. Renkli zeminler ve renkli yazılar yoktur; rota renkleri (`--r1`…`--r6`) yalnızca haritada ve küçük noktalarda kullanılır.
+  "Güzergâhlar" açılır listesi altı rotayı gölgeli rakam rozetleriyle gösterir (`.guz-no`); liste açılınca rozetler sırayla belirir.
+  Rakam rozetleri (`.no`, `.sira.altin`, `.guz-no`): açılan soluk altın zemin, koyu rakam. Renkleri `--altin-gr`, `--altin-yazi` ve `--rozet-*`
+  değişkenlerinden gelir. Altın yazı rengi olarak kullanılmaz, yalnızca zemin ve çizgidir. Harita uygulamasındaki sıra kutusu (`.bdg`) açık
+  gridir; altındaki ince çizgi durağın haritadaki işaret rengidir.
+  Kategori simgeleri (`RESIM` ve `rs()`, `site/build.js`) gerçek yapılardan sadeleştirilmiş tek renk çizimlerdir: kavuklu mezar taşı ve servi,
+  Kanuni Türbesi gibi revaklı türbe, Süleymaniye gibi dört minareli cami, Galata Kulesi, kara surları, pusula. Fotoğraf değildir, dışarıdan dosya yüklenmez.
   Sayfa geçişinde bilerek efekt yoktur: tarayıcı eski sayfayı yeni sayfa çizilene kadar tutar, tek karede değiştirir (titreme olmasın diye).
   Aşağıdaki bölümler kaydırınca belirir; açılışta ekranda olan içerik hiç gizlenmez.
   Arka plan (`.zemin`; `ZEMIN` ve `ZEMIN_CSS`, `site/build.js`): beyaza yakın zemin, çok yavaş kayan Selçuklu yıldızı deseni (`.z-desen`;
