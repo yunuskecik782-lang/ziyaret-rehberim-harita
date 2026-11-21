@@ -79,6 +79,29 @@ ICON.menu = '<path d="M4 6.5h16M4 12h16M4 17.5h10"/>';
 ICON.filtre = '<path d="M4 6.5h16M7 12h10M10 17.5h4"/>';
 ICON.once = '<path d="M14.5 6l-6 6 6 6"/>';
 ICON.liste ='<path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.8" cy="6.5" r=".9"/><circle cx="4.8" cy="12" r=".9"/><circle cx="4.8" cy="17.5" r=".9"/>';
+/* Sol sütunun simgeleri: iki tonlu çizim (24×24). "t" parçaları rengin açık tonuyla dolar, gerisi 1,6 kalınlıkta çizgidir.
+   Kategoriler gerçek yapıların sade çizimidir: sarıklı mezar taşı ve servi (sahâbe), kubbeli türbe (padişah), kubbe ve iki minare (cami),
+   Galata Kulesi (tarihî mekân), iki burç ve kapı (sur), pusula (hepsi). Bu sözlükte olmayan ad için düz simge kullanılır. */
+const ICON2 = {
+  sahabe: '<path class="t" d="M8.2 20.5v-8.6h5.6v8.6z"/><path class="t" d="M17.6 19.9c-1.6 0-2.2-2.1-2.2-5.1 0-3.2 1-6.3 2.2-8 1.2 1.7 2.2 4.8 2.2 8 0 3-.6 5.1-2.2 5.1z"/><path d="M8.2 20.5v-8.6h5.6v8.6"/><path d="M7.6 11.9h6.8"/><path d="M8.3 11.9c-.5-2.4.9-4.3 2.7-4.3s3.2 1.9 2.7 4.3"/><path d="M11 7.6V6"/><path d="M9.6 15h2.8M9.6 17.4h2.8"/><path d="M17.6 19.9c-1.6 0-2.2-2.1-2.2-5.1 0-3.2 1-6.3 2.2-8 1.2 1.7 2.2 4.8 2.2 8 0 3-.6 5.1-2.2 5.1z"/><path d="M17.6 19.9v.6"/><path d="M3.5 20.5h17"/>',
+  padisah: '<path class="t" d="M6.5 20.5V11h11v9.5z"/><path class="t" d="M7.4 11a4.6 4.6 0 0 1 9.2 0z"/><path d="M6.5 20.5V11h11v9.5"/><path d="M5.8 11h12.4"/><path d="M7.4 11a4.6 4.6 0 0 1 9.2 0"/><path d="M12 6.4V4.2"/><path d="M11.3 4.2h1.4"/><path d="M10.4 20.5v-3a1.6 1.6 0 0 1 3.2 0v3"/><path d="M8.6 13.8v2.2M15.4 13.8v2.2"/><path d="M3.8 20.5h16.4"/>',
+  cami: '<path class="t" d="M6.6 20.5V15h10.8v5.5z"/><path class="t" d="M7.6 15a4.4 4.4 0 0 1 8.8 0z"/><path d="M6.6 20.5V15h10.8v5.5"/><path d="M7.6 15a4.4 4.4 0 0 1 8.8 0"/><path d="M12 10.6V9"/><path d="M3.6 20.5V9.8l.9-2.6.9 2.6v10.7"/><path d="M18.6 20.5V9.8l.9-2.6.9 2.6v10.7"/><path d="M3.2 12.4h2.6M18.2 12.4h2.6"/><path d="M10.7 20.5v-2.1a1.3 1.3 0 0 1 2.6 0v2.1"/><path d="M2.6 20.5h18.8"/>',
+  mekan: '<path class="t" d="M8.8 20.5v-9.6h6.4v9.6z"/><path class="t" d="M8.4 8.6 12 3.4l3.6 5.2z"/><path d="M8.4 8.6 12 3.4l3.6 5.2z"/><path d="M7.6 8.6h8.8v2.3H7.6z"/><path d="M8.8 10.9v9.6M15.2 10.9v9.6"/><path d="M11 13.6h2M11 16.2h2"/><path d="M10.8 20.5v-1.6a1.2 1.2 0 0 1 2.4 0v1.6"/><path d="M5 20.5h14"/>',
+  sur: '<path class="t" d="M3.6 20.5V8.4h4.6v12.1zM15.8 20.5V8.4h4.6v12.1z"/><path class="t" d="M8.2 20.5v-7.6h7.6v7.6z"/><path d="M3.6 20.5V6.6h1.2v1.3h1.1V6.6h1.1v1.3h1.2V6.6h0v13.9"/><path d="M15.8 20.5V6.6h1.2v1.3h1.1V6.6h1.1v1.3h1.2V6.6v13.9"/><path d="M8.2 12.9h1.1v-1.2h1.3v1.2h1.4v-1.2h1.3v1.2h1.3v-1.2h1.2v1.2"/><path d="M10.4 20.5v-3a1.6 1.6 0 0 1 3.2 0v3"/><path d="M2.6 20.5h18.8"/>',
+  hepsi: '<circle class="t" cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="8.6"/><path class="k" d="M12 4.9l1.7 5.4L12 12l-1.7-1.7z"/><path d="M12 4.9l1.7 5.4L12 19.1l-1.7-8.8z"/><path d="M4.9 12l5.4-1.7L19.1 12l-8.8 1.7z"/>',
+  tram: '<rect class="t" x="5.5" y="5" width="13" height="12" rx="2.4"/><rect x="5.5" y="5" width="13" height="12" rx="2.4"/><path d="M5.5 11h13"/><path d="M9 17l-1.6 3M15 17l1.6 3"/><path d="M9.2 14h.01M14.8 14h.01"/><path d="M10 2.8h4M12 2.8V5"/>',
+  clock: '<circle class="t" cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="8.6"/><path d="M12 7.4V12l3.1 2"/>',
+  kalp: '<path class="t" d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>',
+  mark: '<path class="t" d="M7 4.5h10a1 1 0 0 1 1 1V20l-6-4-6 4V5.5a1 1 0 0 1 1-1z"/><path d="M7 4.5h10a1 1 0 0 1 1 1V20l-6-4-6 4V5.5a1 1 0 0 1 1-1z"/>',
+  menu: '<path d="M4.5 7h15M4.5 12h15M4.5 17h9"/>',
+  filtre: '<path class="t" d="M4 5.5h16l-6.2 7.2v5.6l-3.6 1.9v-7.5z"/><path d="M4 5.5h16l-6.2 7.2v5.6l-3.6 1.9v-7.5z"/>',
+  pin: '<path class="t" d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 1 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 1 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
+  liste: '<rect class="t" x="4" y="4.5" width="16" height="15" rx="2.4"/><rect x="4" y="4.5" width="16" height="15" rx="2.4"/><path d="M8 9h8M8 12h8M8 15h5"/>',
+  bilgi: '<circle class="t" cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="8.6"/><path d="M12 11v5M12 7.9v.01"/>',
+  ampul: '<path class="t" d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.3 1 2.2h5.2c0-.9.4-1.7 1-2.2A6 6 0 0 0 12 3z"/><path d="M9.5 18h5M10.5 21h3"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.3 1 2.2h5.2c0-.9.4-1.7 1-2.2A6 6 0 0 0 12 3z"/>',
+  kilit: '<rect class="t" x="5.5" y="10.5" width="13" height="9.5" rx="1.6"/><rect x="5.5" y="10.5" width="13" height="9.5" rx="1.6"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/><path d="M12 14.3v2"/>',
+};
+const ic2 = (n) => (ICON2[n] ? `<svg class="ic iki" viewBox="0 0 24 24" aria-hidden="true">${ICON2[n]}</svg>` : ic(n));
 
 /* ——— Kategori simgeleri (64×64, dolu, tek renk) ———
    Ana sayfadaki kutular ve sol sütun aynı altı simgeyi kullanır. Her biri gerçek bir yapıdan sadeleştirilmiş çizimdir (fotoğraf değil):
@@ -182,16 +205,16 @@ ${MENU.slice(3).map((m, i) => `<a class="m" style="--i:${6 + i}" href="${m[1]}"$
    1480 pikselden geniş ekranda sabit durur, daha dar masaüstünde "Menü" düğmesiyle açılır; telefonda yoktur (orada tam ekran menü var). ——— */
 /* "Menü" düğmesi üst şeritte değil, sütunun en başındadır. Sütun kapalıyken solda ince bir şerit kalır: en üstte menüyü açan düğme,
    altında gruplara giden kısayollar. Telefonda ikisi de yoktur (orada üstteki düğmeyle açılan tam ekran menü var). */
-const yanGrup = (id, ad, simge, icerik, acik, sinif) => `<details class="yan-grup${sinif ? " " + sinif : ""}" id="${id}"${acik ? " open" : ""}><summary>${ic(simge)}<span>${ad}</span>${ic("down")}</summary><div class="yan-ic">${icerik}</div></details>`;
+const yanGrup = (id, ad, simge, icerik, acik, sinif) => `<details class="yan-grup${sinif ? " " + sinif : ""}" id="${id}"${acik ? " open" : ""}><summary>${ic2(simge)}<span>${ad}</span>${ic("down")}</summary><div class="yan-ic">${icerik}</div></details>`;
 function yanCubuk(s, bu, rid) {
-  const filtre = KAT.map((k) => `<a class="${k[1]}" href="${yol.olustur}#kategori=${k[0]}" data-hash="kategori=${k[0]}"><span class="yan-sim res">${rs(k[2])}</span><span>${k[3]}</span><em>${k[4]}</em></a>`).join("");
+  const filtre = KAT.map((k) => `<a class="${k[1]}" href="${yol.olustur}#kategori=${k[0]}" data-hash="kategori=${k[0]}"><span class="yan-sim">${ic2(k[2])}</span><span>${k[3]}</span><em>${k[4]}</em></a>`).join("");
   const rotalar = ROTALAR.map((r) => `<a class="${r.id}" href="${r.yol}"${r.id === rid ? ' aria-current="page"' : ""}><span class="sira altin">${r.no}</span><span>${esc(r.name)}<small>${r.duraklar.length} durak · ${r.sure}</small></span></a>`).join("")
     + `<a href="${yol.guz}"${s === "guz" && !rid ? ' aria-current="page"' : ""}><span class="sira sade">${ic("fwd")}</span><span>Tüm güzergâhlar</span></a>`;
-  const bilgi = [...MENU.slice(3), ["rotalarim", yol.rotalarim, "Rotalarım", "mark", "Kaydettiğin rotalar"]].map((m) => `<a href="${m[1]}"${cur(s, m[0])}><span class="yan-sim sade">${ic(m[3])}</span><span>${m[2]}<small>${m[4]}</small></span></a>`).join("");
+  const bilgi = [...MENU.slice(3), ["rotalarim", yol.rotalarim, "Rotalarım", "mark", "Kaydettiğin rotalar"]].map((m) => `<a href="${m[1]}"${cur(s, m[0])}><span class="yan-sim">${ic2(m[3])}</span><span>${m[2]}<small>${m[4]}</small></span></a>`).join("");
   const buSayfa = bu ? yanGrup("yg-bu", bu.ad, bu.simge || "liste", bu.ogeler.map((o) => `<a href="${o[0]}">${o[3] ? `<span class="sira">${o[3]}</span>` : '<span class="yan-nokta"></span>'}<span>${esc(o[1])}${o[4] ? ` <i>${esc(o[4])}</i>` : ""}${o[2] ? `<small>${esc(o[2])}</small>` : ""}</span></a>`).join(""), true, rid) : "";
   const kisa = [...(bu && s !== "ana" ? [["yg-bu", bu.ad, bu.simge || "liste"]] : []), ["yg-filtre", "Ne görmek istersin?", "filtre"], ["yg-guz", "Güzergâhlar", "pin"], ...(bu && s === "ana" ? [["yg-bu", bu.ad, bu.simge || "liste"]] : []), ["yg-bilgi", "Pratik bilgi", "bilgi"]];
   return `<nav class="yan-ray" aria-label="Menü kısayolları"><button class="yan-ac" type="button" aria-controls="yan" aria-expanded="false" title="Menüyü aç">${ic("menu")}<span class="gizli">Menüyü aç</span></button><span class="yan-ray-c"></span>
-${kisa.map((k) => `<button type="button" data-grup="${k[0]}" aria-controls="yan" title="${esc(k[1])}">${ic(k[2])}<span class="gizli">${esc(k[1])}</span></button>`).join("")}</nav>
+${kisa.map((k) => `<button type="button" data-grup="${k[0]}" aria-controls="yan" title="${esc(k[1])}">${ic2(k[2])}<span class="gizli">${esc(k[1])}</span></button>`).join("")}</nav>
 <aside class="yan" id="yan" aria-label="Menü"><div class="yan-kay">
 <div class="yan-bas"><button class="yan-kapa" type="button" aria-controls="yan" aria-expanded="true" title="Menüyü kapat">${ic("menu")}<span>Menü</span>${ic("once")}</button></div>
 ${s === "ana" ? "" : buSayfa}
@@ -199,7 +222,7 @@ ${yanGrup("yg-filtre", "Ne görmek istersin?", "filtre", filtre, s === "ana" || 
 ${yanGrup("yg-guz", "Güzergâhlar", "pin", rotalar, true)}
 ${s === "ana" ? buSayfa : ""}
 ${yanGrup("yg-bilgi", "Pratik bilgi", "bilgi", bilgi, true)}
-<div class="yan-not">${ic("ampul")}<p><b>Yola çıkmadan önce</b>İstanbulkart tam biniş ${IC.ucret.kart[0][1]} (${IC.ucret.tarih}). Bazı türbeler ve müzeler pazartesi kapalıdır; rotandaki durakların saatine bak.</p></div>
+<div class="yan-not">${ic2("ampul")}<p><b>Yola çıkmadan önce</b>İstanbulkart tam biniş ${IC.ucret.kart[0][1]} (${IC.ucret.tarih}). Bazı türbeler ve müzeler pazartesi kapalıdır; rotandaki durakların saatine bak.</p></div>
 <p class="yan-ince">Konumun yalnızca iznin olursa kullanılır ve hiçbir yere kaydedilmez.</p>
 </div></aside><div class="yan-perde"></div>`;
 }
@@ -249,7 +272,7 @@ ${kapali ? '<meta name="robots" content="noindex">' : `<link rel="canonical" hre
 <meta property="og:type" content="website"><meta property="og:site_name" content="Ziyaret Rehberim"><meta property="og:locale" content="tr_TR">
 <meta property="og:title" content="${tamBaslik}"><meta property="og:description" content="${esc(ozet)}"><meta property="og:url" content="${adres}">
 <meta property="og:image" content="${TAM}${GORSEL}${gorsel}"><meta name="twitter:card" content="summary_large_image">`}
-<meta name="theme-color" content="#F3F5F8">
+<meta name="theme-color" content="#FFFFFF">
 <link rel="icon" href="${GORSEL}zr-logo.jpg"><link rel="apple-touch-icon" href="${GORSEL}zr-logo.jpg">
 ${harita ? `<link rel="stylesheet" href="${a("leaflet.css")}">\n` : ""}<link rel="stylesheet" href="${a("site.css")}">
 ${harita ? `<script defer src="${a("leaflet.js")}"></script>\n` : ""}${yolJs ? `<script defer src="${a("yol.js")}"></script>\n` : ""}<script defer src="${a("hesap.js")}"></script>
