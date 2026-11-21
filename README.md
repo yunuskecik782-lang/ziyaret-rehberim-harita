@@ -43,7 +43,8 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
   Sol kenarda hep görünen 60 piksellik ince bir şerit vardır: en üstte menü düğmesi, altında bölüm kısayolları. Menü düğmesi sol sütunu
   açar: filtreler, güzergâhlar, o sayfanın bölümleri, pratik bilgi (`yanCubuk` işlevi, `site/build.js`). Sütunun başındaki koyu "Menü"
   çubuğu onu kapatır. Sütun 1480 pikselden geniş ekranda sabit durur; kapatılırsa tercih o tarayıcıda saklanır (`zr.yan`), daha dar
-  ekranda sayfanın üstüne açılır. Telefonda sütun ve ince şerit yoktur, tam ekran menü vardır.
+  ekranda sayfanın üstüne açılır. Telefonda sütun ve ince şerit yoktur, tam ekran menü vardır:
+  kutusuz ve simgesiz bir yazı listesi; Güzergâhlar başta kapalıdır, dokununca altı rota açılır.
   Görünüm (21 Kasım 2026'dan beri) ATLAS'ın "Kurumsal Lacivert" düzenini örnek alır: soğuk açık gri zemin, beyaz kart, hafif gölge, lacivert
   yazı ve düğme (`--ink`, `--koyu`), küçük köşeler (kart 14-16, kutu 8-10 piksel), altın yalnızca ince çizgi ve
   rakam rozetinde. Renkli zeminler ve renkli yazılar yoktur; rota renkleri (`--r1`…`--r6`) yalnızca haritada ve küçük noktalarda kullanılır.

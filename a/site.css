@@ -155,22 +155,28 @@ body::after { content: ""; position: absolute; z-index: -1; top: 0; left: 0; rig
 
 /* ——— Telefon menüsü: üstten açılan tam ekran sayfa ——— */
 .menu { position: fixed; inset: var(--ust-h) 0 0 0; z-index: 55; display: grid; grid-template-rows: 1fr; visibility: hidden; pointer-events: none; }
-.menu-zemin { position: absolute; inset: 0; background: rgba(246,247,249,.92); backdrop-filter: blur(22px) saturate(1.3); -webkit-backdrop-filter: blur(22px) saturate(1.3); opacity: 0; transition: opacity .4s; }
-.menu-ic { position: relative; overflow-y: auto; overscroll-behavior: contain; padding: 18px var(--kr) calc(var(--sekme-h) + 24px) var(--kl); display: grid; align-content: start; gap: 10px; clip-path: inset(0 0 100% 0 round 0 0 28px 28px); transition: clip-path .6s var(--yay); }
+.menu-zemin { position: absolute; inset: 0; background: rgba(255,255,255,.97); backdrop-filter: blur(22px) saturate(1.3); -webkit-backdrop-filter: blur(22px) saturate(1.3); opacity: 0; transition: opacity .4s; }
+.menu-ic { position: relative; overflow-y: auto; overscroll-behavior: contain; padding: 8px var(--kr) calc(var(--sekme-h) + 24px) var(--kl); display: grid; align-content: start; gap: 0; clip-path: inset(0 0 100% 0 round 0 0 28px 28px); transition: clip-path .6s var(--yay); }
 .menu-acik .menu { visibility: visible; pointer-events: auto; }
 .menu-acik .menu-zemin { opacity: 1; }
 .menu-acik .menu-ic { clip-path: inset(0 0 0 0 round 0); }
-.menu-k { font: 800 .72rem/1 var(--fd); letter-spacing: .14em; text-transform: uppercase; color: var(--altin-ink); margin: 10px 4px 2px; }
-.menu a.m { display: grid; grid-template-columns: 46px 1fr 20px; align-items: center; gap: 14px; padding: 12px 14px 12px 12px; border-radius: 12px; background: rgba(255,255,255,.86); border: 1px solid var(--cizgi); box-shadow: 0 10px 22px -18px rgba(16,36,66,.45); text-decoration: none; font: 750 1.06rem/1.2 var(--fd); color: var(--ink); opacity: 0; transform: translateY(18px) scale(.97); transition: opacity .5s, transform .6s var(--yay), background-color .25s; transition-delay: 0s; }
-.menu a.m small { display: block; margin-top: 3px; font: 500 .8rem/1.3 var(--ft); color: var(--soluk); }
-.menu a.m > .ic:last-child { width: 18px; height: 18px; color: var(--soluk); }
-.menu a.m[aria-current="page"] { border-color: rgba(16,36,66,.3); background: #fff; }
-.menu-sim { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 9px; background: linear-gradient(160deg, #FFFFFF, #EDEFF2); color: var(--ink); box-shadow: inset 0 0 0 1px rgba(16,36,66,.1), inset 0 1px 0 #fff; }
-.menu-sim .ic { width: 23px; height: 23px; }
-.menu-rotalar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.menu-rotalar a { display: grid; grid-template-columns: 30px 1fr; align-items: center; gap: 9px; padding: 9px 10px; border-radius: 10px; background: #fff; border: 1px solid var(--cizgi); text-decoration: none; font: 700 .84rem/1.2 var(--fd); color: var(--ink); opacity: 0; transform: translateY(18px) scale(.97); transition: opacity .5s, transform .6s var(--yay); }
-.menu-rotalar .no { width: 30px; height: 30px; font-size: .74rem; }
-.menu-acik .menu a.m, .menu-acik .menu-rotalar a { opacity: 1; transform: none; transition-delay: calc(90ms + var(--i, 0) * 45ms); }
+/* Telefon menüsü sade bir yazı listesidir: kutu, simge ve alt başlık yok; satırlar ince çizgiyle ayrılır.
+   Güzergâhlar açılır kapanır bir başlıktır (başta kapalı), içinde altı rota ve "Tüm güzergâhlar" bulunur. */
+.menu-k { font: 650 .8rem/1 var(--fd); color: var(--soluk); margin: 22px 2px 4px; opacity: 0; transition: opacity .5s; }
+.menu a.m, .m-grup > summary { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 12px 2px; border-bottom: 1px solid var(--yan-c2); text-decoration: none; font: 650 1.08rem/1.25 var(--fd); color: var(--ink); }
+.menu a.m, .m-grup { opacity: 0; transform: translateY(10px); transition: opacity .45s, transform .55s var(--yay); transition-delay: 0s; }
+.menu a.m[aria-current="page"], .m-grup.secili > summary { color: var(--koyu); font-weight: 750; }
+.menu a.m[aria-current="page"]::after { content: ""; width: 6px; height: 6px; margin-left: auto; border-radius: 50%; background: var(--koyu); }
+.m-grup > summary { list-style: none; cursor: pointer; user-select: none; -webkit-user-select: none; }
+.m-grup > summary::-webkit-details-marker { display: none; }
+.m-grup > summary .ic { width: 18px; height: 18px; margin-left: auto; color: var(--soluk); transition: transform .35s var(--yay); }
+.m-grup[open] > summary .ic { transform: rotate(180deg); }
+.m-alt { display: grid; padding: 4px 0 8px 2px; border-bottom: 1px solid var(--yan-c2); }
+.m-alt a { display: flex; align-items: baseline; gap: 12px; padding: 10px 2px; text-decoration: none; font: 550 1rem/1.3 var(--ft); color: var(--metin); }
+.m-alt a:last-child { font-weight: 650; color: var(--koyu); }
+.m-alt a[aria-current="page"] { color: var(--koyu); font-weight: 700; }
+.m-no { min-width: 1.6em; font: 650 .82rem/1 var(--fd); color: var(--soluk); font-variant-numeric: tabular-nums; }
+.menu-acik .menu a.m, .menu-acik .m-grup, .menu-acik .menu-k { opacity: 1; transform: none; transition-delay: calc(80ms + var(--i, 0) * 35ms); }
 @media (min-width: 900px) { .menu { display: none; } }
 
 /* ——— Telefonda alt menü ——— */
@@ -315,7 +321,7 @@ body::after { content: ""; position: absolute; z-index: -1; top: 0; left: 0; rig
 .rota-bas { padding-block: clamp(20px, 3vw, 38px) 0; display: grid; gap: 12px; }
 .rota-bas h1 { font-size: clamp(1.9rem, 3.8vw, 3.1rem); font-weight: 800; color: var(--ink); }
 .rota-bas .ozet { font-size: clamp(1rem, 1.3vw, 1.15rem); max-width: 44rem; }
-.harita-kart { position: relative; margin-top: 18px; padding: 10px; border-radius: 16px; background: rgba(255,255,255,.92); border: 1px solid var(--cizgi); box-shadow: var(--golge-ust); }
+.harita-kart { position: relative; isolation: isolate; margin-top: 18px; padding: 10px; border-radius: 16px; background: rgba(255,255,255,.92); border: 1px solid var(--cizgi); box-shadow: var(--golge-ust); }
 .harita { position: relative; height: clamp(360px, 52vw, 600px); border-radius: 12px; overflow: hidden; background: #E6E9ED; z-index: 0; }
 /* Haritalar uydu görünümüyle açılır: görüntü gelene kadar kutu koyu kalsın ki açık renkten koyuya ani bir parlama olmasın.
    Ziyaretçi sokak haritasını seçtiyse (h-sokak) kutu baştan açık renkte. */
@@ -761,7 +767,6 @@ body[data-sayfa="rota-olustur"] .alt { display: none; }
 .kat [aria-pressed="true"], .kat .secili { box-shadow: 0 0 0 3px rgba(16,36,66,.08); }
 .rkart:hover { box-shadow: var(--golge-ust); }
 .guz-k:hover, .guz-k:focus-visible { box-shadow: var(--golge-ust); }
-.menu a.m { box-shadow: var(--golge); }
 .ust { box-shadow: none; }
 .ust.kaydi { box-shadow: 0 1px 0 var(--cizgi), 0 8px 20px -18px rgba(16,36,66,.5); }
 .kapak-kart { box-shadow: 0 18px 40px -26px rgba(16,36,66,.6), 0 1px 3px rgba(16,36,66,.12); }

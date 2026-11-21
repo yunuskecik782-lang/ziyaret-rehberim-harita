@@ -179,7 +179,7 @@ const MENU = [
   ["adab", yol.adab, "Ziyaret Âdâbı", "kalp", "Ziyaretin incelikleri"],
 ];
 const cur = (a, b) => (a === b ? ' aria-current="page"' : "");
-function ust(s) {
+function ust(s, rid) {
   return `<header class="ust"><div class="ust-ic">${marka}
 <nav class="gezin" aria-label="Ana menü"><a href="${yol.ana}"${cur(s, "ana")}>Ana Sayfa</a>
 <div class="acilir${s === "guz" ? " secili" : ""}"><button type="button" aria-haspopup="true" aria-expanded="false">Güzergâhlar${ic("down")}</button><div class="acilir-kutu">
@@ -192,13 +192,14 @@ function ust(s) {
 <button class="menu-btn" type="button" aria-label="Menü" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
 </div></header>
 <div class="menu" id="menu" inert><div class="menu-zemin"></div><nav class="menu-ic" aria-label="Menü">
-${MENU.slice(0, 3).map((m, i) => `<a class="m" style="--i:${i}" href="${m[1]}"${cur(s, m[0])}><span class="menu-sim">${ic(m[3])}</span><span>${m[2]}<small>${m[4]}</small></span>${ic("fwd")}</a>`).join("")}
-<div class="menu-rotalar">${ROTALAR.map((r, i) => `<a class="${r.id}" style="--i:${3 + i * 0.5}" href="${r.yol}"><span class="no">${r.no}</span>${esc(r.name)}</a>`).join("")}</div>
-<p class="menu-k">Bilgi</p>
-${MENU.slice(3).map((m, i) => `<a class="m" style="--i:${6 + i}" href="${m[1]}"${cur(s, m[0])}><span class="menu-sim">${ic(m[3])}</span><span>${m[2]}<small>${m[4]}</small></span>${ic("fwd")}</a>`).join("")}
-<p class="menu-k">Hesap</p>
-<a class="m" style="--i:9" href="${yol.rotalarim}"${cur(s, "rotalarim")}><span class="menu-sim">${ic("mark")}</span><span>Rotalarım<small>Kaydettiğin rotalar</small></span>${ic("fwd")}</a>
-<a class="m" style="--i:10" href="${yol.hesap}"${cur(s, "hesap")}><span class="menu-sim">${ic("user")}</span><span><span data-hesap-ad="Giriş yap ya da hesap oluştur">Giriş yap ya da hesap oluştur</span><small>Kaydettiğin rotalar hesabında dursun</small></span>${ic("fwd")}</a>
+${MENU.slice(0, 2).map((m, i) => `<a class="m" style="--i:${i}" href="${m[1]}"${cur(s, m[0])}>${m[2]}</a>`).join("")}
+<details class="m-grup${s === "guz" ? " secili" : ""}" style="--i:2"><summary>Güzergâhlar${ic("down")}</summary><div class="m-alt">
+${ROTALAR.map((r) => `<a href="${r.yol}"${r.id === rid ? ' aria-current="page"' : ""}><span class="m-no">${r.no}</span>${esc(r.name)}</a>`).join("")}<a href="${yol.guz}"${s === "guz" && !rid ? ' aria-current="page"' : ""}>Tüm güzergâhlar</a></div></details>
+<p class="menu-k" style="--i:3">Bilgi</p>
+${MENU.slice(3).map((m, i) => `<a class="m" style="--i:${4 + i}" href="${m[1]}"${cur(s, m[0])}>${m[2]}</a>`).join("")}
+<p class="menu-k" style="--i:7">Hesap</p>
+<a class="m" style="--i:8" href="${yol.rotalarim}"${cur(s, "rotalarim")}>Rotalarım</a>
+<a class="m" style="--i:9" href="${yol.hesap}"${cur(s, "hesap")}><span data-hesap-ad="Giriş yap ya da hesap oluştur">Giriş yap ya da hesap oluştur</span></a>
 </nav></div>`;
 }
 /* ——— Geniş ekranda sol sütun: açılır listeler (bu sayfanın bölümleri, filtreler, güzergâhlar, pratik bilgi) ve kısa bilgi metni.
@@ -281,7 +282,7 @@ ${harita ? `<script defer src="${a("leaflet.js")}"></script>\n` : ""}${yolJs ? `
 <body data-sayfa="${id}">
 <a class="gizli" href="#icerik">İçeriğe geç</a>
 ${ZEMIN}
-${ust(s)}
+${ust(s, /^r\d$/.test(sinif) ? sinif : "")}
 ${ARA_KUTU}
 ${yanCubuk(s, yan, /^r\d$/.test(sinif) ? sinif : "")}
 <main id="icerik"${sinif ? ` class="${sinif}"` : ""}>
