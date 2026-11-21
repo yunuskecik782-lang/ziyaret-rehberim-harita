@@ -1349,17 +1349,48 @@
     const Lg = N.leg, a = navAt(Lg, N.along), q = unproj(a[0], a[1]), cizgi = N.vardi ? [] : [[q.lat, q.lng], ...Lg.ll.slice(a[2])];
     N.yolK.setLatLngs(cizgi); N.yol.setLatLngs(cizgi); N.akis.setLatLngs(cizgi);
   }
-  // Harita konumu izler; konum noktası üstteki tarif şeridiyle alttaki kartın arasında, ortada durur.
+  /* Odak görünümü (Google Haritalar'daki gibi): tarif başlayınca harita yakınlaşır, gidilen yön hep yukarıyı gösterecek şekilde döner,
+     konum noktası ekranın alt kısmında durur ki önündeki yol görünsün. Dönen harita yine düzdür (eğik ya da 3B görünüm yok).
+     Dönebilmesi için haritanın kutusu tarif sırasında ekranın köşegeninden büyük tutulur, köşelerde boşluk kalmaz.
+     Pusula düğmesi "yön yukarı" ile "kuzey yukarı" arasında geçer; seçim bu cihazda hatırlanır (localStorage "zr.navyon"). */
+  try { N.yukari = localStorage.getItem("zr.navyon") !== "kuzey"; } catch (e) { N.yukari = true; }
+  const lmapEl = () => $("#lmap");
+  // Konum noktasının ekrandaki yeri: üstteki tarif şeridiyle alttaki kartın arasındaki alanın %68'i kadar aşağıda.
+  function navDy() {
+    const H = mapEl.clientHeight, ust = $(".nav-top").offsetHeight + 10, alt = DESK.matches ? 0 : $(".nav-bot").offsetHeight + 10;
+    return Math.round(ust + 0.68 * Math.max(0, H - alt - ust) - H / 2);
+  }
+  function navBoyut() {
+    const el = lmapEl(); if (!el || !N.on) return;
+    const W = mapEl.clientWidth, H = mapEl.clientHeight, dy = navDy(), r = Math.hypot(W / 2, H / 2 + Math.abs(dy)), D = Math.ceil(2 * (r + Math.abs(dy)) + 4);
+    el.style.setProperty("--dy", dy + "px");
+    if (N.dd !== D) { N.dd = D; el.style.setProperty("--dd", D + "px"); map.invalidateSize({ animate: false }); }
+    return dy;
+  }
+  function navDon() {
+    const el = lmapEl(); if (!el) return;
+    let B = N.on && N.yukari && N.follow && N.rot != null ? N.rot : Math.round((N.B || 0) / 360) * 360;
+    if (N.B != null && Math.abs(B - N.B) < 1.5) return;
+    N.B = B; el.style.setProperty("--yb", B.toFixed(1) + "deg");
+    const ig = $("#nav-yon svg"); if (ig) ig.style.transform = `rotate(${(-B).toFixed(1)}deg)`;
+  }
+  function navYonDugme() { const b = $("#nav-yon"); if (!b) return; b.setAttribute("aria-pressed", N.yukari); b.setAttribute("aria-label", N.yukari ? "Kuzeyi yukarı al" : "Gidiş yönünü yukarı al"); }
+  // Tarifte harita: Google Haritalar'daki gibi sokak haritası açılır; ziyaretçi değiştirirse tarif için ayrıca hatırlanır ("zr.navkatman").
+  function navKatmanDugme() { const b = $("#nav-kat"); if (!b) return; b.setAttribute("aria-pressed", S.sat); b.lastElementChild.textContent = S.sat ? "Harita" : "Uydu"; b.setAttribute("aria-label", S.sat ? "Sokak haritasına geç" : "Uydu görüntüsüne geç"); }
+
+  // Harita konumu izler; konum noktası üstteki tarif şeridiyle alttaki kartın arasında, alt tarafta durur.
   function navCam(jump) {
     const p = N.pos; if (!p || !N.pk) return;
     kaydir(N.pk, [p.lat, p.lng], jump ? 0 : 850, (q) => { if (N.halo) N.halo.setLatLng(q); });
     if (N.halo) N.halo.setRadius(N.real ? Math.min(p.acc || 0, 300) : 0);
     navYon();
     if (!N.follow) return;
-    const z = N.zoom || 17.5, ust = $(".nav-top").offsetHeight + 10, alt = DESK.matches ? 0 : $(".nav-bot").offsetHeight + 10;
-    const c = map.unproject(map.project([p.lat, p.lng], z).add([0, (alt - ust) / 2]), z);
-    N.oto = true; map.setView(c, z, { animate: !jump && !RM.matches, duration: 0.8 });
-    if (jump || RM.matches) N.oto = false;
+    const z = N.zoom || 18, dy = navBoyut() || 0;
+    const c = map.unproject(map.project([p.lat, p.lng], z).subtract([0, dy]), z);
+    N.oto = true;
+    if (jump === "uc" && !RM.matches) map.flyTo(c, z, { duration: 1.1 }); // başlarken rotaya doğru süzülerek yakınlaşır
+    else map.setView(c, z, { animate: !jump && !RM.matches, duration: 0.8 });
+    if (jump === true || RM.matches) N.oto = false;
   }
   // Ok, yürürken gidiş yönünü, dururken telefonun baktığı yönü (pusula) gösterir. Dönüş en kısa yoldan yapılır (359° → 1° tam tur atmaz).
   function navYon() {
@@ -1367,8 +1398,9 @@
     const y = N.pos.head != null ? N.pos.head : N.real && pusulaTaze() ? CK.pusula : N.brg;
     N.rot = N.rot == null ? y : N.rot + ((((y - N.rot) % 360) + 540) % 360 - 180);
     el.style.transform = `rotate(${Math.round(N.rot)}deg)`;
+    navDon();
   }
-  function navFollow(on) { N.follow = on; $("#nav-c").hidden = on; if (on) { N.zoom = 0; navCam(); } }
+  function navFollow(on) { N.follow = on; $("#nav-c").hidden = on; navDon(); if (on) { N.zoom = 0; navCam(); } }
 
   // Google Haritalar'daki gibi tahmini varış saati (dakikada 75 m yürüyüşle).
   const saatte = (m) => new Date(Date.now() + mins(m) * 60000).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
@@ -1484,6 +1516,8 @@
     if (N.wake) { try { N.wake.release(); } catch (e) {} N.wake = null; }
     if (N.lyr) { N.lyr.remove(); N.lyr = N.yolK = N.yol = N.akis = N.hedef = N.pk = N.halo = null; }
     navEl.hidden = true; app.classList.remove("navda"); navMsg("");
+    { const el = lmapEl(); if (el) { for (const k of ["--dd", "--dy", "--yb"]) el.style.removeProperty(k); } N.dd = 0; N.B = null; }
+    if (N.eskiSat != null && N.eskiSat !== S.sat) setLayer(N.eskiSat, false); N.eskiSat = null;
     if (meMk) meMk.setOpacity(1);
     try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
     const p = N.pos; if (N.real && p) { setMe(p.lat, p.lng, "gps", "Konumun", false); CK.aktif = true; CK.pos = { lat: p.lat, lng: p.lng, acc: p.acc, head: null }; }
@@ -1511,12 +1545,24 @@
     if (S.sel != null) closeDetail();
     navEl.hidden = false; app.classList.add("navda"); syncGo(); $("#nav-c").hidden = true;
     if (meMk) meMk.setOpacity(0);
-    map.stop(); navCap(); navKatman(); navHedef(); navLoadLeg(); navCam(true);
+    N.eskiSat = S.sat; let nk = "sokak"; try { nk = localStorage.getItem("zr.navkatman") || "sokak"; } catch (e) {}
+    if ((nk === "uydu") !== S.sat) setLayer(nk === "uydu", false);
+    navKatmanDugme(); navYonDugme(); N.dd = 0; N.B = null;
+    map.stop(); navCap(); navKatman(); navHedef(); navLoadLeg(); navBoyut(); navYon(); navCam("uc");
     navWatch(); navWake();
   }
   $("#nav-x").addEventListener("click", () => navStop());
   $("#nav-s").addEventListener("click", navNext);
   $("#nav-c").addEventListener("click", () => navFollow(true));
+  $("#nav-yon").addEventListener("click", () => {
+    pusulaAc(); N.yukari = !N.yukari; try { localStorage.setItem("zr.navyon", N.yukari ? "yon" : "kuzey"); } catch (e) {}
+    navYonDugme(); if (N.yukari && !N.follow) navFollow(true); else navDon();
+    toast(N.yukari ? "Gidiş yönün yukarıda." : "Kuzey yukarıda.");
+  });
+  $("#nav-kat").addEventListener("click", () => {
+    setLayer(!S.sat, false); try { localStorage.setItem("zr.navkatman", S.sat ? "uydu" : "sokak"); } catch (e) {}
+    navKatmanDugme(); navCap();
+  });
   $("#nav-ses").addEventListener("click", () => {
     SES.acik = !SES.acik; try { localStorage.setItem("zr.ses", SES.acik ? "acik" : "kapali"); } catch (e) {}
     sesDugme(); if (SES.acik) soyle("Sesli yönlendirme açık.", true); else try { speechSynthesis.cancel(); } catch (e) {}
@@ -1536,7 +1582,7 @@
     const w = mapEl.clientWidth, h = mapEl.clientHeight;
     if (!w || !h) return;
     V.w = w; V.h = h; V.dpr = Math.min(window.devicePixelRatio || 1, 2.5);
-    if (REAL) { map.invalidateSize({ animate: false }); setSheet(S.sheet); return; }
+    if (REAL) { if (N.on) { N.dd = 0; navBoyut(); navCam(true); } else map.invalidateSize({ animate: false }); setSheet(S.sheet); return; }
     cv.width = Math.round(V.w * V.dpr); cv.height = Math.round(V.h * V.dpr);
     setSheet(S.sheet); clampView(); cancelAnimationFrame(raf); raf = 0; render();
   }
