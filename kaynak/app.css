@@ -637,3 +637,15 @@ a.btn { text-decoration: none; }
 .fab.ses.kapali .cizik { display: inline; }
 .fab.ses[aria-pressed="true"] { background: var(--glass-strong); color: var(--heading); border: 1px solid var(--edge); }
 .fab.ses.kapali { color: #B3261E; }
+
+/* ——— Tarifte odak görünümü: harita gidiş yönüne döner (düz harita, eğik değil) ——— */
+.navda #lmap[style*="--dd"] { inset: auto; left: calc(50% - var(--dd) / 2); top: calc(50% - var(--dd) / 2); width: var(--dd); height: var(--dd); transform-origin: 50% calc(50% + var(--dy, 0px)); transform: rotate(calc(var(--yb, 0deg) * -1)); transition: transform .9s cubic-bezier(.2,.7,.2,1); }
+/* İşaretler ve yazılar dik kalır */
+.navda #lmap .leaflet-marker-icon .mk { rotate: var(--yb, 0deg); transition: rotate .9s cubic-bezier(.2,.7,.2,1); }
+.navda #lmap .nmk-k .nmk { rotate: var(--yb, 0deg); transform-origin: 0 100%; transition: rotate .9s cubic-bezier(.2,.7,.2,1); }
+.fab.yon svg { transition: transform .9s cubic-bezier(.2,.7,.2,1); }
+.fab.yon .k { fill: #C62828; stroke: #C62828; }
+.fab.yon path:not(.k) { fill: currentColor; }
+.fab.yon[aria-pressed="true"] { background: var(--glass-strong); color: var(--heading); border: 1px solid var(--edge); }
+.fab.yon[aria-pressed="false"] { background: var(--heading); color: var(--bg); }
+@media (prefers-reduced-motion: reduce) { .navda #lmap[style*="--dd"], .navda #lmap .leaflet-marker-icon .mk, .navda #lmap .nmk-k .nmk { transition: none; } }
