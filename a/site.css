@@ -692,6 +692,10 @@ body[data-sayfa="rota-olustur"] .alt { display: none; }
   .yan-ic a:hover .yan-sim { background: #E1EAF6; }
   .yan-ic a[aria-current="page"] .yan-sim, .yan-ic a.secili .yan-sim { background: var(--koyu); color: #fff; box-shadow: none; }
   .yan-ic a[aria-current="page"] .yan-sim .t, .yan-ic a.secili .yan-sim .t { fill-opacity: .22; }
+  .yan-sim .ks { display: block; width: 22px; height: 22px; }
+  .yan-sim:has(.ks) { background: #fff; box-shadow: inset 0 0 0 1px rgba(15,58,112,.12); }
+  .yan-ic a:hover .yan-sim:has(.ks) { background: #F2F6FB; }
+  .yan-ic a.secili .yan-sim:has(.ks), .yan-ic a[aria-current="page"] .yan-sim:has(.ks) { background: #fff; box-shadow: inset 0 0 0 2px var(--koyu); }
   .sira { width: 26px; height: 26px; border-radius: 50%; background: var(--yan-h); color: var(--koyu); box-shadow: inset 0 0 0 1px rgba(15,58,112,.1); font: 750 .72rem/1 var(--fd); font-variant-numeric: tabular-nums; letter-spacing: 0; }
   .sira.sade { width: 30px; height: 30px; border-radius: 8px; box-shadow: inset 0 0 0 1px rgba(15,58,112,.07); }
   .sira .ic { width: 16px; height: 16px; stroke-width: 1.8; }
