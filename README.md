@@ -56,6 +56,14 @@ yeniden `ziyaretrehberim.com` yapılır. WordPress sayfaları silinmedi; alan ad
   açık mavi kutuda iki tonlu simgeler (`ICON2` ve `ic2`, `site/build.js`; dolgu parçaları `.t` sınıfıyla rengin açık tonudur), seçili satırda
   açık mavi zemin ve solda lacivert çizgi. Sayfanın başı maviden beyaza geçer (`body::after`, sayfayla kayar), sayfanın sonu alt bilginin
   üstündeki şeritte beyazdan laciverte geçer (`.alt::before`).
+  Üst şeridin sağındaki kişi düğmesi yuvarlaktır (`.kisi`, `.giris`): girişliyken adın baş harfi lacivert dairede görünür. Dokununca
+  küçük bir menü açılır (`#kisi-menu`: Profil ya da Giriş, Ayarlar, Rotalarım, Çıkış; davranışı `site/site.js` içinde `hesapYaz` ve
+  menü bloğu). Hesabım sayfası (`hesapSayfa`, `AYAR_KAT`, `AYAR`) ana sayfadaki gibi kutularla kategorilere ayrılır: Profil, Görünüm,
+  Harita ve yol tarifi, Okuma ve erişilebilirlik, Verilerin, Hesap ve güvenlik (yalnızca girişliyken). Harita ve okuma ayarları giriş
+  gerektirmez, bu cihazda saklanır ve harita uygulamasıyla aynı anahtarları kullanır (`zr.katman.2`, `zr.navkatman`, `zr.navyon`,
+  `zr.ses`, `zr.yol.izin`); yazı boyutu `zr.yazi` ve kontrast `zr.kontrast` sayfa başındaki betikle `html` etiketine yazılır. Üst şerit
+  bu ayardan etkilenmez. Verilerin bölümü rotaları JSON dosyası olarak indirir ve geri yükler (alanlar denetlenir, aynı rota iki kez
+  eklenmez), yürüyüş yolu önbelleğini (`zr.yolc.*`) ve ayarları siler.
   Site içi arama: üst şeritteki "Ara" düğmesi (kısayol `/`) ve ana sayfa kapağındaki alan aynı pencereyi açar (`ARA_KUTU`, `site/build.js`;
   davranışı `site/site.js`). Dizin `a/ara.json` her üretimde yazılır: rotalar, duraklar (`#durak-<n>` bağlantısıyla) ve sayfaların
   sol sütundaki "Bu sayfada" bölümleri. Arama tarayıcıda yapılır, Türkçe harfler ve şapkalar eşit sayılır.

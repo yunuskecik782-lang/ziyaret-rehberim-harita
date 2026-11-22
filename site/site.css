@@ -885,3 +885,127 @@ html:not(.js) .ara-ac, html:not(.js) .kapak-ara { display: none; }
 .baglanti:hover { color: var(--ink); }
 .ya-da { display: flex; align-items: center; gap: 12px; margin: 22px 0 14px; color: var(--soluk); font-size: .86rem; }
 .ya-da::before, .ya-da::after { content: ""; flex: 1; height: 1px; background: var(--cizgi); }
+
+/* ——— Üst şeritte yuvarlak kişi düğmesi ve açılan küçük menü (Profil, Ayarlar, Rotalarım, Çıkış) ——— */
+.kisi { position: relative; margin-left: 8px; flex: none; }
+.ust .giris { display: grid; place-items: center; width: 42px; height: 42px; min-width: 0; padding: 0; margin: 0; border-radius: 50%; background: #fff; color: var(--ink); box-shadow: inset 0 0 0 1px var(--cizgi2); transition: background-color .2s, box-shadow .2s; }
+.ust .giris:hover { transform: none; background: var(--yan-h); }
+.ust .giris[aria-expanded="true"] { box-shadow: inset 0 0 0 1px var(--cizgi2), 0 0 0 3px rgba(15,58,112,.14); }
+.ust .giris.girisli { background: var(--koyu); color: #fff; box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px rgba(15,58,112,.35); }
+.ust .giris.girisli:hover { background: var(--koyu2); }
+.kisi-yuz { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; font: 750 1.02rem/1 var(--fd); }
+.kisi-yuz .ic { width: 20px; height: 20px; }
+.kisi-menu { position: absolute; right: 0; top: calc(100% + 10px); z-index: 62; width: 272px; max-width: calc(100vw - 24px); padding: 8px; border-radius: 14px; background: #fff; border: 1px solid var(--cizgi); box-shadow: 0 2px 4px rgba(16,36,66,.06), 0 24px 40px -20px rgba(16,36,66,.45); animation: kisi-ac .22s var(--yay); }
+@keyframes kisi-ac { from { opacity: 0; transform: translateY(-6px); } }
+.kisi-bas { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 11px; align-items: center; padding: 8px 8px 12px; margin-bottom: 4px; border-bottom: 1px solid var(--yan-c2); }
+.kisi-bas b { display: block; font: 700 .95rem/1.25 var(--fd); color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kisi-bas small { display: block; margin-top: 2px; font-size: .78rem; line-height: 1.35; color: var(--soluk); overflow: hidden; text-overflow: ellipsis; }
+.kisi-yuz.buyuk { width: 42px; height: 42px; background: var(--yan-h); color: var(--koyu); }
+.ust .giris.girisli ~ .kisi-menu .kisi-yuz.buyuk { background: var(--koyu); color: #fff; }
+.kisi-menu a, .kisi-menu button { display: flex; align-items: center; gap: 11px; width: 100%; min-height: 42px; padding: 0 10px; border-radius: 8px; font: 600 .92rem/1.2 var(--fd); color: #1E2F4A; text-decoration: none; text-align: left; }
+.kisi-menu a:hover, .kisi-menu button:hover { background: var(--yan-h2); color: var(--ink); }
+.kisi-menu .ic { width: 18px; height: 18px; color: var(--soluk); }
+.kisi-menu [data-kisi-cikis] { margin-top: 4px; border-top: 1px solid var(--yan-c2); border-radius: 0 0 8px 8px; }
+html:not(.js) .kisi { display: none; }
+@media (max-width: 899px) {
+  .ust .kisi { margin-left: 6px; }
+  .ust .giris { display: grid; width: 40px; height: 40px; }
+}
+
+/* ——— Hesabım: profil, ana sayfadaki gibi kategori kutuları ve ayar bölümleri ——— */
+.ayar-bolum { padding-top: clamp(30px, 4.4vw, 50px); scroll-margin-top: calc(var(--ust-h) + 14px); }
+.ayar-bolum.ilk { padding-top: clamp(18px, 2.6vw, 28px); }
+.ayar-bolum .bolum-bas { margin-bottom: 14px; gap: 6px; }
+.ayar-bolum .bolum-bas h2 { font-size: clamp(1.35rem, 2.4vw, 1.75rem); }
+.ayar-bolum .bolum-bas p { font-size: .98rem; color: var(--soluk); }
+.profil .harf { border-radius: 50%; }
+.btn .sayi { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: rgba(255,255,255,.18); font-size: .78rem; }
+.ayar-kat { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.ayar-kat a { display: grid; grid-template-columns: 46px minmax(0, 1fr); align-items: center; gap: 13px; padding: 12px 14px 12px 12px; border-radius: 14px; background: #fff; border: 1px solid var(--cizgi); box-shadow: var(--golge); text-decoration: none; color: var(--ink); font: 700 .98rem/1.25 var(--fd); transition: transform .4s var(--yay), box-shadow .3s, border-color .3s; }
+.ayar-kat a:hover { transform: translateY(-3px); box-shadow: var(--golge-ust); border-color: var(--cizgi2); }
+.ayar-kat small { display: block; margin-top: 3px; font: 500 .8rem/1.35 var(--ft); color: var(--soluk); }
+.ayar-sim { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 12px; background: var(--yan-h); color: var(--koyu); box-shadow: inset 0 0 0 1px rgba(15,58,112,.08); transition: background-color .3s, color .3s; }
+.ayar-sim .ic { width: 23px; height: 23px; stroke-width: 1.7; }
+.ayar-kat a:hover .ayar-sim { background: var(--koyu); color: #fff; }
+.ayar-liste { display: grid; padding-block: 4px 0; }
+.ayar-satir { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px 24px; padding: 16px 0; border-bottom: 1px solid var(--yan-c2); }
+.ayar-y { min-width: 0; }
+.ayar-y b { display: block; font: 700 1rem/1.3 var(--fd); color: var(--ink); }
+.ayar-y small { display: block; margin-top: 4px; font-size: .86rem; line-height: 1.5; color: var(--soluk); max-width: 50ch; }
+.ayar-sec { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; padding: 4px; border-radius: 10px; background: rgba(16,36,66,.06); justify-self: end; }
+.ayar-sec button { min-height: 36px; padding: 0 13px; border-radius: 7px; font: 650 .86rem/1.1 var(--fd); color: var(--soluk); transition: background-color .2s, color .2s, box-shadow .2s; }
+.ayar-sec button:hover { color: var(--ink); }
+.ayar-sec button[aria-pressed="true"] { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(16,36,66,.12), 0 4px 10px -6px rgba(16,36,66,.45); }
+.ayar-is { justify-self: end; }
+.dosya { position: relative; overflow: hidden; cursor: pointer; }
+.dosya input { position: absolute; inset: 0; opacity: 0; cursor: pointer; font-size: 0; }
+.dosya:focus-within { outline: 3px solid var(--koyu); outline-offset: 2px; }
+.ayar-not { margin: 0; padding: 14px 0 2px; font-size: .84rem; color: var(--soluk); }
+.gorunum-kapali p { margin: 0 0 14px; color: var(--metin); max-width: 60ch; }
+.guvenlik > .katla:first-child { border-top: 0; margin-top: 0; padding-top: 0; }
+@media (max-width: 760px) { .ayar-kat { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } }
+@media (max-width: 640px) {
+  .ayar-satir { grid-template-columns: 1fr; gap: 10px; }
+  .ayar-sec, .ayar-is { justify-self: start; justify-content: flex-start; }
+  .ayar-kat a { grid-template-columns: 40px minmax(0, 1fr); gap: 10px; padding: 10px; border-radius: 12px; font-size: .92rem; }
+  .ayar-sim { width: 40px; height: 40px; border-radius: 10px; }
+  .ayar-sim .ic { width: 21px; height: 21px; }
+  .ayar-kat small { font-size: .74rem; }
+}
+
+/* ——— Okuma ayarları (Hesabım › Okuma ve erişilebilirlik; sayfa başındaki betik html etiketine yazar) ——— */
+[data-yazi="buyuk"] { font-size: 112.5%; }
+[data-yazi="buyuk"] body { font-size: 18px; }
+[data-yazi="cokbuyuk"] { font-size: 125%; }
+[data-yazi="cokbuyuk"] body { font-size: 20px; }
+[data-kontrast="yuksek"] { --soluk: #3D4A5C; --metin: #1D2939; --cizgi: rgba(16,36,66,.3); --cizgi2: rgba(16,36,66,.46); --yan-c: #B7C1CF; --yan-c2: #CBD3DE; }
+[data-kontrast="yuksek"] .yan-ic a small, [data-kontrast="yuksek"] .yan-grup > summary, [data-kontrast="yuksek"] .yan-ic em { color: #3D4A5C; }
+/* Telefonda üst şerit: logo, arama, kişi düğmesi ve menü yan yana sığar; yazı boyutu ayarı üst şeridi büyütmez. */
+.kisi-yuz { font-size: 16px; }
+@media (max-width: 899px) {
+  .ust-ic { gap: 8px; }
+  .ust .marka { font-size: 17.6px; min-width: 0; }
+  .ust .ara-ac, .ust .kisi, .ust .menu-btn { flex: none; }
+  .ust .ara-ac, .ust .menu-btn { width: 42px; height: 42px; }
+  .ust .kisi, .ust .menu-btn { margin-left: 4px; }
+}
+@media (max-width: 374px) {
+  .ust-ic { gap: 6px; }
+  .ust .marka { font-size: 15.5px; gap: 7px; }
+  .ust .marka img { width: 34px; height: 34px; }
+  .ust .ara-ac, .ust .menu-btn { width: 40px; height: 40px; }
+  .ust .giris { width: 38px; height: 38px; }
+  .menu-btn span:nth-child(1) { top: 14px; } .menu-btn span:nth-child(2) { top: 19px; } .menu-btn span:nth-child(3) { top: 24px; }
+  .menu-acik .menu-btn span:nth-child(1), .menu-acik .menu-btn span:nth-child(3) { top: 19px; }
+}
+@media (max-width: 339px) {
+  .ust-ic { gap: 4px; }
+  .ust .marka { font-size: 14px; gap: 6px; }
+  .ust .marka img { width: 32px; height: 32px; }
+  .ust .ara-ac, .ust .menu-btn { width: 38px; height: 38px; }
+  .ust .giris { width: 36px; height: 36px; }
+  .ust .kisi, .ust .menu-btn { margin-left: 2px; }
+  .menu-btn span { left: 12px; right: 12px; }
+  .menu-btn span:nth-child(1) { top: 13px; } .menu-btn span:nth-child(2) { top: 18px; } .menu-btn span:nth-child(3) { top: 23px; }
+  .menu-acik .menu-btn span:nth-child(1), .menu-acik .menu-btn span:nth-child(3) { top: 18px; }
+}
+/* Büyük yazıda dar telefonlar: başlık şeridi ve durak düğmeleri sayfadan taşmasın, gerekirse alt satıra geçsin. */
+.sayfa-bas { grid-template-columns: minmax(0, 1fr); }
+[data-yazi] .goz { line-height: 1.25; }
+[data-yazi] .durak .dugmeler { flex-wrap: wrap; }
+[data-yazi] .durak .dugmeler .btn { flex: 1 1 auto; }
+.ayar-kat a > :last-child { min-width: 0; overflow-wrap: break-word; hyphens: auto; }
+@media (max-width: 359px) { .ayar-kat { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 559px) { [data-yazi] .ayar-kat { grid-template-columns: minmax(0, 1fr); } }
+/* Telefonda kişi menüsü üst şeridin sağ kenarına hizalanır, ekrandan taşmaz. */
+@media (max-width: 899px) {
+  .ust .kisi { position: static; }
+  .kisi-menu { right: max(12px, env(safe-area-inset-right, 0px)); top: calc(100% + 6px); width: min(300px, calc(100vw - 24px)); }
+}
+/* Masaüstünde üst şerit de yazı boyutu ayarından etkilenmez; arama ve kişi düğmesi sıkışmaz. */
+@media (min-width: 900px) {
+  .ust .marka { font-size: clamp(19.5px, 1.85vw, 25px); }
+  .ust .gezin > a, .ust .acilir > button { font-size: 15.2px; }
+  .ust .ara-ac { font-size: 15px; }
+  .ust .ara-ac, .ust .kisi { flex: none; }
+}

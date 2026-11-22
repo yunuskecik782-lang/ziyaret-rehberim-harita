@@ -177,8 +177,28 @@
   function hesapYaz() {
     const a = HESAP && HESAP.aktif();
     $$("[data-hesap-ad]").forEach((el) => { el.textContent = a ? (a.ad.length > 16 ? a.ad.slice(0, 15) + "…" : a.ad) : el.dataset.hesapAd; });
+    // Yuvarlak düğme: girişte adın baş harfi, girişsiz kişi simgesi. Menünün başında ad ve hesap türü.
+    const harf = a ? esc(a.ad.trim().charAt(0).toLocaleUpperCase("tr") || "?") : ic("user");
+    $$("[data-kisi-yuz]").forEach((el) => { el.innerHTML = harf; });
+    $$(".ust .giris").forEach((b) => { b.classList.toggle("girisli", !!a); b.title = a ? a.ad + " · Hesabım ve ayarlar" : "Giriş yap · Ayarlar"; });
+    $$("[data-kisi-ad]").forEach((el) => { el.textContent = a ? a.ad : "Giriş yapmadın"; });
+    $$("[data-kisi-alt]").forEach((el) => { el.textContent = a ? (a.eposta || (a.tur === "wp" ? "WordPress.com hesabı" : "Bu cihazdaki hesap")) : "Rotalarını hesabında saklamak için giriş yap"; });
+    $$("[data-kisi-giris]").forEach((el) => { el.hidden = !!a; });
+    $$("[data-kisi-profil], [data-kisi-cikis]").forEach((el) => { el.hidden = !a; });
   }
   hesapYaz(); if (HESAP) HESAP.dinle(hesapYaz);
+  (() => {
+    const kisi = $(".ust .kisi"); if (!kisi) return;
+    const b = $(".giris", kisi), m = $("#kisi-menu", kisi);
+    const ac = (a) => { m.hidden = !a; b.setAttribute("aria-expanded", a); };
+    b.addEventListener("click", () => ac(m.hidden));
+    document.addEventListener("click", (e) => { if (!m.hidden && !kisi.contains(e.target)) ac(false); });
+    addEventListener("keydown", (e) => { if (e.key === "Escape" && !m.hidden) { ac(false); b.focus(); } });
+    m.addEventListener("click", (e) => {
+      if (e.target.closest("a")) ac(false);
+      if (e.target.closest("[data-kisi-cikis]") && HESAP) { HESAP.cikis(); ac(false); bildir("Çıkış yapıldı."); }
+    });
+  })();
 
   /* ——— Aşağı indikçe beliren kartlar ———
      Sayfa açıldığında ekranda olan her şey olduğu gibi görünür (ikinci bir belirme, titreme olmaz). Yalnızca ekranın altında kalan kartlar
@@ -578,14 +598,15 @@
   }
   function gorunumHtml() {
     const sec = HESAP.gorunum();
-    return `<div class="kart gorunum" id="gorunum"><h2>Görünüm</h2><p class="ince">Siteyi ve haritayı kendine göre ayarla. Seçimin anında uygulanır, bu hesaba bağlıdır ve bu cihazda saklanır; çıkış yapınca site varsayılan görünümüne döner.</p>
+    return `<div class="kart gorunum" id="gorunum"><p class="ince" style="margin-top:0">Seçimin anında uygulanır ve bu cihazda saklanır; çıkış yapınca site varsayılan görünümüne döner.</p>
 ${Object.keys(G_AD).map((g) => `<fieldset class="g-grup"><legend>${G_AD[g][0]}</legend><div class="g-sec">${HESAP.G_SEC[g].map((v) => `<button class="g-s" type="button" data-g="${g}" data-v="${v}" aria-pressed="${sec[g] === v}">${gOrnek(g, v, sec)}<b>${G_AD[g][1][v]}</b></button>`).join("")}</div></fieldset>`).join("")}
 <div class="dugmeler" style="margin-top:20px"><a class="btn kucuk yumusak" href="${ZR_YER.olustur}">${ic("rota")}Haritada gör</a><button class="btn kucuk" type="button" data-is="g-sifirla">Varsayılana dön</button></div></div>`;
   }
 
   /* ——— Hesabım ——— */
   function hesabim() {
-    const kok = $("#hesap"), rot = $("#hesap-rotalar"); let sek = location.hash === "#kayit" ? "kayit" : "giris", mesaj = "", liste = false;
+    const kok = $("#hesap-kok"), pro = $("#hesap"), gYer = $("#gorunum-yer"), guv = $("#guvenlik"), guvYer = $("#guvenlik-yer");
+    let sek = location.hash === "#kayit" ? "kayit" : "giris", mesaj = "";
     // WordPress.com ile giriş (hesap.js, WP bölümü): açıksa asıl giriş yolu odur; bu cihazda eski hesap varsa onun girişi katlanmış olarak kalır.
     const WPG = HESAP.wp && HESAP.wp.acik() ? HESAP.wp : null; let wpBekle = !!(WPG && WPG.bekliyor()), wpHata = "", silOnay = 0;
     // E-posta ve şifreyle üyelik (hesap.js, Firebase bölümü): açıksa asıl yol odur; WordPress.com ile giriş altta ikinci seçenek olarak kalır.
@@ -620,10 +641,12 @@ ${u ? "" : eskiGiris()}</div>`;
     }
     function ciz() {
       const a = HESAP.aktif(), mis = HESAP.misafirRotalari().length;
-      rot.hidden = !a;
-      if (!a && FBG) { kok.innerHTML = fbGirisHtml(mis); return; }
+      // Girişsiz: görünüm yerine kısa bir not, güvenlik bölümü ve kutusu gizli
+      guv.hidden = !a; $$("[data-giris-gerek]").forEach((el) => { el.hidden = !a; });
+      if (!a) { guvYer.innerHTML = ""; gYer.innerHTML = `<div class="kart gorunum-kapali"><p>Görünüm ayarların hesabına bağlıdır: sayı rozetlerinin rengi, arka plan deseni, rota çizgisi ve harita işaretleri. Seçmek için giriş yap ya da üye ol.</p><div class="dugmeler"><a class="btn kucuk koyu" href="#profil">${ic("user")}Giriş yap</a></div></div>`; }
+      if (!a && FBG) { pro.innerHTML = fbGirisHtml(mis); return; }
       if (!a && WPG) {
-        kok.innerHTML = `<div class="kart"><h2>Giriş yap</h2>
+        pro.innerHTML = `<div class="kart"><h2>Giriş yap</h2>
 <p class="giris-y">WordPress.com hesabınla giriş yaparsın. Hesabın yoksa aynı ekranda e-posta adresinle ücretsiz açarsın; şifreni unutursan orada e-postayla yenilersin.</p>
 ${wpBekle ? '<p class="tamam" role="status">Girişin tamamlanıyor…</p>' : `${wpHata ? `<div class="hata" role="alert" style="margin-bottom:14px">${esc(wpHata)}</div>` : ""}<div class="dugmeler"><button class="btn koyu" type="button" data-is="wp">${ic("user")}WordPress.com ile giriş yap</button></div>`}
 <p class="ince" style="margin-top:14px">Giriş için WordPress.com’a gidip geri dönersin. Sitemiz yalnızca adını ve kullanıcı adını alır; şifren ve e-posta adresin bize gelmez. Kayıtlı rotaların bu cihazda durur.</p>
@@ -637,7 +660,7 @@ ${HESAP.cihazHesabiVar() ? `<details class="katla"><summary>${ic("fwd")}Bu cihaz
       }
       if (!a) {
         const k = sek === "kayit";
-        kok.innerHTML = `<div class="kart"><div class="sekmeler" data-s="${sek}" role="tablist"><button type="button" role="tab" aria-selected="${!k}" data-sek="giris">Giriş yap</button><button type="button" role="tab" aria-selected="${k}" data-sek="kayit">Hesap oluştur</button></div>
+        pro.innerHTML = `<div class="kart"><div class="sekmeler" data-s="${sek}" role="tablist"><button type="button" role="tab" aria-selected="${!k}" data-sek="giris">Giriş yap</button><button type="button" role="tab" aria-selected="${k}" data-sek="kayit">Hesap oluştur</button></div>
 <form class="form" data-form="${sek}" novalidate>
 <div class="alan"><label for="h-ad">Kullanıcı adı</label><input id="h-ad" name="ad" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="24" required>${k ? "<small>3–24 karakter; harf, rakam, nokta, alt çizgi ve tire.</small>" : ""}</div>
 <div class="alan"><label for="h-sifre">Şifre</label><input id="h-sifre" name="sifre" type="password" autocomplete="${k ? "new-password" : "current-password"}" required>${k ? "<small>En az 6 karakter.</small>" : ""}</div>
@@ -655,13 +678,13 @@ ${eskiTasi}
         : fbH ? `<details class="katla"><summary>${ic("fwd")}Şifre değiştir</summary><div class="form"><p class="ince">Şifreni e-postana gelen bağlantıyla değiştirirsin. Bağlantı ${esc(a.eposta)} adresine gider.</p><div class="dugmeler"><button class="btn" type="button" data-is="fb-yenile">Şifre yenileme bağlantısı gönder</button></div></div></details>
 ${eskiTasi}
 <details class="katla"><summary>${ic("fwd")}Hesabı sil</summary><form class="form" data-form="fb-sil" novalidate><p class="ince">Hesabın Firebase’den silinir; bu cihazdaki rotaların ve görünüm ayarların da silinir. Geri alınamaz.</p><div class="alan"><label for="x-sifre">Şifre</label><input id="x-sifre" name="sifre" type="password" autocomplete="current-password" required></div><div class="hata" role="alert" hidden></div><button class="btn" type="submit">Hesabımı sil</button></form></details>` : "";
-      kok.innerHTML = `<div class="kart">${mesaj ? `<p class="tamam" style="margin-bottom:16px">${esc(mesaj)}</p>` : ""}
-<div class="profil"><span class="harf">${esc(a.ad.charAt(0).toLocaleUpperCase("tr"))}</span><div><h2>${esc(a.ad)}</h2><p class="ince">${wpH ? "WordPress.com hesabı" + (a.kullanici ? " · @" + esc(a.kullanici) : "") + " · " : fbH ? esc(a.eposta) + " · " : ""}${n ? n + " kayıtlı rota" : "Henüz kayıtlı rota yok"}</p></div></div>
+      pro.innerHTML = `<div class="kart">${mesaj ? `<p class="tamam" style="margin-bottom:16px">${esc(mesaj)}</p>` : ""}
+<div class="profil"><span class="harf">${esc(a.ad.charAt(0).toLocaleUpperCase("tr"))}</span><div><h2>${esc(a.ad)}</h2><p class="ince">${wpH ? "WordPress.com hesabı" + (a.kullanici ? " · @" + esc(a.kullanici) : "") + " · " : fbH ? esc(a.eposta) + " · " : "Bu cihazdaki hesap · "}${n ? n + " kayıtlı rota" : "Henüz kayıtlı rota yok"}</p></div></div>
 ${mis ? `<div class="uyari-serit" style="margin:16px 0 0"><span>Giriş yapmadan kaydettiğin ${mis} rota var.</span><button class="btn kucuk koyu" type="button" data-is="tasi">Hesabıma taşı</button></div>` : ""}
-<div class="dugmeler" style="margin-top:18px"><a class="btn altin" href="${ZR_YER.olustur}">${ic("rota")}Rota oluştur</a><a class="btn" href="${ZR_YER.rotalarim}">${ic("mark")}Rotalarım</a><button class="btn" type="button" data-is="cikis">Çıkış yap</button></div>
-${wpH || fbH ? hesapIsleri : `<details class="katla"><summary>${ic("fwd")}Şifre değiştir</summary><form class="form" data-form="sifre" novalidate><div class="alan"><label for="s-eski">Şimdiki şifre</label><input id="s-eski" name="eski" type="password" autocomplete="current-password" required></div><div class="alan"><label for="s-yeni">Yeni şifre</label><input id="s-yeni" name="yeni" type="password" autocomplete="new-password" required><small>En az 6 karakter.</small></div><div class="hata" role="alert" hidden></div><button class="btn koyu" type="submit">Şifreyi değiştir</button></form></details>
-<details class="katla"><summary>${ic("fwd")}Hesabı sil</summary><form class="form" data-form="sil" novalidate><p class="ince">Hesap ve bu hesaba kayıtlı rotalar silinir. Geri alınamaz.</p><div class="alan"><label for="x-sifre">Şifre</label><input id="x-sifre" name="sifre" type="password" autocomplete="current-password" required></div><div class="hata" role="alert" hidden></div><button class="btn" type="submit">Hesabımı sil</button></form></details>`}</div>${gorunumHtml()}`;
-      if (!liste) { liste = true; kayitListesi($("#kayitlar")); }
+<div class="dugmeler" style="margin-top:18px"><a class="btn altin" href="${ZR_YER.rotalarim}">${ic("mark")}Rotalarım${n ? ` <span class="sayi">${n}</span>` : ""}</a><a class="btn" href="${ZR_YER.olustur}">${ic("rota")}Rota oluştur</a><button class="btn" type="button" data-is="cikis">Çıkış yap</button></div></div>`;
+      guvYer.innerHTML = `<div class="kart guvenlik">${wpH || fbH ? hesapIsleri : `<details class="katla"><summary>${ic("fwd")}Şifre değiştir</summary><form class="form" data-form="sifre" novalidate><div class="alan"><label for="s-eski">Şimdiki şifre</label><input id="s-eski" name="eski" type="password" autocomplete="current-password" required></div><div class="alan"><label for="s-yeni">Yeni şifre</label><input id="s-yeni" name="yeni" type="password" autocomplete="new-password" required><small>En az 6 karakter.</small></div><div class="hata" role="alert" hidden></div><button class="btn koyu" type="submit">Şifreyi değiştir</button></form></details>
+<details class="katla"><summary>${ic("fwd")}Hesabı sil</summary><form class="form" data-form="sil" novalidate><p class="ince">Hesap ve bu hesaba kayıtlı rotalar silinir. Geri alınamaz.</p><div class="alan"><label for="x-sifre">Şifre</label><input id="x-sifre" name="sifre" type="password" autocomplete="current-password" required></div><div class="hata" role="alert" hidden></div><button class="btn" type="submit">Hesabımı sil</button></form></details>`}</div>`;
+      gYer.innerHTML = gorunumHtml();
     }
     kok.addEventListener("click", (e) => {
       const s = e.target.closest("[data-sek]"); if (s) { sek = s.dataset.sek; fbBilgi = ""; ciz(); const g = $("form input", kok); if (g) g.focus(); return; }
@@ -713,10 +736,71 @@ ${wpH || fbH ? hesapIsleri : `<details class="katla"><summary>${ic("fwd")}Şifre
       else { mesaj = ""; bildir("Hesabın silindi."); }
       ciz(); scrollTo({ top: 0, behavior: "smooth" });
     });
-    HESAP.dinle(() => { if (!document.activeElement || !kok.contains(document.activeElement) || document.activeElement.tagName !== "INPUT") ciz(); });
+    HESAP.dinle(() => { const o = document.activeElement; if (!o || !kok.contains(o) || !(o.tagName === "INPUT" && o.closest("form"))) ciz(); });
     ciz();
     // WordPress.com'dan dönüş: jeton hesap.js yüklenirken adres çubuğundan alınıp silindi; burada kimlik sorulur ve oturum açılır.
     if (wpBekle) WPG.tamamla().then((s) => { wpBekle = false; if (s && s.ok) mesaj = s.ilk ? "Giriş yapıldı. Hoş geldin!" : "Yeniden hoş geldin!"; else if (s) wpHata = s.hata; ciz(); }, () => { wpBekle = false; wpHata = "WordPress.com girişi tamamlanamadı. Yeniden dene."; ciz(); });
+  }
+
+  /* ——— Hesabım › Ayarlar: bu cihazın ayarları ve veri araçları ———
+     Düğmeler localStorage anahtarını yazar (site/build.js, AYAR). İlk seçenek varsayılandır: seçilince anahtar silinir.
+     Okuma ayarları (yazı boyutu, kontrast) anında html etiketine uygulanır; harita ayarlarını harita uygulaması açılışta okur. */
+  function ayarlar() {
+    const ls = { al(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, yaz(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); return true; } catch (e) { return false; } } };
+    const kok = $("#hesap-kok"); if (!kok) return;
+    const anahtarlar = [...new Set($$("[data-ayar]", kok).map((b) => b.dataset.ayar))];
+    const ilk = (k) => $(`[data-ayar="${k}"]`, kok).dataset.v;
+    function goster() {
+      for (const k of anahtarlar) { const v = ls.al(k) || ilk(k), var_ = $$(`[data-ayar="${k}"]`, kok).some((b) => b.dataset.v === v); $$(`[data-ayar="${k}"]`, kok).forEach((b) => b.setAttribute("aria-pressed", b.dataset.v === (var_ ? v : ilk(k)))); }
+      const n = HESAP ? HESAP.rotalar().length : 0, sayi = $("[data-veri-sayi]", kok);
+      if (sayi) sayi.textContent = (n ? n + " kayıtlı rotanı" : "Kayıtlı rotalarını") + " bir dosya (JSON) olarak cihazına kaydeder; başka bir telefona ya da bilgisayara taşımak için kullanabilirsin.";
+      const ob = $("[data-veri-onbellek]", kok); let c = 0; try { for (let i = 0; i < localStorage.length; i++) if ((localStorage.key(i) || "").startsWith("zr.yolc.")) c++; } catch (e) {}
+      if (ob) ob.textContent = `Daha önce çizilen yürüyüş yolları 30 gün saklanır; rota sayfaları böylece daha hızlı açılır. Şu an ${c ? c + " yol kayıtlı" : "boş"}.`;
+    }
+    const uygula = () => { const d = document.documentElement, y = ls.al("zr.yazi"), o = ls.al("zr.kontrast"), sk = ls.al("zr.katman.2") === "sokak";
+      if (y === "buyuk" || y === "cokbuyuk") d.setAttribute("data-yazi", y); else d.removeAttribute("data-yazi");
+      if (o === "yuksek") d.setAttribute("data-kontrast", o); else d.removeAttribute("data-kontrast");
+      d.classList.toggle("h-sokak", sk); };
+    kok.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-ayar]");
+      if (b) { const k = b.dataset.ayar, v = b.dataset.v; ls.yaz(k, v === ilk(k) ? "" : v); uygula(); goster(); b.focus({ preventScroll: true }); bildir("Kaydedildi: " + $(`#${CSS.escape("a-" + k.replace(/\W/g, "-"))}`).textContent + " · " + b.textContent + "."); return; }
+      const d = e.target.closest("[data-veri]"); if (!d || d.tagName === "INPUT") return;
+      if (d.dataset.veri === "indir") {
+        const l = HESAP ? HESAP.rotalar() : []; if (!l.length) { bildir("İndirilecek kayıtlı rota yok."); return; }
+        const dosya = new Blob([JSON.stringify({ tur: "ziyaret-rehberim-rotalar", surum: 1, tarih: new Date().toISOString(), rotalar: l }, null, 2)], { type: "application/json" });
+        const a = document.createElement("a"); a.href = URL.createObjectURL(dosya); a.download = "ziyaret-rehberim-rotalarim-" + new Date().toISOString().slice(0, 10) + ".json";
+        document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); bildir(l.length + " rota dosyaya yazıldı."); return;
+      }
+      if (d.dataset.veri === "onbellek") { let c = 0; try { for (let i = localStorage.length - 1; i >= 0; i--) { const k = localStorage.key(i); if (k && k.startsWith("zr.yolc.")) { localStorage.removeItem(k); c++; } } } catch (e) {} goster(); bildir(c ? c + " kayıtlı yol silindi." : "Önbellek zaten boş."); return; }
+      if (d.dataset.veri === "sifirla") { for (const k of anahtarlar) ls.yaz(k, ""); uygula(); goster(); bildir("Bu cihazdaki ayarlar ilk hâline döndü."); }
+    });
+    // Dosyadan geri yükleme: yalnızca beklenen alanlar alınır, değerler denetlenir; var olan rotalar korunur, aynı rota iki kez eklenmez.
+    const temiz = (r) => {
+      if (!r || typeof r !== "object" || typeof r.name !== "string" || !Array.isArray(r.keys) || !r.start) return null;
+      const keys = r.keys.filter((k) => typeof k === "string" && /^[\w.-]{1,40}$/.test(k)).slice(0, 80), lat = +r.start.lat, lng = +r.start.lng;
+      if (!keys.length || !(lat > 40.7 && lat < 41.5 && lng > 28.3 && lng < 29.6)) return null;
+      const o = { name: r.name.trim().slice(0, 80) || "Rotam", keys, start: { lat, lng, label: typeof r.start.label === "string" ? r.start.label.slice(0, 80) : "", acik: !!r.start.acik } };
+      if (typeof r.km === "number" && isFinite(r.km) && r.km >= 0 && r.km < 500) o.km = r.km;
+      if (typeof r.sokak === "boolean") o.sokak = r.sokak;
+      if (typeof r.t === "number" && isFinite(r.t)) o.t = r.t;
+      return o;
+    };
+    kok.addEventListener("change", (e) => {
+      const g = e.target.closest('input[data-veri="yukle"]'); if (!g || !g.files || !g.files[0]) return;
+      const f = g.files[0]; g.value = "";
+      if (f.size > 2e6) { bildir("Dosya çok büyük. Ziyaret Rehberim’den indirdiğin rota dosyasını seç."); return; }
+      f.text().then((m) => {
+        let v; try { v = JSON.parse(m); } catch (err) { bildir("Bu dosya okunamadı. Ziyaret Rehberim’den indirdiğin rota dosyasını seç."); return; }
+        const gelen = (Array.isArray(v) ? v : v && Array.isArray(v.rotalar) ? v.rotalar : []).map(temiz).filter(Boolean);
+        if (!gelen.length) { bildir("Dosyada rota bulunamadı."); return; }
+        const l = HESAP.rotalar(), imza = (r) => r.name + "|" + r.keys.join(","), var_ = new Set(l.map(imza));
+        const yeni = gelen.filter((r) => !var_.has(imza(r)) && (var_.add(imza(r)), true));
+        if (!yeni.length) { bildir("Bu dosyadaki rotalar zaten kayıtlı."); return; }
+        HESAP.rotalariYaz([...yeni, ...l].slice(0, 200)); goster(); bildir(yeni.length + " rota eklendi.");
+      }, () => bildir("Dosya okunamadı."));
+    });
+    if (HESAP) HESAP.dinle(goster); goster();
+    addEventListener("storage", (e) => { if (!e.key || e.key.startsWith("zr.")) { uygula(); goster(); } });
   }
 
   /* ——— Rotalarım ——— */
@@ -726,6 +810,6 @@ ${wpH || fbH ? hesapIsleri : `<details class="katla"><summary>${ic("fwd")}Şifre
     HESAP.dinle(yaz); yaz(); kayitListesi($("#kayitlar"));
   }
 
-  const SAYFA = { ana, "rota-olustur": olustur, rota: rotaSayfa, ulasim, hesabim, rotalarim };
+  const SAYFA = { ana, "rota-olustur": olustur, rota: rotaSayfa, ulasim, hesabim: () => { hesabim(); ayarlar(); }, rotalarim };
   try { if (SAYFA[sayfa]) SAYFA[sayfa](); } catch (e) { console.error(e); }
 })();

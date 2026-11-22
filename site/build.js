@@ -78,6 +78,15 @@ ICON.erisim = '<circle cx="12" cy="4.8" r="1.8"/><path d="M5 8.6l7 1.4 7-1.4M12 
 ICON.menu = '<path d="M4 6.5h16M4 12h16M4 17.5h10"/>';
 ICON.filtre = '<path d="M4 6.5h16M7 12h10M10 17.5h4"/>';
 ICON.once = '<path d="M14.5 6l-6 6 6 6"/>';
+ICON.ayar = '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/>';
+ICON.cikis = '<path d="M14 4.5H6.5A1.5 1.5 0 0 0 5 6v12a1.5 1.5 0 0 0 1.5 1.5H14"/><path d="M10.5 12H20M16.5 8.5 20 12l-3.5 3.5"/>';
+ICON.palet = '<path d="M12 3.5a8.5 8.5 0 0 0 0 17c1.3 0 1.9-.8 1.9-1.7 0-1.3-1.1-1.6-1.1-2.7 0-.9.7-1.6 1.6-1.6h2.1a4 4 0 0 0 4-4c0-3.9-3.8-7-8.5-7z"/><circle cx="7.8" cy="11" r="1.1"/><circle cx="10.6" cy="7.4" r="1.1"/><circle cx="15" cy="7.6" r="1.1"/>';
+ICON.harita = '<path d="M3.5 6.5 9 4.5l6 2 5.5-2v13l-5.5 2-6-2-5.5 2z"/><path d="M9 4.5v13M15 6.5v13"/>';
+ICON.yazi = '<path d="M3.5 18.5 8 6l4.5 12.5M5.2 14h5.6"/><path d="M14.6 12.4c.6-.9 1.5-1.4 2.7-1.4 1.8 0 2.7 1 2.7 2.8v4.7M20 15.3c-2.8 0-5.6.4-5.6 2 0 .9.7 1.4 1.8 1.4 1.9 0 3.8-1.2 3.8-3.4"/>';
+ICON.veri = '<ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6M5 12v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6"/>';
+ICON.kalkan = '<path d="M12 3.5 5 6v5.5c0 4.4 3 7.8 7 9 4-1.2 7-4.6 7-9V6z"/><path d="M9 12l2.2 2.2L15.5 10"/>';
+ICON.indir = '<path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/>';
+ICON.yukle = '<path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 19.5h14"/>';
 ICON.liste ='<path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.8" cy="6.5" r=".9"/><circle cx="4.8" cy="12" r=".9"/><circle cx="4.8" cy="17.5" r=".9"/>';
 /* Sol sütunun simgeleri: iki tonlu çizim (24×24). "t" parçaları rengin açık tonuyla dolar, gerisi 1,6 kalınlıkta çizgidir.
    Kategoriler gerçek yapıların sade çizimidir: sarıklı mezar taşı ve servi (sahâbe), kubbeli türbe (padişah), kubbe ve iki minare (cami),
@@ -188,7 +197,11 @@ function ust(s, rid) {
 <a class="guz-alt" href="${yol.olustur}">${ic("rota")}<span><b>Kendi rotanı oluştur</b><small>Durakları seç, konumuna göre sırala</small></span>${ic("fwd")}</a></div></div>
 <a href="${yol.ulasim}"${cur(s, "ulasim")}>Ulaşım</a><a href="${yol.ucret}"${cur(s, "ucret")}>Ücretler ve Saatler</a><a href="${yol.adab}"${cur(s, "adab")}>Ziyaret Âdâbı</a></nav>
 <button class="ara-ac" type="button" aria-haspopup="dialog" aria-controls="ara" title="Sitede ara (kısayol: /)">${ic("ara")}<span>Ara</span></button>
-<a class="giris" href="${yol.hesap}">${ic("user")}<span data-hesap-ad="Giriş yap">Giriş yap</span></a>
+<div class="kisi"><button class="giris" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="kisi-menu" title="Hesabım ve ayarlar"><span class="kisi-yuz" data-kisi-yuz>${ic("user")}</span><span class="gizli" data-hesap-ad="Giriş yap">Giriş yap</span></button>
+<div class="kisi-menu" id="kisi-menu" hidden><div class="kisi-bas"><span class="kisi-yuz buyuk" data-kisi-yuz>${ic("user")}</span><span><b data-kisi-ad>Giriş yapmadın</b><small data-kisi-alt>Rotalarını hesabında saklamak için giriş yap</small></span></div>
+<a href="${yol.hesap}#profil" data-kisi-giris>${ic("user")}<span>Giriş yap ya da üye ol</span></a><a href="${yol.hesap}#profil" data-kisi-profil hidden>${ic("user")}<span>Profil</span></a>
+<a href="${yol.hesap}#ayarlar">${ic("ayar")}<span>Ayarlar</span></a><a href="${yol.rotalarim}">${ic("mark")}<span>Rotalarım</span></a>
+<button type="button" data-kisi-cikis hidden>${ic("cikis")}<span>Çıkış yap</span></button></div></div>
 <button class="menu-btn" type="button" aria-label="Menü" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
 </div></header>
 <div class="menu" id="menu" inert><div class="menu-zemin"></div><nav class="menu-ic" aria-label="Menü">
@@ -265,7 +278,7 @@ function sayfa({ dosya, s, id, baslik, ozet, govde, sinif = "", veri, harita, yo
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 ${FONT}
-<script>${onBetik}${HTTPS}(function(){var d=document.documentElement;d.className="js";d.style.setProperty("--zt",-(Date.now()%3600000)/1000+"s");try{if(localStorage.getItem("zr.yan")==="0")d.className+=" yan-kapali";if(localStorage.getItem("zr.katman.2")==="sokak")d.className+=" h-sokak";if(localStorage.getItem("zr.oturum.v1")){var g=JSON.parse(localStorage.getItem("zr.gorunum.v1")||"{}");for(var k in g)if(/^(rozet|desen|cizgi|stil|isaret|hareket)$/.test(k)&&/^[a-z]{2,12}$/.test(g[k]))d.setAttribute("data-"+k,g[k])}}catch(e){}try{if(!sessionStorage.getItem("zr.ilk")){d.className+=" ilk";sessionStorage.setItem("zr.ilk","1")}}catch(e){}setTimeout(function(){if(!window.ZR_HAZIR)d.classList.remove("js")},3500)})();</script>
+<script>${onBetik}${HTTPS}(function(){var d=document.documentElement;d.className="js";d.style.setProperty("--zt",-(Date.now()%3600000)/1000+"s");try{if(localStorage.getItem("zr.yan")==="0")d.className+=" yan-kapali";if(localStorage.getItem("zr.katman.2")==="sokak")d.className+=" h-sokak";var y=localStorage.getItem("zr.yazi"),o=localStorage.getItem("zr.kontrast");if(y==="buyuk"||y==="cokbuyuk")d.setAttribute("data-yazi",y);if(o==="yuksek")d.setAttribute("data-kontrast",o);if(localStorage.getItem("zr.oturum.v1")){var g=JSON.parse(localStorage.getItem("zr.gorunum.v1")||"{}");for(var k in g)if(/^(rozet|desen|cizgi|stil|isaret|hareket)$/.test(k)&&/^[a-z]{2,12}$/.test(g[k]))d.setAttribute("data-"+k,g[k])}}catch(e){}try{if(!sessionStorage.getItem("zr.ilk")){d.className+=" ilk";sessionStorage.setItem("zr.ilk","1")}}catch(e){}setTimeout(function(){if(!window.ZR_HAZIR)d.classList.remove("js")},3500)})();</script>
 <title>${tamBaslik}</title>
 <meta name="description" content="${esc(ozet)}">
 ${kapali ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${adres}">
@@ -467,10 +480,51 @@ ${A.gruplar.map((gr, gi) => { const bas = say; say += gr.maddeler.length; return
 }
 
 /* ——— Hesabım ve Rotalarım (içerik tarayıcıda, cihazdaki kayıtlardan çizilir) ——— */
-const hesapSayfa = () => sayfa({ gizli: true, dosya: "hesabim/index.html", s: "hesap", id: "hesabim", baslik: "Hesabım", ozet: "Giriş yap, kaydettiğin rotaları gör.",
-  govde: `<div class="kap"><header class="sayfa-bas dar"><span class="goz">Hesap</span><h1>Hesabım</h1><p class="ozet">Giriş yap; kaydettiğin rotalar burada seni beklesin.</p></header>
-<section class="bolum" style="padding-top:clamp(18px,2.6vw,28px)"><div id="hesap" class="dar"><noscript><p class="kart">Hesap sayfası için tarayıcında JavaScript açık olmalı.</p></noscript></div>
-<div id="hesap-rotalar" class="orta" style="margin-top:clamp(22px,3vw,34px)" hidden><div class="bolum-bas"><span class="kicker">Kayıtlı</span><h2>Rotalarım</h2></div><div id="kayitlar"></div></div></section></div>` });
+/* Ayar kategorileri: ana sayfadaki "Ne görmek istersin?" kutuları gibi. Her kutu aşağıdaki bölüme götürür.
+   "giris" işaretli bölümler yalnızca giriş yapınca görünür (site.js açar). */
+const AYAR_KAT = [
+  ["profil", "Profil", "user", "Adın, hesabın ve kayıtlı rotaların"],
+  ["gorunum-b", "Görünüm", "palet", "Rozet rengi, desen, rota çizgisi"],
+  ["harita-ayar", "Harita ve yol tarifi", "harita", "Katman, harita yönü, sesli tarif"],
+  ["okuma", "Okuma ve erişilebilirlik", "yazi", "Yazı boyutu ve kontrast"],
+  ["veriler", "Verilerin", "veri", "Rotaları indir, geri yükle, temizle"],
+  ["guvenlik", "Hesap ve güvenlik", "kalkan", "Şifre ve hesabı silme", "giris"],
+];
+/* Bu cihazın ayarları (giriş gerekmez). [localStorage anahtarı, ad, açıklama, seçenekler]; ilk seçenek varsayılandır ve seçilince anahtar silinir.
+   Harita uygulaması (kaynak/app.js) bu anahtarları açılışta okur: zr.katman.2, zr.navkatman, zr.navyon, zr.ses, zr.yol.izin. */
+const AYAR = {
+  harita: [
+    ["zr.katman.2", "Harita açılınca", "Haritanın ilk hangi görünümle açılacağı.", [["uydu", "Uydu"], ["sokak", "Sokak haritası"]]],
+    ["zr.navkatman", "Yol tarifinde harita", "“Rotayı başlat” dediğinde adım adım tarifte kullanılan harita.", [["sokak", "Sokak haritası"], ["uydu", "Uydu"]]],
+    ["zr.navyon", "Harita yönü", "Yol tarifinde harita gittiğin yöne göre mi dönsün, kuzey hep yukarıda mı kalsın?", [["yon", "Gittiğim yön yukarı"], ["kuzey", "Kuzey yukarı"]]],
+    ["zr.ses", "Sesli yönlendirme", "Rotayı başlattığında dönüşleri telefonun sesiyle söyler.", [["acik", "Açık"], ["kapali", "Kapalı"]]],
+    ["zr.yol.izin", "Yürüyüş yolu konumumdan başlasın", "Bunun için başlangıç noktanın konumu yol tarifi sunucusuna gider; biz saklamayız. “Hayır” dersen yol yalnızca duraklar arasında çizilir.", [["", "Her seferinde sor"], ["evet", "Evet"], ["hayir", "Hayır"]]],
+  ],
+  okuma: [
+    ["zr.yazi", "Yazı boyutu", "Sitedeki yazıların hepsini büyütür. Telefonda da geçerlidir.", [["", "Normal"], ["buyuk", "Büyük"], ["cokbuyuk", "Çok büyük"]]],
+    ["zr.kontrast", "Kontrast", "Soluk yazıları ve ince çizgileri koyulaştırır; güneş altında okumayı kolaylaştırır.", [["", "Normal"], ["yuksek", "Yüksek"]]],
+  ],
+};
+const ayarSatir = (a) => { const id = "a-" + a[0].replace(/\W/g, "-"); return `<div class="ayar-satir"><div class="ayar-y"><b id="${id}">${a[1]}</b><small>${a[2]}</small></div><div class="ayar-sec" role="group" aria-labelledby="${id}">${a[3].map((o, i) => `<button type="button" data-ayar="${a[0]}" data-v="${o[0]}" aria-pressed="${i === 0}">${o[1]}</button>`).join("")}</div></div>`; };
+const ayarBas = (id, kicker, h2, p, gizli) => `<section class="ayar-bolum" id="${id}"${gizli ? " hidden" : ""}><div class="bolum-bas"><span class="kicker">${kicker}</span><h2>${h2}</h2>${p ? `<p>${p}</p>` : ""}</div>`;
+const hesapSayfa = () => sayfa({ gizli: true, dosya: "hesabim/index.html", s: "hesap", id: "hesabim", baslik: "Hesabım", ozet: "Profilin, görünüm ve harita ayarların, kayıtlı verilerin.",
+  yan: { ad: "Bu sayfada", simge: "ayar", ogeler: AYAR_KAT.map((k) => ["#" + k[0], k[1], k[3]]) },
+  govde: `<div class="kap"><header class="sayfa-bas orta"><span class="goz">Hesap ve ayarlar</span><h1>Hesabım</h1><p class="ozet">Profilin, ayarların ve kayıtlı verilerin bir arada.</p></header>
+<div id="hesap-kok" class="orta">
+<section class="ayar-bolum ilk" id="profil"><div id="hesap"><noscript><p class="kart">Hesap sayfası için tarayıcında JavaScript açık olmalı.</p></noscript></div></section>
+<section class="ayar-bolum" id="ayarlar"><div class="bolum-bas"><span class="kicker">Ayarlar</span><h2>Ne ayarlamak istersin?</h2></div>
+<nav class="ayar-kat" aria-label="Ayar kategorileri">${AYAR_KAT.map((k, i) => `<a href="#${k[0]}" style="--i:${i}"${k[4] ? ' data-giris-gerek hidden' : ""}><span class="ayar-sim">${ic(k[2])}</span><span>${k[1]}<small>${k[3]}</small></span></a>`).join("")}</nav></section>
+${ayarBas("gorunum-b", "Ayarlar", "Görünüm", "Sitenin ve haritanın görünümü. Seçimin hesabına bağlıdır.")}<div id="gorunum-yer"></div></section>
+${ayarBas("harita-ayar", "Ayarlar", "Harita ve yol tarifi", "Rota haritası ve “Rotayı başlat” ile açılan adım adım tarif için. Bu cihazda saklanır, giriş gerekmez.")}<div class="kart ayar-liste">${AYAR.harita.map(ayarSatir).join("")}</div></section>
+${ayarBas("okuma", "Ayarlar", "Okuma ve erişilebilirlik", "Seçimin anında uygulanır ve bu cihazdaki bütün sayfalarda geçerli olur.")}<div class="kart ayar-liste">${AYAR.okuma.map(ayarSatir).join("")}</div></section>
+${ayarBas("veriler", "Ayarlar", "Verilerin", "")}<div class="kart ayar-liste">
+<div class="ayar-satir"><div class="ayar-y"><b>Kayıtlı rotalarını indir</b><small data-veri-sayi>Rotalarını bir dosya (JSON) olarak cihazına kaydeder; başka bir telefona ya da bilgisayara taşımak için kullanabilirsin.</small></div><div class="ayar-is"><button class="btn kucuk" type="button" data-veri="indir">${ic("indir")}Dosyayı indir</button></div></div>
+<div class="ayar-satir"><div class="ayar-y"><b>Dosyadan geri yükle</b><small>Daha önce indirdiğin dosyadaki rotaları ekler. Var olan rotaların silinmez, aynı rota iki kez eklenmez.</small></div><div class="ayar-is"><label class="btn kucuk dosya">${ic("yukle")}Dosya seç<input type="file" accept="application/json,.json" data-veri="yukle"></label></div></div>
+<div class="ayar-satir"><div class="ayar-y"><b>Yürüyüş yolu önbelleği</b><small data-veri-onbellek>Daha önce çizilen yürüyüş yolları 30 gün saklanır; rota sayfaları böylece daha hızlı açılır.</small></div><div class="ayar-is"><button class="btn kucuk" type="button" data-veri="onbellek">Temizle</button></div></div>
+<div class="ayar-satir"><div class="ayar-y"><b>Bu cihazdaki ayarları sıfırla</b><small>Harita, yol tarifi ve okuma ayarlarını ilk hâline döndürür. Hesabın ve rotaların silinmez.</small></div><div class="ayar-is"><button class="btn kucuk" type="button" data-veri="sifirla">Sıfırla</button></div></div>
+<p class="ayar-not">Bu sayfadaki ayarlar ve rotaların yalnızca bu cihazda saklanır. Ayrıntısı <a href="${yol.gizlilik}">Gizlilik</a> sayfasında.</p></div></section>
+${ayarBas("guvenlik", "Hesap", "Hesap ve güvenlik", "", true)}<div id="guvenlik-yer"></div></section>
+</div></div>` });
 const rotalarimSayfa = () => sayfa({ gizli: true, dosya: "rotalarim/index.html", s: "rotalarim", id: "rotalarim", baslik: "Rotalarım", ozet: "Haritada kurup kaydettiğin ziyaret rotaları.",
   govde: `<div class="kap"><header class="sayfa-bas orta"><span class="goz">Kayıtlı rotalar</span><h1>Rotalarım</h1><p class="ozet">Haritada kurup kaydettiğin rotalar. Birine dokun, haritada kaldığın yerden aç.</p></header>
 <section class="bolum orta" style="padding-top:clamp(18px,2.6vw,28px)"><div id="misafir"></div><div id="kayitlar"><noscript><p class="kart">Bu sayfa için tarayıcında JavaScript açık olmalı.</p></noscript></div>
@@ -497,9 +551,10 @@ ${FB_ACIK ? "<li>E-postayla üye olursan e-posta adresin ve şifren Google’ın
 <ul class="yalin-liste">
 <li>Kaydettiğin rotalar ve yarım kalan rota taslağın.</li>
 <li>Bu cihazda açtığın hesap: kullanıcı adın ve şifrenin geri çevrilemeyen özeti. Şifrenin kendisi saklanmaz.</li>
-<li>Görünüm ayarların, harita katmanı seçimin ve sol menünün açık ya da kapalı olması.</li>
+<li>Görünüm ayarların, harita ve yol tarifi ayarların (katman, harita yönü, sesli yönlendirme), yazı boyutu ve kontrast seçimin, sol menünün açık ya da kapalı olması.</li>
+<li>Daha önce çizilen yürüyüş yolları (30 gün); rota sayfaları böylece daha hızlı açılır.</li>
 </ul>
-<p>Hepsini silmek için tarayıcının ayarlarında bu sitenin verilerini silmen yeterli.</p>`],
+<p>Hesabım sayfasındaki “Verilerin” bölümünden rotalarını bir dosyaya indirebilir, dosyadan geri yükleyebilir, yürüyüş yolu kayıtlarını ve ayarlarını silebilirsin. İndirilen dosya yalnızca senin cihazında oluşur, bize gelmez. Hepsini silmek için tarayıcının ayarlarında bu sitenin verilerini silmen de yeterli.</p>`],
     ["konum", "Konum", `<ul class="yalin-liste">
 <li>Konumun yalnızca “Konumumu kullan” gibi bir düğmeye bastığında ve tarayıcının sorusuna izin verdiğinde alınır.</li>
 <li>Ulaşım sayfasındaki öneri konumunu yalnızca tarayıcında hesaplar, hiçbir yere göndermez.</li>
@@ -516,7 +571,7 @@ ${FB_ACIK ? "<li><b>E-postayla üyelik:</b> e-posta adresin ve şifren Google’
 <li><b>WordPress.com ile giriş:</b> giriş WordPress.com’un kendi sayfasında yapılır. Bize yalnızca görünen adın ve kullanıcı adın gelir; e-posta adresin ve giriş anahtarı saklanmaz.</li>
 <li><b>Bu cihazda hesap:</b> kullanıcı adın ve şifrenin özeti yalnızca bu tarayıcıda durur (yukarıda).</li>
 </ul>
-<p>Hangi yolla girersen gir, kaydettiğin rotalar bu cihazda kalır; başka cihaza taşınmaz.</p>`],
+<p>Hangi yolla girersen gir, kaydettiğin rotalar bu cihazda kalır; kendiliğinden başka cihaza taşınmaz. İstersen Hesabım › Verilerin bölümünden dosya olarak taşıyabilirsin.</p>`],
   ] });
 
 const erisimSayfa = () => metinSayfa({ dosya: "erisilebilirlik/index.html", s: "erisim", simge: "erisim", baslik: "Erişilebilirlik", goz: "Erişilebilirlik beyanı",
@@ -527,6 +582,7 @@ const erisimSayfa = () => metinSayfa({ dosya: "erisilebilirlik/index.html", s: "
 <li>Menüler, düğmeler ve arama klavyeyle kullanılabilir. Odaklanan öğe kalın lacivert bir çerçeveyle belirir.</li>
 <li>Yazı ve zemin renkleri en az 4,5:1 kontrast oranını sağlayacak şekilde seçildi.</li>
 <li>Telefonda sayfalar tek sütuna iner, yazılar yakınlaştırılabilir.</li>
+<li>Hesabım › Okuma ve erişilebilirlik bölümünden yazıları büyütebilir (Büyük, Çok büyük) ve kontrastı yükseltebilirsin; seçim her sayfada geçerlidir, giriş gerekmez.</li>
 <li>Cihazında “hareketi azalt” ayarı açıksa kayan ve beliren animasyonlar durur.</li>
 <li>Haritadaki her durak, rota sayfalarında sırasıyla yazılı olarak da var.</li>
 <li>Arama Türkçe harfleri ve şapkaları eşit sayar: “eyup” yazınca “Eyüp” bulunur.</li>
