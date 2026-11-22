@@ -330,6 +330,8 @@ const ZR_IC = {"fwd":"<path d=\"M9.5 6l6 6-6 6\"/>","down":"<path d=\"M6 9.5l6 6
     bugunKapali(n);
     const { map } = haritaKur(host, "Haritayı kaydırmak için iki parmağını kullan ya da “Büyüt”e dokun", $('[data-h="uydu"]'), $("#h-kaynak"));
     const pts = DU.map((d) => [d.lat, d.lng]), sinir = L.latLngBounds(pts).pad(0.14);
+    // Rotada uzak ilçelerden (Sarıyer, Şile, Silivri…) durak varsa haritanın gezilebilen alanı onları da kapsar.
+    map.setMaxBounds(L.latLngBounds([[40.85, 28.6], [41.25, 29.35]]).extend(sinir.pad(0.2)));
     map.fitBounds(sinir);
     const cizgi = L.layerGroup().addTo(map);
     const isaret = DU.map((d) => {
@@ -781,7 +783,7 @@ ${mis ? `<div class="uyari-serit" style="margin:16px 0 0"><span>Giriş yapmadan 
     const temiz = (r) => {
       if (!r || typeof r !== "object" || typeof r.name !== "string" || !Array.isArray(r.keys) || !r.start) return null;
       const keys = r.keys.filter((k) => typeof k === "string" && /^[\w.-]{1,40}$/.test(k)).slice(0, 80), lat = +r.start.lat, lng = +r.start.lng;
-      if (!keys.length || !(lat > 40.7 && lat < 41.5 && lng > 28.3 && lng < 29.6)) return null;
+      if (!keys.length || !(lat > 40.7 && lat < 41.6 && lng > 27.9 && lng < 30)) return null;
       const o = { name: r.name.trim().slice(0, 80) || "Rotam", keys, start: { lat, lng, label: typeof r.start.label === "string" ? r.start.label.slice(0, 80) : "", acik: !!r.start.acik } };
       if (typeof r.km === "number" && isFinite(r.km) && r.km >= 0 && r.km < 500) o.km = r.km;
       if (typeof r.sokak === "boolean") o.sokak = r.sokak;

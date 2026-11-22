@@ -113,7 +113,7 @@ globalThis.ZR_YONETIM = {"depo":"yunuskecik782-lang/ziyaret-rehberim-harita","da
     });
     for (const d of M.durak) {
       if (!d.ad.trim()) h.push(`${M.rotalar[d.r].name}: adı boş bir durak var.`);
-      if (!(+d.lat > 40.7 && +d.lat < 41.4 && +d.lng > 28.3 && +d.lng < 29.6)) h.push(`${d.ad || "Adsız durak"}: konum İstanbul dışında görünüyor (${d.lat}, ${d.lng}).`);
+      if (!(+d.lat > 40.7 && +d.lat < 41.6 && +d.lng > 27.9 && +d.lng < 30)) h.push(`${d.ad || "Adsız durak"}: konum İstanbul dışında görünüyor (${d.lat}, ${d.lng}).`);
     }
     return h;
   }
@@ -209,8 +209,8 @@ globalThis.ZR_YONETIM = {"depo":"yunuskecik782-lang/ziyaret-rehberim-harita","da
   }
 
   /* ——— Panel ——— */
-  const S = { rota: 0, sec: null, form: null, ekle: false, uydu: true };
-  let map, katmanlar, isaretler = [];
+  const S = { rota: 0, sec: null, form: null, ekle: false, uydu: true, hv: null, hvSec: -1, hvF: { q: "", ilce: "Fatih", tur: "", gizle: false }, hvN: 150 };
+  let map, katmanlar, isaretler = [], hvKatman = null;
   const bildir = (t) => { const b = $("#bildirim"); if (!b) return; b.textContent = t; b.classList.add("acik"); clearTimeout(bildir.t); bildir.t = setTimeout(() => b.classList.remove("acik"), 3200); };
   async function panelAc() {
     kok.innerHTML = `<main class="giris"><div class="giris-kart"><b class="marka">Ziyaret <em>Rehberim</em><span>Yönetim</span></b><p class="ince" id="yuk">Bilgiler depodan okunuyor…</p></div></main>`;
@@ -219,7 +219,7 @@ globalThis.ZR_YONETIM = {"depo":"yunuskecik782-lang/ziyaret-rehberim-harita","da
 <a class="btn kucuk" href="/" target="_blank" rel="noopener">Siteyi aç</a><button class="btn kucuk" type="button" id="geri-al" hidden>Değişiklikleri geri al</button><button class="btn kucuk" type="button" id="cikis">Çıkış</button><button class="btn altin" type="button" id="yayin" disabled>Kaydet ve yayınla</button></header>
 ${D.ayri ? '<p class="uyari">Depodaki yayın dalı ile ana dal aynı değil. Yayınlama kapalı; önce bunun düzeltilmesi gerekir.</p>' : ""}
 <div class="govde"><aside class="yan"><div class="rotalar" id="rotalar" role="tablist" aria-label="Rota"></div>
-<div class="arac"><button class="btn kucuk koyu" type="button" id="ekle">+ Haritadan yeni durak</button><button class="btn kucuk" type="button" id="rbilgi">Rota bilgileri ve metinleri</button></div>
+<div class="arac"><button class="btn kucuk koyu" type="button" id="ekle">+ Haritadan yeni durak</button><button class="btn kucuk" type="button" id="havuz-ac">Yer havuzundan ekle</button><button class="btn kucuk" type="button" id="rbilgi">Rota bilgileri ve metinleri</button></div>
 <ol class="liste" id="liste"></ol></aside>
 <section class="orta"><div id="harita"></div><p class="ipucu" id="ipucu" hidden></p><button class="btn kucuk katman" type="button" id="katman">Sokak haritası</button><p class="kaynak" id="kaynak"></p></section>
 <aside class="form" id="form" hidden></aside></div>
@@ -269,10 +269,10 @@ ${D.ayri ? '<p class="uyari">Depodaki yayın dalı ile ana dal aynı değil. Yay
   }
   const ciz = () => { listeCiz(); isaretCiz(); durumCiz(); };
   const alan = (ad, etiket, deger, o = {}) => `<label class="${o.sinif || ""}">${etiket}${o.not ? ` <small>${o.not}</small>` : ""}${o.cok ? `<textarea data-alan="${ad}" rows="${o.cok}">${esc(deger)}</textarea>` : `<input data-alan="${ad}" value="${esc(deger)}"${o.tip ? ` type="${o.tip}" step="0.00001" inputmode="decimal"` : ""}>`}</label>`;
-  function formAc(tur) { S.form = tur; const f = $("#form"); f.hidden = !tur; $(".govde").classList.toggle("formlu", !!tur); if (tur === "durak") durakForm(); else if (tur === "rota") rotaForm(); setTimeout(() => map.invalidateSize(), 60); if (tur && matchMedia("(max-width: 860px)").matches) f.scrollIntoView({ block: "start" }); }
+  function formAc(tur) { S.form = tur; const f = $("#form"); f.hidden = !tur; $(".govde").classList.toggle("formlu", !!tur); if (tur !== "havuz") hvTemizle(); if (tur === "durak") durakForm(); else if (tur === "rota") rotaForm(); else if (tur === "havuz") havuzForm(); setTimeout(() => map.invalidateSize(), 60); if (tur && matchMedia("(max-width: 860px)").matches) f.scrollIntoView({ block: "start" }); }
   function durakForm() {
     const d = secili(); if (!d) return formAc(null);
-    $("#form").innerHTML = `<header><h2>Durak</h2><button class="btn kucuk" type="button" data-kapat>Kapat</button></header>
+    $("#form").innerHTML = `<header><h2>Durak</h2><span class="bosluk"></span>${S.hv ? '<button class="btn kucuk" type="button" data-hv-don>Yer havuzu</button>' : ""}<button class="btn kucuk" type="button" data-kapat>Kapat</button></header>
 ${alan("ad", "Ad", d.ad)}<div class="iki">${alan("hon", "Kısaltma", d.hon, { not: "r.a., k.s. gibi" })}${alan("tur", "Tür", d.tur, { not: "Kabir, Türbe, Makam…" })}</div>
 ${alan("yer", "Yer", d.yer, { not: "yapı, mahalle" })}${alan("acik", "Açıklama", d.acik, { cok: 5 })}${alan("saat", "Saat ve ücret", d.saat, { cok: 2 })}
 <label>Rota<select data-alan="r">${M.rotalar.map((r, i) => `<option value="${i}"${i === d.r ? " selected" : ""}>${esc(r.no)} · ${esc(r.name)}</option>`).join("")}</select></label>
@@ -295,6 +295,81 @@ ${alan("M.tip", "İpuçları", blok(m.tip), { cok: 4, not: "her ipucu ayrı para
   }
   function durakSec(k) { S.sec = k; S.ekle = false; ekleCiz(); ciz(); formAc("durak"); const d = secili(); if (d) map.panTo([d.lat, d.lng]); }
   const ekleCiz = () => { const i = $("#ipucu"); i.hidden = !S.ekle; i.textContent = S.ekle ? "Haritada yeni durağın yerine dokun. Vazgeçmek için düğmeye yeniden bas." : ""; $("#ekle").textContent = S.ekle ? "Vazgeç" : "+ Haritadan yeni durak"; $(".orta").classList.toggle("ekle", S.ekle); };
+  /* ——— Yer havuzu: /veri/havuz.json (OpenStreetMap verisinden derlenmiş gezilecek yerler). Seçilen yer, seçili rotaya yeni durak olarak eklenir. ——— */
+  const HV_TUR = { cami: "Cami", mescit: "Mescit", turbe: "Türbe", mezarlik: "Mezarlık", muze: "Müze", saray: "Saray", kilise: "Kilise", sinagog: "Sinagog", cemevi: "Cemevi", medrese: "Medrese", kutuphane: "Kütüphane", hamam: "Hamam", cesme: "Çeşme", sarnic: "Sarnıç", sukemeri: "Su kemeri", sur: "Sur ve kapı", kule: "Kule", carsi: "Çarşı", anit: "Anıt", park: "Park", seyir: "Seyir noktası", tarihi: "Tarihî yapı", gezi: "Gezi yeri" };
+  const hvTur = (k) => HV_TUR[k] || "Tarihî yapı";
+  const sade = (s) => kucuk(s).replace(/[çğıöşüâîû]/g, (c) => ({ ç: "c", ğ: "g", ı: "i", ö: "o", ş: "s", ü: "u", â: "a", î: "i", û: "u" }[c]));
+  const metre = (a, b, c, d) => { const x = (d - b) * Math.PI / 180 * Math.cos((a + c) / 2 * Math.PI / 180), y = (c - a) * Math.PI / 180; return Math.hypot(x, y) * 6371000; };
+  // Rotada zaten var sayılır: aynı noktada (15 m), yakında (80 m) ve adında ortak bir özel kelime var, ya da aynı adla 400 m içinde.
+  const HV_GENEL = new Set("cami camii camisi mescit mescidi turbe turbesi kabri sultan han hz hazreti hazretleri muze muzesi muzeleri kilise kilisesi cesme cesmesi hamam hamami saray sarayi kule kulesi kapi kapisi medrese medresesi kutuphane kutuphanesi valide pasa efendi aga baba dede bin abdullah ensari tarihi istanbul buyuk kucuk mehmed mehmet ahmed ahmet ali mustafa meydani parki".split(" "));
+  const hvKelime = (s) => sade(s).split(/[^a-z0-9]+/).filter((w) => w.length > 3 && !HV_GENEL.has(w));
+  const hvRotada = (p) => {
+    const pk = p.k || (p.k = hvKelime(p[0]));
+    return M.durak.find((d) => {
+      const m = metre(p[3], p[4], +d.lat, +d.lng);
+      return m < 15 || (m < 80 && hvKelime(d.ad).some((w) => pk.includes(w))) || (m < 400 && sade(d.ad) === sade(p[0]));
+    });
+  };
+  async function havuzYukle() {
+    if (S.hv) return S.hv;
+    const r = await fetch("/veri/havuz.json", { cache: "no-cache" }); if (!r.ok) throw new Error("havuz " + r.status);
+    const j = await r.json(); S.hv = { ...j, yerler: j.yerler.map((p, i) => Object.assign(p.slice(), { i, s: sade(`${p[0]} ${p[2]} ${hvTur(p[1])}`) })) }; return S.hv;
+  }
+  function hvSuz() {
+    const F = S.hvF, q = sade(F.q.trim());
+    return S.hv.yerler.filter((p) => (!F.ilce || p[2] === F.ilce) && (!F.tur || p[1] === F.tur) && (!q || p.s.includes(q)) && (!F.gizle || !hvRotada(p)));
+  }
+  async function havuzForm(sigsin = true) {
+    const f = $("#form");
+    f.innerHTML = `<header><h2>Yer havuzu</h2><button class="btn kucuk" type="button" data-kapat>Kapat</button></header><p class="ince" id="hv-yuk">Yerler yükleniyor…</p>`;
+    try { await havuzYukle(); } catch (e) { const y = $("#hv-yuk"); if (y) y.textContent = "Yer havuzu açılamadı. Sayfayı yenileyip yeniden dene."; return; }
+    if (S.form !== "havuz") return;
+    const say = (k) => { const m = new Map(); for (const p of S.hv.yerler) m.set(p[k], (m.get(p[k]) || 0) + 1); return m; };
+    const ilce = [...say(2)].sort((a, b) => (b[0] === "Fatih") - (a[0] === "Fatih") || a[0].localeCompare(b[0], "tr"));
+    const tur = [...say(1)].sort((a, b) => hvTur(a[0]).localeCompare(hvTur(b[0]), "tr"));
+    const r = M.rotalar[S.rota];
+    f.innerHTML = `<header><h2>Yer havuzu</h2><button class="btn kucuk" type="button" data-kapat>Kapat</button></header>
+<p class="ince">Bir yer seç, haritada yerini gör, <b>Ekle</b> ile <b>${esc(r.no)} · ${esc(r.name)}</b> rotasına yeni durak olarak ekle. Açıklamayı sonra yazarsın. Rotayı soldan değiştirebilirsin.</p>
+<label>Ara<input data-hvf="q" value="${esc(S.hvF.q)}" placeholder="ör. Süleymaniye, Eyüp, çeşme" autocomplete="off"></label>
+<div class="iki"><label>İlçe<select data-hvf="ilce"><option value="">Tüm İstanbul (${S.hv.yerler.length})</option>${ilce.map(([k, n]) => `<option value="${esc(k)}"${k === S.hvF.ilce ? " selected" : ""}>${esc(k)} (${n})</option>`).join("")}</select></label>
+<label>Tür<select data-hvf="tur"><option value="">Hepsi</option>${tur.map(([k, n]) => `<option value="${esc(k)}"${k === S.hvF.tur ? " selected" : ""}>${esc(hvTur(k))} (${n})</option>`).join("")}</select></label></div>
+<label class="tik"><input type="checkbox" data-hvf="gizle"${S.hvF.gizle ? " checked" : ""}> Rotalarda zaten olanları gizle</label>
+<p class="hv-say" id="hv-say"></p><ol class="hv-liste" id="hv-liste"></ol>
+<p class="ince hv-kaynak">Konumlar: © OpenStreetMap katkıda bulunanlar (ODbL)${S.hv.tarih ? `, ${esc(S.hv.tarih)}` : ""}. Fatih'te adı olan her yer, diğer ilçelerde Vikipedi'de maddesi olan yerler var. Eklemeden önce yerini haritada kontrol et.</p>`;
+    hvListe(sigsin);
+  }
+  function hvListe(sigsin) {
+    const l = $("#hv-liste"); if (!l || !S.hv) return;
+    const s = hvSuz(), g = s.slice(0, S.hvN);
+    $("#hv-say").textContent = s.length ? `${s.length} yer` : "";
+    l.innerHTML = g.map((p) => { const v = hvRotada(p); return `<li class="${p.i === S.hvSec ? "sec" : ""}" data-hvli="${p.i}"><button type="button" class="satir" data-hv="${p.i}"><span><b>${esc(p[0])}</b><small>${esc(hvTur(p[1]))} · ${esc(p[2])}${v ? ` · <em>${esc(M.rotalar[v.r].no)}. rotada var</em>` : ""}</small></span></button><button class="btn kucuk${v ? "" : " koyu"}" type="button" data-hv-ekle="${p.i}">Ekle</button></li>`; }).join("")
+      + (s.length > g.length ? `<li class="daha"><button class="btn kucuk genis" type="button" data-hv-daha>${s.length - g.length} yer daha göster</button></li>` : "")
+      || '<li class="bos">Bu süzgeçte yer yok.</li>';
+    hvHarita(s, sigsin);
+  }
+  function hvHarita(s, sigsin) {
+    hvTemizle(); if (!s.length) return;
+    const rend = L.canvas({ padding: 0.3 });
+    hvKatman = L.layerGroup(s.map((p) => {
+      const sec = p.i === S.hvSec;
+      return L.circleMarker([p[3], p[4]], { renderer: rend, radius: sec ? 9 : 5, weight: sec ? 3 : 1.5, color: "#fff", fillColor: sec ? "#F2B62B" : "#C2410C", fillOpacity: .95 })
+        .bindTooltip(esc(p[0]), { direction: "top", offset: [0, -6] }).on("click", () => hvSec(p.i, false));
+    })).addTo(map);
+    if (sigsin && s.length) map.fitBounds(L.latLngBounds(s.map((p) => [p[3], p[4]])).pad(0.08), { maxZoom: 16 });
+  }
+  function hvTemizle() { if (hvKatman) { hvKatman.remove(); hvKatman = null; } }
+  function hvSec(i, git) {
+    S.hvSec = i; const p = S.hv.yerler[i];
+    if (!hvSuz().slice(0, S.hvN).some((x) => x.i === i)) { S.hvN = Math.max(S.hvN, hvSuz().findIndex((x) => x.i === i) + 1); }
+    hvListe(false);
+    const li = $(`[data-hvli="${i}"]`); if (li && !git) li.scrollIntoView({ block: "nearest" });
+    if (git) map.setView([p[3], p[4]], Math.max(map.getZoom(), 17));
+  }
+  function hvEkle(i) {
+    const p = S.hv.yerler[i], r = M.rotalar[S.rota]; let k; do { k = r.id + "-y" + Math.random().toString(36).slice(2, 7); } while (M.durak.some((d) => d.k === k));
+    M.durak.push({ k, r: S.rota, ad: p[0], hon: "", tur: hvTur(p[1]), yer: p[2], acik: "", saat: "", yak: false, lat: +(+p[3]).toFixed(5), lng: +(+p[4]).toFixed(5) });
+    durakSec(k); bildir(`${p[0]}, ${r.no}. rotaya eklendi. Açıklamasını yazıp yayınla.`);
+  }
   function durakEkle(lat, lng) {
     const r = M.rotalar[S.rota]; let k; do { k = r.id + "-y" + Math.random().toString(36).slice(2, 7); } while (M.durak.some((d) => d.k === k));
     M.durak.push({ k, r: S.rota, ad: "Yeni durak", hon: "", tur: "", yer: "", acik: "", saat: "", yak: false, lat: +lat.toFixed(5), lng: +lng.toFixed(5) });
@@ -306,16 +381,18 @@ ${alan("M.tip", "İpuçları", blok(m.tip), { cok: 4, not: "her ipucu ayrı para
     const a = M.durak.indexOf(d[i]), b = M.durak.indexOf(d[j]); [M.durak[a], M.durak[b]] = [M.durak[b], M.durak[a]]; ciz();
   }
   function olaylar() {
-    $("#rotalar").addEventListener("click", (e) => { const b = e.target.closest("[data-rota]"); if (!b) return; S.rota = +b.dataset.rota; S.sec = null; if (S.form === "rota") rotaForm(); else formAc(null); ciz(); sigdir(); });
+    $("#rotalar").addEventListener("click", (e) => { const b = e.target.closest("[data-rota]"); if (!b) return; S.rota = +b.dataset.rota; S.sec = null; if (S.form === "havuz") { ciz(); havuzForm(false); return; } if (S.form === "rota") rotaForm(); else formAc(null); ciz(); sigdir(); });
     $("#liste").addEventListener("click", (e) => { const t = e.target.closest("button"); if (!t) return; if (t.dataset.sec) durakSec(t.dataset.sec); else if (t.dataset.yukari) tasi(t.dataset.yukari, -1); else if (t.dataset.asagi) tasi(t.dataset.asagi, 1); });
     $("#ekle").addEventListener("click", () => { S.ekle = !S.ekle; ekleCiz(); });
     $("#rbilgi").addEventListener("click", () => { S.sec = null; ciz(); formAc("rota"); });
+    $("#havuz-ac").addEventListener("click", () => { S.sec = null; S.ekle = false; ekleCiz(); ciz(); formAc("havuz"); });
     $("#katman").addEventListener("click", () => { S.uydu = !S.uydu; katmanAyarla(); });
     $("#cikis").addEventListener("click", () => { if (degisti() && !$("#cikis").dataset.emin) { $("#cikis").dataset.emin = "1"; $("#cikis").textContent = "Kaydedilmedi. Yine de çık"; return; } JETON = null; girisCiz(); });
     $("#geri-al").addEventListener("click", (e) => { const b = e.currentTarget; if (!b.dataset.emin) { b.dataset.emin = "1"; b.textContent = "Emin misin? Hepsi geri alınır"; return; } delete b.dataset.emin; b.textContent = "Değişiklikleri geri al"; const v = JSON.parse(ILK); M.rotalar = v.rotalar; M.durak = v.durak; M.metin = v.metin; S.sec = null; formAc(null); ciz(); sigdir(); });
     $("#yayin").addEventListener("click", yayinSor);
     const f = $("#form");
     f.addEventListener("input", (e) => {
+      const hf = e.target.dataset.hvf; if (hf) { S.hvF[hf] = e.target.type === "checkbox" ? e.target.checked : e.target.value; S.hvN = 150; S.hvSec = -1; hvListe(); return; }
       const a = e.target.dataset.alan; if (!a) return; const v = e.target.type === "checkbox" ? e.target.checked : e.target.value;
       if (S.form === "durak") {
         const d = secili(); if (!d) return;
@@ -332,6 +409,10 @@ ${alan("M.tip", "İpuçları", blok(m.tip), { cok: 4, not: "her ipucu ayrı para
     });
     f.addEventListener("click", (e) => {
       if (e.target.closest("[data-kapat]")) { S.sec = null; formAc(null); ciz(); return; }
+      if (e.target.closest("[data-hv-don]")) { S.sec = null; ciz(); formAc("havuz"); return; }
+      const he = e.target.closest("[data-hv-ekle]"); if (he) { hvEkle(+he.dataset.hvEkle); return; }
+      const hs = e.target.closest("[data-hv]"); if (hs) { hvSec(+hs.dataset.hv, true); return; }
+      if (e.target.closest("[data-hv-daha]")) { S.hvN += 150; hvListe(); return; }
       const s = e.target.closest("[data-sil]"); if (!s) return;
       if (!s.dataset.emin) { s.dataset.emin = "1"; s.textContent = "Emin misin? Silmek için yeniden dokun"; return; }
       const d = secili(); if (d) { M.durak.splice(M.durak.indexOf(d), 1); S.sec = null; formAc(null); ciz(); bildir("Durak silindi. Yayınlayana kadar sitede durur."); }

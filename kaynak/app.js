@@ -68,6 +68,9 @@
     return { id: i, key: a[11] || r.id + "-" + a[1], r, n: a[1], name: a[2], hon: a[3], tag: a[4], addr: a[5], desc: a[6], hours: a[7], approx: !!a[8], lat: a[9], lng: a[10], x, y, fx: 0, fy: 0 };
   });
   const BYKEY = new Map(STOPS.map((s) => [s.key, s]));
+  // Haritanın gezilebilen alanı: merkez İstanbul, ayrıca yönetim panelinden uzak ilçelere (Sarıyer, Şile, Silivri…) eklenen duraklar da içeride kalır.
+  const ALAN = STOPS.reduce((a, s) => [Math.min(a[0], s.lat - 0.02), Math.min(a[1], s.lng - 0.03), Math.max(a[2], s.lat + 0.02), Math.max(a[3], s.lng + 0.03)], [40.88, 28.74, 41.2, 29.22]);
+  const alanIc = (la, lo) => la >= ALAN[0] && la <= ALAN[2] && lo >= ALAN[1] && lo <= ALAN[3];
   const CONCEPT = new Map(D.CONCEPTS.map((c) => [c.id, c]));
   /* Harita işaretleri. Kategoriler yalnızca renkle değil biçimle de ayrılır: kabir ve türbeler ile camiler konum işareti (iğne),
      gezi durakları ve surlar yuvarlak. Sahâbe kabirlerinin ucunda yavaş bir halka atar.
@@ -323,7 +326,7 @@
   function initReal() {
     const host = document.createElement("div");
     host.id = "lmap"; mapEl.prepend(host); cv.hidden = true; mkEl.hidden = true; mapEl.classList.add("real");
-    map = L.map(host, { zoomControl: false, attributionControl: false, minZoom: 11, maxZoom: 19, zoomSnap: 0.5, wheelPxPerZoomLevel: 90, maxBounds: [[40.88, 28.74], [41.2, 29.22]], maxBoundsViscosity: 0.6 });
+    map = L.map(host, { zoomControl: false, attributionControl: false, minZoom: 11, maxZoom: 19, zoomSnap: 0.5, wheelPxPerZoomLevel: 90, maxBounds: [[ALAN[0], ALAN[1]], [ALAN[2], ALAN[3]]], maxBoundsViscosity: 0.6 });
     // Sokak haritası: bir web adresinden açıldığında OpenStreetMap'in kendi karoları (sunucu, isteğin hangi siteden geldiğini görmek ister).
     // Bilgisayardan dosya olarak açıldığında tarayıcı bu bilgiyi gönderemez ve OpenStreetMap "Access blocked" döndürür;
     // o durumda anahtar da site bilgisi de istemeyen Esri sokak haritası kullanılır. (CARTO karoları artık API anahtarı istiyor.)
@@ -795,7 +798,7 @@
     const ok = (pos) => {
       end();
       const la = pos.coords.latitude, lo = pos.coords.longitude;
-      const inside = REAL ? la >= 40.88 && la <= 41.2 && lo >= 28.74 && lo <= 29.22 : la >= 40.93 && la <= 41.12 && lo >= 28.84 && lo <= 29.12;
+      const inside = REAL ? alanIc(la, lo) : la >= 40.93 && la <= 41.12 && lo >= 28.84 && lo <= 29.12;
       if (!inside) {
         const q = proj(la, lo), km = Math.max(1, Math.round(Math.hypot(q[0], q[1]) / 1000));
         return konumUyar("disarida", auto, ["Harita alanının dışındasın", `Konumun bulundu ama İstanbul’daki duraklara yaklaşık ${km} km uzakta. Başlangıç için haritadan ya da hazır noktalardan bir yer seç.`]);
@@ -842,7 +845,7 @@
      en yakın duraklar ve rota yalnızca 100 metreden fazla yürüyünce (en sık dakikada bir) yeni yere göre yeniden sıralanır.
      Sayfa arka plandayken izleme durur (pil için), geri gelince sürer. */
   const CK = { aktif: false, watch: null, pos: null, follow: false, halo: null, anim: 0, goster: null, sonMe: 0, pusula: null, pusulaT: 0, pusulaAcik: false, yon: null };
-  const canliIc = (la, lo) => (REAL ? la >= 40.88 && la <= 41.2 && lo >= 28.74 && lo <= 29.22 : false);
+  const canliIc = (la, lo) => (REAL ? alanIc(la, lo) : false);
   // İşaretçiyi eski yerinden yenisine kaydırır (Google Haritalar'daki gibi zıplamadan).
   function kaydir(mk, hedef, ms, ek) {
     const bas = mk.getLatLng(), t0 = performance.now();
